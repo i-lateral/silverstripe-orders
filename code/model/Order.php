@@ -30,7 +30,8 @@ class Order extends DataObject implements PermissionProvider {
 
     private static $db = array(
         'OrderNumber'       => 'Varchar',
-        'Status'            => "Enum('incomplete,failed,cancelled,paid,pending,processing,dispatched','incomplete')",
+        'Status'            => "Enum('incomplete,failed,cancelled,pending,paid,processing,dispatched,refunded','incomplete')",
+        
         // Billing Details
         'Company'           => 'Varchar',
         'FirstName'         => 'Varchar',
@@ -42,6 +43,7 @@ class Order extends DataObject implements PermissionProvider {
         'Country'           => 'Varchar',
         'Email'             => 'Varchar',
         'PhoneNumber'       => 'Varchar',
+        
         // Delivery Details
         'DeliveryFirstnames'=> 'Varchar',
         'DeliverySurname'   => 'Varchar',
@@ -50,13 +52,16 @@ class Order extends DataObject implements PermissionProvider {
         'DeliveryCity'      => 'Varchar',
         'DeliveryPostCode'  => 'Varchar',
         'DeliveryCountry'   => 'Varchar',
+        
         // Discount provided
         "DiscountAmount"    => "Currency",
+        
         // Postage and Email notification
         'PostageType'       => 'Varchar',
         'PostageCost'       => 'Currency',
         'PostageTax'        => 'Currency',
         'EmailDispatchSent' => 'Boolean',
+        
         // Payment Gateway Info
         'GatewayData'       => 'Text',
         'PaymentTitle'       => 'Varchar(99)',
