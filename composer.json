@@ -27,6 +27,6 @@
         "i-lateral/silverstripe-users": "Add user account management, login and registration"
     },
     "extra": {
-        "installer-name": "shoppingcart"
+        "installer-name": "checkout"
     }
 }
