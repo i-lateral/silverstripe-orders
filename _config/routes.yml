@@ -1,0 +1,9 @@
+---
+Name: checkoutroutes
+After: framework/routes#rootroutes
+---
+Director:
+  rules:
+    'checkout/cart//$Action/$ID/$Quantity': 'ShoppingCart'
+    'checkout/checkout//$Action/$ID/$OtherID': 'Checkout_Controller'
+    'checkout/payment//$Action/$ID': 'Payment_Controller'

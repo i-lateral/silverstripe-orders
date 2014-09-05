@@ -1,0 +1,32 @@
+{
+  "name": "i-lateral/silverstripe-checkout",
+  "description": "Silverstripe module that add's a checkout and shopping cart interface as well as some possible payment options to a site",
+    "type": "silverstripe-module",
+    "homepage": "http://github.com/i-lateral/silverstripe-checkout",
+    "keywords": ["silverstripe", "commerce", "ecommerce", "checkout", "shopping", "cart"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Morven Lewis-Everley",
+            "email": "morven@i-lateral.com"
+        }
+    ],
+    "support": {
+        "issues": "http://github.com/i-lateral/silverstripe-checkout/issues"
+    },
+    "require": {
+        "silverstripe/framework": ">=3.1",
+        "ajshort/silverstripe-gridfieldextensions": "dev-master",
+        "colymba/gridfield-bulk-editing-tools": "dev-master",
+        "bummzack/sortablefile": "dev-master"
+    },
+    "suggest": {
+        "silverstripe/cms": "Add full content management support to your site",
+        "i-lateral/silverstripe-siteconfig": "Add site settings support",
+        "i-lateral/silverstripe-middleman": "Add CMS vars, such as menu, searchform, etc to your site",
+        "i-lateral/silverstripe-users": "Add user account management, login and registration"
+    },
+    "extra": {
+        "installer-name": "shoppingcart"
+    }
+}

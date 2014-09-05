@@ -1,0 +1,16 @@
+---
+Name: checkoutextensions
+---
+## YML Config
+Controller:
+  extensions:
+    - CheckoutController
+SiteConfig:
+  extensions:
+    - CheckoutSiteConfig
+Member:
+  extensions:
+    - CheckoutMember
+Group:
+  extensions:
+    - CheckoutGroup
