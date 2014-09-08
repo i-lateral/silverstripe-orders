@@ -7,7 +7,7 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package checkout
  */
-class CheckoutController extends Extension {
+class CheckoutControllerExtension extends Extension {
     
     /**
      * Get the current shoppingcart

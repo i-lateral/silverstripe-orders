@@ -1,6 +1,12 @@
 <?php
 
-class CheckoutMember extends DataExtension {
+/**
+ * Overwrite default member object
+ * 
+ * @author i-lateral (http://www.i-lateral.com)
+ * @package checkout
+ */
+class CheckoutMemberExtension extends DataExtension {
     private static $db = array(
         "PhoneNumber"   => "Varchar",
         "Company"       => "Varchar(99)"

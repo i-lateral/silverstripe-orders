@@ -4,13 +4,13 @@ Name: checkoutconfig
 ## YML Config
 Controller:
   extensions:
-    - CheckoutController
+    - CheckoutControllerExtension
 SiteConfig:
   extensions:
-    - CheckoutSiteConfig
+    - CheckoutSiteConfigExtension
 Member:
   extensions:
-    - CheckoutMember
+    - CheckoutMemberExtension
 Group:
   extensions:
-    - CheckoutGroup
+    - CheckoutGroupExtension

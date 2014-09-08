@@ -2,10 +2,10 @@
 /**
  * Extension to add extra settings into siteconfig
  *
- * @package checkout
  * @author i-lateral (http://www.i-lateral.com)
+ * @package checkout
  */
-class CheckoutSiteConfig extends DataExtension {
+class CheckoutSiteConfigExtension extends DataExtension {
     private static $db = array(
         'PaymentSuccessContent' => 'Text',
         'PaymentFailerContent'  => 'Text',
