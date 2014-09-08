@@ -56,16 +56,15 @@ class Order extends DataObject implements PermissionProvider {
         // Discount provided
         "DiscountAmount"    => "Currency",
         
-        // Postage and Email notification
+        // Tax
+        "TaxRate"           => "Varchar",
+        
+        // Postage
         'PostageType'       => 'Varchar',
         'PostageCost'       => 'Currency',
-        'PostageTax'        => 'Currency',
-        'EmailDispatchSent' => 'Boolean',
         
         // Payment Gateway Info
-        'GatewayData'       => 'Text',
-        'PaymentTitle'       => 'Varchar(99)',
-        'PaymentID'         => 'Varchar(99)'
+        'GatewayData'       => 'Text'
     );
 
     private static $has_one = array(
@@ -213,7 +212,7 @@ class Order extends DataObject implements PermissionProvider {
         $fields->addFieldToTab(
             "Root.Items",
             ReadonlyField::create("SubTotal")
-                ->setValue($this->getSubTotal())
+                ->setValue($this->getSubTotal()->Nice())
         );
 
         $fields->addFieldToTab(
@@ -225,13 +224,13 @@ class Order extends DataObject implements PermissionProvider {
         $fields->addFieldToTab(
             "Root.Items",
             ReadonlyField::create("Tax")
-                ->setValue($this->getTaxTotal())
+                ->setValue($this->getTaxTotal()->nice())
         );
 
         $fields->addFieldToTab(
             "Root.Items",
             ReadonlyField::create("Total")
-                ->setValue($this->getTotal())
+                ->setValue($this->getTotal()->nice())
         );
 
         $member = Member::currentUser();
@@ -331,13 +330,15 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function getSubTotal() {
         $total = 0;
+        $return = new Currency();
 
         // Calculate total from items in the list
         foreach($this->Items() as $item) {
-            $total += $item->getSubTotal();
+            $total += ($item->Price) ? $item->Price * $item->Quantity : 0;
         }
 
-        return $total;
+        $return->setValue($total);
+        return $return;
     }
 
     /**
@@ -346,17 +347,16 @@ class Order extends DataObject implements PermissionProvider {
      * @return Decimal
      */
     public function getTaxTotal() {
+        $return = new Currency();
         $total = 0;
-
-        // Calculate total from items in the list
-        foreach($this->Items() as $item) {
-            $total += $item->getTaxTotal();
+        
+        if($this->TaxRate > 0) {
+            $total = ($this->getSubTotal()->RAW() + $this->PostageCost) - $this->DiscountAmount;
+            $total = ($total > 0) ? ($total / 100) * $this->TaxRate : 0;
         }
 
-        // Add any tax from postage
-        $total += $this->PostageTax;
-
-        return $total;
+        $return->setValue($total);
+        return $return;
     }
 
     /**
@@ -365,7 +365,10 @@ class Order extends DataObject implements PermissionProvider {
      * @return Decimal
      */
     public function getPostage() {
-        return $this->PostageCost;
+        $return = new Currency();
+        
+        $return->setValue($this->PostageCost);
+        return $return;
     }
 
     /**
@@ -374,9 +377,11 @@ class Order extends DataObject implements PermissionProvider {
      * @return Decimal
      */
     public function getTotal() {
-        $sub = ($this->hasDiscount()) ? $this->SubTotal - $this->DiscountAmount : $this->SubTotal;
-
-        return number_format($sub + $this->Postage + $this->TaxTotal, 2);
+        $return = new Currency();
+        $total = (($this->getSubTotal()->RAW() + $this->PostageCost) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
+        
+        $return->setValue($total);
+        return $return;
     }
 
     /**
@@ -397,25 +402,28 @@ class Order extends DataObject implements PermissionProvider {
     public function getTranslatedStatus() {
         switch($this->Status) {
             case "incomplete":
-                $return = _t("CommerceStatus.Incomplete","Incomplete");
+                $return = _t("Orders.Incomplete","Incomplete");
                 break;
             case "failed":
-                $return = _t("CommerceStatus.Failed","Failed");
+                $return = _t("Orders.Failed","Failed");
                 break;
             case "canceled":
-                $return = _t("CommerceStatus.Cancelled","Cancelled");
-                break;
-            case "paid":
-                $return = _t("CommerceStatus.Paid","Paid");
+                $return = _t("Orders.Cancelled","Cancelled");
                 break;
             case "pending":
-                $return = _t("CommerceStatus.Pending","Pending");
+                $return = _t("Orders.Pending","Pending");
+                break;
+            case "paid":
+                $return = _t("Orders.Paid","Paid");
                 break;
             case "processing":
-                $return = _t("CommerceStatus.Processing","Processing");
+                $return = _t("Orders.Processing","Processing");
                 break;
             case "dispatched":
-                $return = _t("CommerceStatus.Dispatched","Dispatched");
+                $return = _t("Orders.Dispatched","Dispatched");
+                break;
+            case "refunded":
+                $return = _t("Orders.Refunded","Refunded");
                 break;
         }
 
@@ -462,57 +470,6 @@ class Order extends DataObject implements PermissionProvider {
         if(!$this->OrderNumber) {
             $this->OrderNumber = $this->generate_order_number();
             $this->write();
-        }
-
-        // Deal with sending the status email
-        if($this->isChanged('Status') && in_array($this->Status, array('failed','paid','processing','dispatched')) ) {
-            $siteconfig = SiteConfig::current_site_config();
-
-            $from =  $siteconfig->EmailFromAddress;
-
-            $vars = array(
-                'Order' => $this,
-                'SiteConfig' => $siteconfig
-            );
-
-            // Deal with customer email
-            if($siteconfig->sendCommerceEmail('Customer', $this->Status)) {
-                // if subsites installed, then get the native language for that site
-                $current_i18n = i18n::get_locale();
-                if($this->SubsiteID && class_exists('Subsite') && $this->Subsite())
-                    i18n::set_locale($this->Subsite()->Language);
-
-                $subject = _t('CommerceEmail.Order', 'Order') . " {$this->OrderNumber} {$this->getTranslatedStatus()}";
-
-                $body = $this->renderWith('OrderEmail_Customer', $vars);
-                $email = new Email($from,$this->Email,$subject,$body);
-                $email->sendPlain();
-
-                // If subsites enabled, set the language back
-                if($this->SubsiteID && class_exists('Subsite') && $this->Subsite())
-                    i18n::set_locale($current_i18n);
-            }
-
-            // Deal with vendor email
-            if($siteconfig->sendCommerceEmail('Vendor', $this->Status)) {
-                $subject = _t('CommerceEmail.Order', 'Order') . " {$this->OrderNumber} {$this->getTranslatedStatus()}";
-                switch($this->Status) {
-                    case 'paid':
-                        $email_to = $siteconfig->PaidEmailAddress;
-                    case 'processing':
-                        $email_to = $siteconfig->ProcessingEmailAddress;
-                    case 'dispatched':
-                        $email_to = $siteconfig->DispatchedEmailAddress;
-                }
-
-                if(isset($email_to)) {
-                    $body = $this->renderWith('OrderEmail_Vendor', $vars);
-                    $email = new Email($from,$email_to,$subject,$body);
-                    $email->sendPlain();
-                }
-            }
-
-
         }
     }
 

@@ -11,8 +11,7 @@ class OrderItem extends DataObject {
         "Type"          => "Varchar",
         "Customisation" => "Text",
         "Quantity"      => "Int",
-        "Price"         => "Currency",
-        "Tax"           => "Currency"
+        "Price"         => "Currency"
     );
 
     private static $has_one = array(
@@ -24,10 +23,8 @@ class OrderItem extends DataObject {
     );
 
     private static $casting = array(
-        "CustomisationHTML" => "HTMLText",
-        "SubTotal"      => "Currency",
-        "TaxTotal"      => "Currency",
-        "Total"         => "Currency"
+        "CustomisationList" => "ArrayList",
+        "CustomisationHTML" => "HTMLText"
     );
 
     private static $summary_fields = array(
@@ -35,9 +32,7 @@ class OrderItem extends DataObject {
         "SKU",
         "CustomisationHTML",
         "Quantity",
-        "Price",
-        "Tax",
-        "Total"
+        "Price"
     );
     
     /**
@@ -45,8 +40,8 @@ class OrderItem extends DataObject {
      *
      * @return ArrayList
      */
-    public function getCustomisation() {
-        return unserialize($this->Customisation);
+    public function getCustomisationList() {
+        return $this->Customisation ? unserialize($this->Customisation) : ArrayList::create();
     }
     
     /**
@@ -56,42 +51,16 @@ class OrderItem extends DataObject {
      */
     public function getCustomisationHTML() {
         $htmltext = HTMLText::create();
+        $items = $this->getCustomisationList();
         $return = "";
-
-        if($items = $this->getCustomisation()) {
+        
+        if($items->exists()) {
             foreach($items as $item) {
                 $return .= $item->Title . ': ' . $item->Value . ";<br/>";
             }
         }
 
         return $htmltext->setValue($return);
-    }
-
-    /**
-     * Get the total cost of this item based on the quantity, not including tax
-     *
-     * @return Decimal
-     */
-    public function getSubTotal() {
-        return $this->Quantity * $this->Price;
-    }
-
-    /**
-     * Get the total cost of tax for this item based on the quantity
-     *
-     * @return Decimal
-     */
-    public function getTaxTotal() {
-        return $this->Quantity * $this->Tax;
-    }
-
-    /**
-     * Get the total cost of this item based on the quantity
-     *
-     * @return Currency
-     */
-    public function getTotal() {
-        return $this->SubTotal + $this->TaxTotal;
     }
 
     /**
