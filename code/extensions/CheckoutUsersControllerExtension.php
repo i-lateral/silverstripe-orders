@@ -219,4 +219,20 @@ class CheckoutUserAccountControllerExtension extends Extension {
             "Link"  => $this->owner->Link("addresses")
         )));
     }
+    
+    /**
+     * Add fields used by this module to the profile editing form
+     *
+     */
+    public function updateEditAccountForm($form) {
+        $form->Fields()->insertBefore(TextField::create(
+            "Company",
+            _t('CommerceAccount.Company',"Company")
+        ),"FirstName");
+
+        $form->Fields()->add(TextField::create(
+            "PhoneNumber",
+            _t("CommerceAccount.PhoneNumber","Phone Number")
+        ));
+    }
 }
