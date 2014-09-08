@@ -132,6 +132,7 @@ class PayPalHandler extends PaymentHandler {
     public function callback() {
         $data = $this->request->postVars();
         $status = "error";
+        $order_id = null;
 
         $success_url = Controller::join_links(
             Director::absoluteBaseURL(),
@@ -148,6 +149,7 @@ class PayPalHandler extends PaymentHandler {
 
         // Check if CallBack data exists and install id matches the saved ID
         if(isset($data) && isset($data['custom']) && isset($data['payment_status'])) {
+            $order_id = $data['custom'];
             $request = 'cmd=_notify-validate';
 
             foreach($data as $key => $value) {
@@ -213,7 +215,9 @@ class PayPalHandler extends PaymentHandler {
         }
 
         return array(
-            "Status" => $status
+            "OrderID" => $order_id,
+            "Status" => $status,
+            "GatewayData" => $data
         );
     }
 

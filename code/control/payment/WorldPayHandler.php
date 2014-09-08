@@ -101,6 +101,8 @@ class WorldPayHandler extends PaymentHandler {
      */
     public function callback() {
         $data = $this->request->postVars();
+        $order_id = null;
+        $status = 'error';
 
         $success_url = Controller::join_links(
             Director::absoluteBaseURL(),
@@ -127,27 +129,23 @@ class WorldPayHandler extends PaymentHandler {
             $this->payment_gateway->InstallID == $data['instId'] && // The current install ID matches the postback ID
             $this->payment_gateway->ResponsePassword == $data["callbackPW"]
         ) {
-            $order = Order::get()
-                ->filter('OrderNumber',$data['cartId'])
-                ->first();
+            $order_id = $data['cartId'];
+            $status = $data['transStatus'];
 
-            $order_status = $data['transStatus'];
-
-            if($order) {
-                if($order_status == 'Y') {
-                    $order->Status = 'paid';
-                    $vars["RedirectURL"] = $success_url;
-                } else {
-                    $order->Status = 'failed';
-                }
-
-                // Store all the data sent from the gateway in a json
-                $order->GatewayData = json_encode($data);
-                $order->write();
+            if($data['transStatus'] == 'Y') {
+                $status = 'paid';
+                $vars["RedirectURL"] = $success_url;
+            } else {
+                $status = 'failed';
             }
         }
 
-        return $this->renderWith(array("Payment_WorldPay"), $vars);
+        return array(
+            "OrderID" => $order_id,
+            "Status" => $status,
+            "GatewayData" => $data,
+            "Template" => $this->renderWith(array("PaymentWorldPay"), $vars),
+        );
     }
 
 }

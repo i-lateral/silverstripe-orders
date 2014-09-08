@@ -7,7 +7,6 @@ class CheckoutMember extends DataExtension {
     );
 
     private static $has_many = array(
-        "Orders"        => "Order",
         "Addresses"     => "MemberAddress"
     );
 
