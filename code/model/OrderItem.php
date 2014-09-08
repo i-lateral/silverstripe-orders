@@ -28,11 +28,11 @@ class OrderItem extends DataObject {
     );
 
     private static $summary_fields = array(
-        "Title",
-        "SKU",
-        "CustomisationHTML",
-        "Quantity",
-        "Price"
+        "StockID" => "SKU",
+        "Title" => "Title",
+        "CustomisationHTML" => "Customisations",
+        "Quantity" => "QTY",
+        "Price" => "Price"
     );
     
     /**

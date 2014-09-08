@@ -185,8 +185,7 @@ class Order extends DataObject implements PermissionProvider {
         $postage_fields = ToggleCompositeField::create('Postage', 'Postage Details',
             array(
                 ReadonlyField::create('PostageType'),
-                ReadonlyField::create('PostageCost'),
-                ReadonlyField::create('PostageTax')
+                ReadonlyField::create('PostageCost')
             )
         )->setHeadingLevel(4);
 
@@ -197,7 +196,7 @@ class Order extends DataObject implements PermissionProvider {
 
         // Add order items and totals
         $fields->addFieldToTab(
-            'Root.Items',
+            'Root.Info',
             GridField::create(
                 'Items',
                 "Order Items",
@@ -210,25 +209,31 @@ class Order extends DataObject implements PermissionProvider {
         );
 
         $fields->addFieldToTab(
-            "Root.Items",
+            "Root.Info",
             ReadonlyField::create("SubTotal")
-                ->setValue($this->getSubTotal()->Nice())
+                ->setValue($this->getSubTotal()->nice())
         );
 
         $fields->addFieldToTab(
-            "Root.Items",
+            "Root.Info",
             ReadonlyField::create("DiscountAmount")
                 ->setValue($this->DiscountAmount)
         );
 
         $fields->addFieldToTab(
-            "Root.Items",
+            "Root.Info",
+            ReadonlyField::create("Postage")
+                ->setValue($this->getPostage()->nice())
+        );
+        
+        $fields->addFieldToTab(
+            "Root.Info",
             ReadonlyField::create("Tax")
                 ->setValue($this->getTaxTotal()->nice())
         );
 
         $fields->addFieldToTab(
-            "Root.Items",
+            "Root.Info",
             ReadonlyField::create("Total")
                 ->setValue($this->getTotal()->nice())
         );
