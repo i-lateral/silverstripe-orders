@@ -140,7 +140,7 @@ class Payment_Controller extends Controller {
 
         // Assign billing, delivery and postage data 
         if(!Checkout::config()->simple_checkout) {
-            foreach(Checkout::config()->checkout_data as $key=>$value) {
+            foreach(Checkout::config()->checkout_data as $key) {
                 if(array_key_exists($key,$billing_data))
                     $data[$key] = $billing_data[$key];
                 elseif(array_key_exists($key,$delivery_data))
@@ -149,11 +149,9 @@ class Payment_Controller extends Controller {
             
             $data['PostageType'] = $postage->Title;
             $data['PostageCost'] = $postage->Cost;
-            $data['PostageTax'] = ($config->TaxRate > 0 && $postage->Cost > 0) ? ((float)$postage->Cost / 100) * $config->TaxRate : 0;
+            $data['TaxRate'] = $config->TaxRate;
+            $data['DiscountAmount'] = $cart->DiscountAmount()->RAW();
         }
-
-        // Set discount info
-        $data['DiscountAmount'] = $cart->DiscountAmount();
         
         // Get gateway data
         $return = $this

@@ -73,9 +73,9 @@ class Checkout extends ViewableData {
         "DeliveryPostCode",
         "DeliveryCountry",
         "DiscountAmount",
+        "TaxRate",
         "PostageType",
-        "PostageCost",
-        "PostageTax"
+        "PostageCost"
     );
     
     /**
