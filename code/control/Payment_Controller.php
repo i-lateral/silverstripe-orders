@@ -131,6 +131,7 @@ class Payment_Controller extends Controller {
 
         $config = SiteConfig::current_site_config();
         
+        $data['OrderPrefix'] = $config->OrderPrefix;
         $data['OrderNumber'] = ($config->OrderPrefix) ? $config->OrderPrefix . '-' : '';
         $data["OrderNumber"] .= substr(chunk_split(Checkout::getRandomNumber(), 4, '-'), 0, -1);
 
