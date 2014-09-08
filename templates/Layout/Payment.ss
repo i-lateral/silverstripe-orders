@@ -44,11 +44,11 @@
                     <p>
                         <strong><%t Checkout.Name "Name" %>:</strong> $FirstName $Surname<br/>
                         <strong><%t Checkout.Email "Email" %>:</strong> $Email<br/>
-                        <strong><%t Checkout.Company "Company" %>:</strong> $Company<br/>
-                        <strong><%t Checkout.Phone "Phone Number" %>:</strong> $PhoneNumber<br/>
+                        <% if $Company %><strong><%t Checkout.Company "Company" %>:</strong> $Company<br/><% end_if %>
+                        <% if $PhoneNumber %><strong><%t Checkout.Phone "Phone Number" %>:</strong> $PhoneNumber<br/><% end_if %>
                         <strong><%t Checkout.Address "Address" %>:</strong><br/>
                         $Address1<br/>
-                        $Address2<br/>
+                        <% if $Address2 %>$Address2<br/><% end_if %>
                         $City<br/>
                         <strong><%t Checkout.PostCode "Post Code" %>:</strong> $PostCode<br/>
                         <strong><%t Checkout.Country "Country" %>:</strong> $Country
@@ -61,7 +61,7 @@
                         <strong><%t Checkout.Name "Name" %>:</strong> $DeliveryFirstnames $DeliverySurname<br/>
                         <strong><%t Checkout.Address "Address" %></strong><br/>
                         $DeliveryAddress1<br/>
-                        $DeliveryAddress2<br/>
+                        <% if $DeliveryAddress2 %>$DeliveryAddress2<br/><% end_if %>
                         $DeliveryCity<br/>
                         <strong><%t Checkout.PostCode "Post Code" %>:</strong> $DeliveryPostCode<br/>
                         <strong><%t Checkout.Country "Country" %>:</strong> $DeliveryCountry
