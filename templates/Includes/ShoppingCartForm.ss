@@ -37,7 +37,7 @@
                         <input type="text" name="Quantity_{$Up.Key}" value="{$Up.Quantity}" />
                     </td>
                     <td class="total">
-                        {$Price.Nice}
+                        {$Up.Price.Nice}
                     </td>
                     <td class="remove">
                         <a href="{$Top.Controller.Link('remove')}/{$Up.Key}" class="btn btn-red">

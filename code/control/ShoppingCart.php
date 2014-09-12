@@ -300,9 +300,13 @@ class ShoppingCart extends Controller {
         // If no update was sucessfull then add to cart items
         if(!$added) {
             $custom_data = new ArrayList();
+            $price = ($object->Price) ? $object->Price : 0;
+            $final_price = new Currency();
 
             // Convert custom data into object
             foreach($customise as $custom_item) {
+                $price += $custom_item['ModifyPrice'];
+                
                 $custom_data->add(new ArrayData(array(
                     'Title' => ucwords(str_replace(array('-','_'), ' ', $custom_item["Title"])),
                     'Value' => $custom_item["Value"],
@@ -314,6 +318,7 @@ class ShoppingCart extends Controller {
                 "Key"           => $key,
                 "Object"        => $object,
                 "Customised"    => $custom_data,
+                "Price"         => $final_price->setValue($price),
                 "Quantity"      => $quantity
             ));
 
@@ -445,8 +450,8 @@ class ShoppingCart extends Controller {
         $return = new Currency();
 
         foreach($this->items as $item) {
-            if($item->Object->Price)
-                $total = $total + ($item->Quantity * $item->Object->Price);
+            if($item->Price)
+                $total = $total + ($item->Quantity * $item->Price);
         }
         
         $this->extend("updateSubTotalCost", $total);
