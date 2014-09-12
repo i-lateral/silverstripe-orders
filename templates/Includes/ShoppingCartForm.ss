@@ -6,7 +6,7 @@
             <tr>
                 <th class="image"></th>
                 <th class="description">
-                    <%t Checkout.ProductDescription "Product Description" %>
+                    <%t Checkout.Description "Description" %>
                 </th>
                 <th class="quantity">
                     <%t Checkout.Qty "Qty" %>
@@ -25,7 +25,7 @@
                     </td>
                     <td>
                         <strong>$Title</strong><br/>
-                        <% if $Description %>$Description.Summary(10)<br/><% end_if %>
+                        <% if $Content %>$Content.Summary(10)<br/><% end_if %>
                         <% if $Up.Customised.exists %><div class="small">
                             <% loop $Up.Customised %><div class="{$ClassName}">
                                 <strong>{$Title}:</strong> {$Value}
