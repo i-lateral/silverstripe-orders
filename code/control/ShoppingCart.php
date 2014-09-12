@@ -148,6 +148,24 @@ class ShoppingCart extends Controller {
             $this->items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
         else
             $this->items = ArrayList::create();
+            
+        // Setup all prices (they do not survive session storage)
+        foreach($this->items as $item) {
+            if($item->Object && $item->Object->Price) {
+                $this->items->remove($item);
+                $price = $item->Object->Price;
+                
+                foreach($item->Customised as $customisation) {
+                    $price += ($customisation->ModifyPrice) ? $customisation->ModifyPrice : 0;
+                }
+                
+                $currency = new Currency();
+                $currency->setValue($price);
+                $item->Price = $currency;
+                
+                $this->items->add($item);
+            }
+        }
 
         // If discounts stored in a session, get them, else create new list
         if(Session::get('Checkout.Discount'))
@@ -300,13 +318,9 @@ class ShoppingCart extends Controller {
         // If no update was sucessfull then add to cart items
         if(!$added) {
             $custom_data = new ArrayList();
-            $price = ($object->Price) ? $object->Price : 0;
-            $final_price = new Currency();
 
             // Convert custom data into object
             foreach($customise as $custom_item) {
-                $price += $custom_item['ModifyPrice'];
-                
                 $custom_data->add(new ArrayData(array(
                     'Title' => ucwords(str_replace(array('-','_'), ' ', $custom_item["Title"])),
                     'Value' => $custom_item["Value"],
@@ -318,7 +332,6 @@ class ShoppingCart extends Controller {
                 "Key"           => $key,
                 "Object"        => $object,
                 "Customised"    => $custom_data,
-                "Price"         => $final_price->setValue($price),
                 "Quantity"      => $quantity
             ));
 
@@ -449,9 +462,9 @@ class ShoppingCart extends Controller {
         $total = 0;
         $return = new Currency();
 
-        foreach($this->items as $item) {
+        foreach($this->items as $item) {            
             if($item->Price)
-                $total = $total + ($item->Quantity * $item->Price);
+                $total = $total + ($item->Quantity * $item->Price->RAW());
         }
         
         $this->extend("updateSubTotalCost", $total);
