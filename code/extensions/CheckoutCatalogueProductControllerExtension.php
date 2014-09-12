@@ -27,6 +27,7 @@ class CheckoutCatalogueProductControllerExtension extends Extension {
                     ->addExtraClass('checkout-additem-quantity')
             );
         
+        // Add "Add item" button
         $form
             ->Actions()
             ->push(
@@ -35,7 +36,10 @@ class CheckoutCatalogueProductControllerExtension extends Extension {
                     ->addExtraClass('btn-green')
             );
 
-        $requirements = new RequiredFields(array("Quantity"));
+        // Add validator
+        $form
+            ->getValidator()
+            ->addRequiredField("Quantity");
     }
     
     public function doAddItemToCart($data, $form) {
