@@ -9,8 +9,6 @@ make payments.
 
 * [SilverStripe Framework 3.1.x](https://github.com/silverstripe/silverstripe-framework)
 * [Grid Field Extensions](https://github.com/ajshort/silverstripe-gridfieldextensions)
-* [Grid Field Bulk Editing Tools](https://github.com/colymba/GridFieldBulkEditingTools)
-* [SortableFile](https://github.com/bummzack/sortablefile)
 * [VersionedDataObjects](https://github.com/heyday/silverstripe-versioneddataobjects)
 
 **NOTE** This module will need **either** the [CMS module](https://github.com/silverstripe/silverstripe-cms),
