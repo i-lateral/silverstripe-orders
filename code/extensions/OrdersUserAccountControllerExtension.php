@@ -65,7 +65,6 @@ class OrdersUserAccountControllerExtension extends Extension {
 
         $this->owner->customise(array(
             "ClassName" => "AccountPage",
-            "Title" => $title,
             "Order" => $order
         ));
 
