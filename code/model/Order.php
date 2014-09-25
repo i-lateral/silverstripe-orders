@@ -18,7 +18,6 @@
  */
 class Order extends DataObject implements PermissionProvider {
     
-    
     /**
      * Add a string to the start of an order number (can be useful for
      * exporting orders).
@@ -27,10 +26,38 @@ class Order extends DataObject implements PermissionProvider {
      * @config
      */
     private static $order_prefix = "";
+    
+    /**
+     * List of possible statuses this order can have. Rather than using
+     * an enum, we load this as a config variable that can be changed
+     * more freely.
+     * 
+     * @var array
+     * @config
+     */
+    private static $statuses = array(
+        "incomplete" => "Incomplete",
+        "failed" => "Failed",
+        "cancelled" => "Cancelled",
+        "pending" => "Pending",
+        "paid" => "Paid",
+        "processing" => "Processing",
+        "dispatched" => "Dispatched",
+        "refunded" => "Refunded"
+    );
+    
+    /**
+     * Set the default status for a new order, if this is set to null or
+     * blank, it will not be used.
+     * 
+     * @var string
+     * @config
+     */
+    private static $default_status = "incomplete";
 
     private static $db = array(
         'OrderNumber'       => 'Varchar',
-        'Status'            => "Enum('incomplete,failed,cancelled,pending,paid,processing,dispatched,refunded','incomplete')",
+        'Status'            => "Varchar",
         
         // Billing Details
         'Company'           => 'Varchar',
@@ -111,8 +138,9 @@ class Order extends DataObject implements PermissionProvider {
     public function getCMSFields() {
         $fields = parent::getCMSFields();
 
-        // Remove defailt item admin
+        // Remove default item admin
         $fields->removeByName('Items');
+        $fields->removeByName('Status');
         $fields->removeByName('EmailDispatchSent');
         $fields->removeByName('PostageID');
         $fields->removeByName('PaymentID');
@@ -142,8 +170,18 @@ class Order extends DataObject implements PermissionProvider {
         $fields->addFieldToTab(
             'Root.Main',
             ReadonlyField::create('OrderNumber', "#"),
-            'Status'
+            'Company'
         );
+        
+        $fields->addFieldToTab(
+            'Root.Main',
+            $statusfield = DropdownField::create('Status', null, $this->config()->statuses),
+            'Company'
+        );
+        
+        // Set default status if we can
+        if($this->config()->default_status && !$this->Status)
+            $statusfield->setValue($this->config()->default_status);
 
         $fields->addFieldToTab(
             'Root.Main',
