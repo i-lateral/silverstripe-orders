@@ -11,7 +11,8 @@ class OrderItem extends DataObject {
         "Type"          => "Varchar",
         "Customisation" => "Text",
         "Quantity"      => "Int",
-        "Price"         => "Currency"
+        "Price"         => "Currency",
+        "Tax"           => "Tax"
     );
 
     private static $has_one = array(
