@@ -4,10 +4,10 @@
     <table class="width-100 table-hovered">
         <thead>
             <tr>
-                <th><% _t("Orders.Order","Order") %></th>
-                <th><% _t("Orders.Date","Date") %></th>
-                <th><% _t("Orders.Price","Price") %></th>
-                <th><% _t("Orders.Status","Status") %></th>
+                <th><%t Orders.Order "Order" %></th>
+                <th><%t Orders.Date "Date" %></th>
+                <th><%t Orders.Price "Price" %></th>
+                <th><%t Orders.Status "Status" %></th>
             </tr>
         </thead>
         <tbody>

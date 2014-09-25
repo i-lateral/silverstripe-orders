@@ -1,26 +1,26 @@
 <div class="units-row users-account line">
     <% include Users_Profile_SideBar %>
 
-    <div class="commerce-content-container typography commerce-account unit-75">
+    <div class="content-container typography unit-75">
         <% if $Order %><% with $Order %>
-            <h1><% t Orders.Order "Order" %>: $OrderNumber</h1>
+            <h1><%t Orders.Order "Order" %>: $OrderNumber</h1>
             <div class="units-row-end">
                 <p class="unit-50">
-                    <strong><% _t("Commerce.Date","Date") %>:</strong> $Created.Nice <br/>
-                    <strong><% _t("Commerce.Status","Status") %>:</strong> $TranslatedStatus<br/>
-                    <strong><% _t("Commerce.FirstNames","First Name(s)") %>:</strong> $FirstName <br/>
-                    <strong><% _t("Commerce.Surname","Surname") %>:</strong> $Surname <br/>
-                    <strong><% _t("Commerce.Email","Email") %>:</strong> $Email <br/>
-                    <strong><% _t("Commerce.Phone","Phone Number") %>:</strong> $PhoneNumber <br/>
+                    <strong><%t Orders.Date "Date" %>:</strong> $Created.Nice <br/>
+                    <strong><%t Orders.Status "Status" %>:</strong> $TranslatedStatus<br/>
+                    <strong><%t Orders.FirstNames "First Name(s)" %>:</strong> $FirstName <br/>
+                    <strong><%t Orders.Surname "Surname" %>:</strong> $Surname <br/>
+                    <strong><%t Orders.Email "Email" %>:</strong> $Email <br/>
+                    <strong><%t Orders.PhoneNumber "Phone Number" %>:</strong> $PhoneNumber <br/>
                 </p>
 
                 <p class="unit-50">
-                    <strong><% _t("Commerce.DeliveryDetails","Delivery Details") %></strong><br/>
-                    <strong><% _t("Commerce.Address1","Address Line 1") %>:</strong> $DeliveryAddress1 <br/>
-                    <strong><% _t("Commerce.Address2","Address Line 2") %>:</strong> $DeliveryAddress1 <br/>
-                    <strong><% _t("Commerce.City","City") %>:</strong> $DeliveryCity <br/>
-                    <strong><% _t("Commerce.PostCode","Post Code") %>:</strong> $DeliveryPostCode <br/>
-                    <strong><% _t("Commerce.Country","Country") %>:</strong> $DeliveryCountry
+                    <strong><%t Orders.DeliveryDetails "Delivery Details" %></strong><br/>
+                    <strong><%t Orders.Address1 "Address Line 1" %>:</strong> $DeliveryAddress1 <br/>
+                    <strong><%t Orders.Address2 "Address Line 2" %>:</strong> $DeliveryAddress1 <br/>
+                    <strong><%t Orders.City "City" %>:</strong> $DeliveryCity <br/>
+                    <strong><%t Orders.PostCode "Post Code" %>:</strong> $DeliveryPostCode <br/>
+                    <strong><%t Orders.Country "Country" %>:</strong> $DeliveryCountry
                 </p>
             </div>
 
@@ -30,16 +30,16 @@
                 <table class="width-100">
                     <thead>
                         <tr>
-                            <th class="width-50"><% _t("Commerce.Item","Item") %></th>
-                            <th><% _t("Commerce.Qty","Qty") %></th>
-                            <th><% _t("Commerce.Price","Price") %></th>
+                            <th class="width-50"><%t Orders.Item "Item" %></th>
+                            <th><%t Orders.Qty "Qty" %></th>
+                            <th><%t Orders.Price "Price" %></th>
                             <% if $Top.SiteConfig.TaxRate > 0 %>
                                 <th class="tax">
                                     <% if $Top.SiteConfig.TaxName %>{$Top.SiteConfig.TaxName}
-                                    <% else %><% _t('Commerce.Tax','Tax') %><% end_if %>
+                                    <% else %><%t Orders.Tax 'Tax' %><% end_if %>
                                 </th>
                             <% end_if %>
-                            <th><% _t("Commerce.Reorder","Reorder") %></th>
+                            <th><%t Orders.Reorder "Reorder" %></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,7 +55,7 @@
                                 <% end_if %>
                                 <td><% if $MatchProduct %>
                                     <a href="$MatchProduct.Link">
-                                        <% _t("Commerce.AddToCart","Add to cart") %>
+                                        <%t Orders.AddToCart "Add to cart" %>
                                     </a>
                                 <% end_if %></td>
                             </tr>
@@ -68,7 +68,7 @@
                         <% if $Top.SiteConfig.TaxRate > 0 %>
                             <tr>
                                 <td colspan="3" class="text-right">
-                                    <% _t("Commerce.SubTotal","Sub Total") %>
+                                    <%t Orders.SubTotal "Sub Total" %>
                                 </td>
                                 <td class="text-right">$SubTotal.Nice</td>
                                 <td></td>
@@ -76,7 +76,7 @@
 
                             <tr>
                                 <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>3<% else %>2<% end_if %>" class="text-right">
-                                    <% _t("Commerce.Postage","Postage") %>
+                                    <%t Orders.Postage "Postage" %>
                                 </td>
                                 <td class="text-right">$PostageCost.Nice</td>
                                 <td></td>
@@ -87,7 +87,7 @@
                                     <% if $Top.SiteConfig.TaxName %>
                                         {$Top.SiteConfig.TaxName}
                                     <% else %>
-                                        <% _t('Commerce.Tax','Tax') %>
+                                        <%t Orders.Tax 'Tax' %>
                                     <% end_if %>
                                 </td>
                                 <td class="text-right">$TaxTotal.Nice</td>
@@ -96,7 +96,7 @@
                         <% else %>
                             <tr>
                                 <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>3<% else %>2<% end_if %>" class="text-right">
-                                    <% _t("Commerce.Postage","Postage") %>
+                                    <%t Orders.Postage "Postage" %>
                                 </td>
                                 <td class="text-right">$PostageCost.Nice</td>
                                 <td></td>
@@ -110,7 +110,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>3<% else %>2<% end_if %>" class="text-right bold">
-                                <% _t("Commerce.Total","Total") %>
+                                <%t Orders.Total "Total" %>
                             </td>
                             <td class="text-right">$Total.Nice</td>
                             <td></td>
@@ -121,7 +121,7 @@
 
         <% end_with %><% else %>
             <p class="message message-error">
-                <% t Orders.NotFound "Order not found" %>
+                <%t Orders.NotFound "Order not found" %>
             </p>
         <% end_if %>
     </div>
