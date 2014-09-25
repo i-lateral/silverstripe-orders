@@ -465,16 +465,30 @@ class Order extends DataObject implements PermissionProvider {
 
 
     /**
+     * API Callback before this object is written to the DB
+     *
+     */
+    public function onBeforeWrite() {
+        parent::onBeforeWrite();
+
+        // Check if an order number has been generated, if not, add it and save again
+        if(!$this->OrderNumber) {
+            $this->OrderNumber = $this->generate_order_number();
+        }
+    }
+    
+    
+    /**
      * API Callback after this object is written to the DB
      *
      */
     public function onAfterWrite() {
         parent::onAfterWrite();
 
-        // Check if an order number has been generated, if not, add it and save again
-        if(!$this->OrderNumber) {
-            $this->OrderNumber = $this->generate_order_number();
-            $this->write();
+        // Deal with sending the status email
+        if($this->isChanged('Status') && $notification = OrderNotification::get()->filter("Status", $this->Status)->first()) {
+            // Send this notification
+            $notification->sendNotification($this);
         }
     }
 
