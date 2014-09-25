@@ -30,7 +30,7 @@
         <% if $Email %><%t Orders.Email "Email" %>: {$Email}<br/><% end_if %>
     </p>
 
-    <h2><%t Orders.DeliveryAddress "Delivery Address" %></h2>
+    <h2><%t Orders.DeliveryDetails 'Delivery Details' %></h2>
     
     <p>
         <%t Orders.OrderDispatchedTo "The order it to be dispatched to" %><br/>
