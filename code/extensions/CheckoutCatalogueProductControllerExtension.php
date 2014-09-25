@@ -43,19 +43,42 @@ class CheckoutCatalogueProductControllerExtension extends Extension {
     }
     
     public function doAddItemToCart($data, $form) {
+        $classname = $data["ClassName"];
+        $id = $data["ID"];
+        
         $cart = ShoppingCart::get();
-        $cart->add($data["ClassName"], $data["ID"], $data['Quantity']);
-        $cart->save();
+        
+        if($object = $classname::get()->byID($id)) {
+            $price = new Currency("Price");
+            $price->setValue($object->Price());
+            
+            $item_to_add = new ArrayData(array(
+                "Title" => $object->Title,
+                "Content" => $object->Content,
+                "Price" => $price,
+                "Image" => $object->Images()->first(),
+                "ID" => $object->ID,
+                "ClassName" => $object->ClassName
+            ));
+            
+            $cart->add($item_to_add, $data['Quantity']);
+            $cart->save();
 
-        $message = _t('Checkout.AddedItemToCart', 'Added item to your shopping cart');
-        $message .= ' <a href="'. $cart->Link() .'">';
-        $message .= _t('Checkout.ViewCart', 'View cart');
-        $message .= '</a>';
+            $message = _t('Checkout.AddedItemToCart', 'Added item to your shopping cart');
+            $message .= ' <a href="'. $cart->Link() .'">';
+            $message .= _t('Checkout.ViewCart', 'View cart');
+            $message .= '</a>';
 
-        $this->owner->setSessionMessage(
-            "success",
-            $message
-        );
+            $this->owner->setSessionMessage(
+                "success",
+                $message
+            );
+        } else {
+            $this->owner->setSessionMessage(
+                "bad",
+                _t("Checkout.ThereWasAnError", "There was an error")
+            );
+        }
 
         return $this->owner->redirectBack();
     }

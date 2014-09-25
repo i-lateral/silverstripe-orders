@@ -13,7 +13,7 @@
                         <%t Checkout.Qty "Qty" %>
                     </th>
                     <th class="price">
-                        <%t Checkout.ItemCost "Item Cost" %>
+                        <%t Checkout.Price "Price" %>
                     </th>
                     <th class="actions"></th>
                 </tr>
@@ -21,33 +21,32 @@
 
             <tbody>
                 <% loop $Controller.Items %>
-                    <tr><% with $Object %>
+                    <tr>
                         <td>
-                            <% if $Image %>$Image.CroppedImage(75,75)
-                            <% else_if $Images && $Images.exists %>$Images.first.CroppedImage(75,75)<% end_if %>
+                            $Image.CroppedImage(75,75)
                         </td>
                         <td>
                             <strong>$Title</strong><br/>
                             <% if $Content %>$Content.Summary(10)<br/><% end_if %>
-                            <% if $Up.Customised.exists %><div class="small">
-                                <% loop $Up.Customised %><div class="{$ClassName}">
+                            <% if $Customisations && $Customisations.exists %><div class="small">
+                                <% loop $Customisations %><div class="{$ClassName}">
                                     <strong>{$Title}:</strong> {$Value}
                                     <% if not $Last %></br><% end_if %>
                                 </div><% end_loop %>
                             </div><% end_if %>
                         </td>
                         <td class="quantity">
-                            <input type="text" name="Quantity_{$Up.Key}" value="{$Up.Quantity}" />
+                            <input type="text" name="Quantity_{$Key}" value="{$Quantity}" />
                         </td>
                         <td class="total">
-                            {$Up.Price.nice}
+                            {$Price.nice}
                         </td>
                         <td class="remove">
-                            <a href="{$Top.Controller.Link('remove')}/{$Up.Key}" class="btn btn-red">
+                            <a href="{$Top.Controller.Link('remove')}/{$Key}" class="btn btn-red">
                                 x
                             </a>
                         </td>
-                    <% end_with %></tr>
+                    </tr>
                 <% end_loop %>
             </tbody>
 

@@ -143,26 +143,14 @@ class ShoppingCart extends Controller {
 
 
     public function __construct() {
+        $this->items = ArrayList::create();
+        
         // If items are stored in a session, get them now
-        if(Session::get('Checkout.ShoppingCart.Items'))
-            $this->items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
-        else
-            $this->items = ArrayList::create();
+        if(Session::get('Checkout.ShoppingCart.Items')) {
+            $items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
             
-        // Setup all prices (they do not survive session storage)
-        foreach($this->items as $item) {
-            if($item->Object && $item->Object->Price) {
-                $this->items->remove($item);
-                $price = $item->Object->Price;
-                
-                foreach($item->Customised as $customisation) {
-                    $price += ($customisation->ModifyPrice) ? $customisation->ModifyPrice : 0;
-                }
-                
-                $currency = new Currency();
-                $currency->setValue($price);
-                $item->Price = $currency;
-                
+            // Add our unserialised item
+            foreach($items as $item) {
                 $this->items->add($item);
             }
         }
@@ -286,26 +274,25 @@ class ShoppingCart extends Controller {
     }
 
     /**
-     * Add a product to the shopping cart via its ID number.
-     *
-     * @param classname ClassName of the object you wish to add
-     * @param id ID of the object you wish to add
-     * @param quantity number of this item to add
-     * @param customise array of custom options for this product, needs to be a
-     *        multi dimensional array with each item of format:
-     *          -  "Title" => (str)"Item title"
-     *          -  "Value" => (str)"Item Value"
-     *          -  "ModifyPrice" => (float)"Modification to price"
+     * Add an item to the shopping cart. To make this process as generic
+     * as possible, we require that an object is submitted. This object
+     * can have any params, but by default we usually use:
+     * 
+     * "Title": The Title to appear in the cart
+     * "Content": A description of the item
+     * "Price": Our item's base price
+     * "Image": Image to display in cart
+     * "Customisations": array of customisations
+     * "ID": Unique identifier for this object
+     * 
+     * @param $object Object that we will add to the shopping cart
+     * @param $quantity Number of these objects to add
      */
-    public function add($classname, $id, $quantity = 1, $customise = array()) {
+    public function add($object, $quantity = 1) {
         $added = false;
-        
-        // Get our object to add or return error
-        if(!($object = $classname::get()->byID($id)))
-            return $this->httpError(404);
 
         // Make a string to match id's against ones already in the cart
-        $key = ($customise) ? (int)$object->ID . ':' . base64_encode(serialize($customise)) : (int)$object->ID;
+        $key = ($object->Customisations) ? (int)$object->ID . ':' . base64_encode(serialize($object->Customisations)) : (int)$object->ID;
 
         // Check if object already in the cart and update quantity
         foreach($this->items as $item) {
@@ -317,30 +304,15 @@ class ShoppingCart extends Controller {
 
         // If no update was sucessfull then add to cart items
         if(!$added) {
-            $custom_data = new ArrayList();
+            $object->Key = $key;
+            $object->Quantity = $quantity;
+            
+            $this->extend("onBeforeAdd", $object);
 
-            // Convert custom data into object
-            foreach($customise as $custom_item) {
-                $custom_data->add(new ArrayData(array(
-                    'Title' => ucwords(str_replace(array('-','_'), ' ', $custom_item["Title"])),
-                    'Value' => $custom_item["Value"],
-                    'ModifyPrice' => $custom_item['ModifyPrice']
-                )));
-            }
-
-            $cart_item = ArrayData::create(array(
-                "Key"           => $key,
-                "Object"        => $object,
-                "Customised"    => $custom_data,
-                "Quantity"      => $quantity
-            ));
-
-            $this->extend("onBeforeAdd", $cart_item);
-
-            $this->items->add($cart_item);
+            $this->items->add($object);
             $this->save();
 
-            $this->extend("onAfterAdd");
+            $this->extend("onAfterAdd", $object);
         }
     }
 
@@ -814,3 +786,5 @@ class ShoppingCart extends Controller {
         return $this->redirect($url);
     }
 }
+
+
