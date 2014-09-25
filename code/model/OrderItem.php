@@ -12,7 +12,7 @@ class OrderItem extends DataObject {
         "Customisation" => "Text",
         "Quantity"      => "Int",
         "Price"         => "Currency",
-        "Tax"           => "Tax"
+        "Tax"           => "Currency"
     );
 
     private static $has_one = array(
