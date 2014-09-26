@@ -10,6 +10,17 @@
 class Checkout extends ViewableData {
     
     /**
+     * Seperate tax out in totals on the cart and summary.
+     * 
+     * NOTE: This assumes that you will pass an object with a "Tax"
+     * param added to it, otherwise this will not be set correctly.
+     * 
+     * @var boolean
+     * @config
+     */
+    private static $show_tax = true;
+    
+    /**
      * Show login form in checkout process (useful if you have a user
      * account module installed).
      * 
@@ -35,7 +46,6 @@ class Checkout extends ViewableData {
      * @config
      */
     private static $currency_symbol = "£";
-    
     
     /**
      * International 3 character currency code to use

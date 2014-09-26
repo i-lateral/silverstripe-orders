@@ -15,6 +15,11 @@
                     <th class="price">
                         <%t Checkout.Price "Price" %>
                     </th>
+                    <% if $Controller.ShowTax %>
+                        <th class="tax">
+                            <%t Checkout.Tax "Tax" %>
+                        </th>
+                    <% end_if %>
                     <th class="actions"></th>
                 </tr>
             </thead>
@@ -38,9 +43,14 @@
                         <td class="quantity">
                             <input type="text" name="Quantity_{$Key}" value="{$Quantity}" />
                         </td>
-                        <td class="total">
+                        <td class="price">
                             {$Price.nice}
                         </td>
+                        <% if $Top.Controller.ShowTax %>
+                            <td class="tax">
+                                {$Tax.nice}
+                            </td>
+                        <% end_if %>
                         <td class="remove">
                             <a href="{$Top.Controller.Link('remove')}/{$Key}" class="btn btn-red">
                                 x
@@ -52,13 +62,13 @@
 
             <tfoot>
                 <tr class="subtotal">
-                    <td class="text-right" colspan="3">
+                    <td class="text-right" colspan="<% if $Top.Controller.ShowTax %>4<% else %>3<% end_if %>">
                         <strong>
                             <%t Checkout.SubTotal "Sub Total" %>
                         </strong>
                     </td>
                     <td colspan="2">
-                        {$Controller.SubTotalCost.Nice}
+                        {$Controller.SubTotalCost.nice}
                     </td>
                 </tr>
             </tfoot>

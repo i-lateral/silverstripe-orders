@@ -12,7 +12,8 @@ class PostageArea extends DataObject {
         "ZipCode"       => "Varchar(255)",
         "Calculation"   => "Enum('Price,Weight,Items','Weight')",
         "Unit"          => "Decimal",
-        "Cost"          => "Decimal"
+        "Cost"          => "Decimal",
+        "Tax"           => "Decimal"
     );
 
     private static $has_one = array(

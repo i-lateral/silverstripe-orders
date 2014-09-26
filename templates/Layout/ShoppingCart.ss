@@ -84,12 +84,11 @@
                         </tr>
                     <% end_if %>
                     
-                    <% if $TaxCost.RAW > 0 %>
+                    <% if $ShowTax %>
                         <tr class="tax">
                             <td class="text-right">
                                 <strong>
-                                    <% if $SiteConfig.TaxName %>{$SiteConfig.TaxName}
-                                    <% else %><%t Checkout.Tax 'Tax' %><% end_if %>
+                                    <%t Checkout.Tax 'Tax' %>
                                 </strong>
                             </td>
                             <td class="text-right">

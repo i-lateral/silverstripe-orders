@@ -61,6 +61,16 @@ class Payment_Controller extends Controller {
     public function getClassName() {
         return self::config()->class_name;
     }
+    
+    /**
+     * Shortcut to checkout config, to allow us to access it via
+     * templates
+     * 
+     * @return boolean
+     */
+    public function ShowTax() {
+        return Checkout::config()->show_tax;
+    }
         
     /**
      * Get the link to this controller

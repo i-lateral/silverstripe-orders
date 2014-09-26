@@ -22,7 +22,7 @@
                     <br/>
                 <% end_if %>
 
-                <% if $TaxCost.RAW > 0 %>
+                <% if $ShowTax %>
                     <strong><%t Checkout.Tax "Tax" %>:</strong>
                     $TaxCost.Nice
                     <br/>

@@ -385,6 +385,16 @@ class ShoppingCart extends Controller {
         Session::clear('Checkout.ShoppingCart.Discount');
         Session::clear("Checkout.PostageID");
     }
+    
+    /**
+     * Shortcut to checkout config, to allow us to access it via
+     * templates
+     * 
+     * @return boolean
+     */
+    public function ShowTax() {
+        return Checkout::config()->show_tax;
+    }
 
     /**
      * Find the total weight of all items in the shopping cart
@@ -396,8 +406,8 @@ class ShoppingCart extends Controller {
         $return = new Decimal();
 
         foreach($this->items as $item) {
-            if($item->Object->Weight)
-                $total = $total + ($item->Object->Weight * $item->Quantity);
+            if($item->Weight && $item->Quantity)
+                $total = $total + ($item->Weight * $item->Quantity);
         }
         
         $this->extend("updateTotalWeight", $total);
@@ -416,7 +426,7 @@ class ShoppingCart extends Controller {
         $return = new Int();
 
         foreach($this->items as $item) {
-            $total = $total + $item->Quantity;
+            $total = ($item->Quantity) ? $total + $item->Quantity : 0;
         }
         
         $this->extend("updateTotalItems", $total);
@@ -434,8 +444,8 @@ class ShoppingCart extends Controller {
         $total = 0;
         $return = new Currency();
 
-        foreach($this->items as $item) {            
-            if($item->Price)
+        foreach($this->items as $item) {
+            if($item->Price && $item->Quantity)
                 $total = $total + ($item->Quantity * $item->Price->RAW());
         }
         
@@ -503,13 +513,18 @@ class ShoppingCart extends Controller {
      */
     public function TaxCost() {
         $total = 0;
-        $config = SiteConfig::current_site_config();
         $return = new Currency();
         
-        if($config->TaxRate > 0) {
-            $total = ($this->SubTotalCost()->RAW() + $this->PostageCost()->RAW()) - $this->DiscountAmount()->RAW();
-            $total = ($total > 0) ? ((float)$total / 100) * $config->TaxRate : 0;
+        foreach($this->items as $item) {
+            if($item->Tax && $item->Quantity)
+                $total = $total + ($item->Quantity * $item->Tax->RAW());
         }
+        
+        // Calculate postage tax (if any)
+        $postage = PostageArea::get()->byID(Session::get("Checkout.PostageID"));
+        
+        if($postage && $postage->Cost && $postage->Tax)
+            $total += ($postage->Cost / 100) * $postage->Tax;
 
         $this->extend("updateTaxCost", $total);
 
@@ -524,11 +539,12 @@ class ShoppingCart extends Controller {
      * @return Currency
      */
     public function TotalCost() {
+        $return = new Currency();
+        
         $subtotal = $this->SubTotalCost()->RAW();
         $discount = $this->DiscountAmount()->RAW();
         $postage = $this->PostageCost()->RAW();
         $tax = $this->TaxCost()->RAW();
-        $return = new Currency();
 
         $total = ($subtotal - $discount) + $postage + $tax;
 

@@ -131,6 +131,10 @@ class CheckoutSiteConfigExtension extends DataExtension {
                 'Cost' => array(
                     'title' => 'Cost',
                     'field' => 'NumericField'
+                ),
+                'Tax' => array(
+                    'title' => 'Tax (percentage)',
+                    'field' => 'NumericField'
                 )
             ));
 

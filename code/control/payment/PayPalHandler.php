@@ -81,8 +81,8 @@ class PayPalHandler extends PaymentHandler {
         $i = 1;
 
         foreach($cart->getItems() as $item) {
-            $fields->add(HiddenField::create('item_name_' . $i, null, $item->Object->Title));
-            $fields->add(HiddenField::create('amount_' . $i, null, number_format(($item->Object->Price), 2)));
+            $fields->add(HiddenField::create('item_name_' . $i, null, $item->Title));
+            $fields->add(HiddenField::create('amount_' . $i, null, number_format(($item->Price->RAW()), 2)));
             $fields->add(HiddenField::create('quantity_' . $i, null, $item->Quantity));
 
             $i++;

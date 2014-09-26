@@ -51,7 +51,8 @@ class WorldPayHandler extends PaymentHandler {
         $desc_string = "";
         
         foreach($cart->getItems() as $item) {
-            $desc_string .= $item->Object->Title . ' x ' . $item->Quantity . ', ';
+            $desc_string .= $item->Title . ' x ' . $item->Quantity . ', ';
+            $desc_string .= $item->Title . ' x ' . $item->Quantity . ', ';
         }
         
         if(!Checkout::config()->simple_checkout) {
