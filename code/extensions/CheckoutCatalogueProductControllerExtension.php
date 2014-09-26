@@ -52,10 +52,15 @@ class CheckoutCatalogueProductControllerExtension extends Extension {
             $price = new Currency("Price");
             $price->setValue($object->Price());
             
+            $tax = new Currency("Tax");
+            $tax->setValue($object->Tax());
+            
             $item_to_add = new ArrayData(array(
                 "Title" => $object->Title,
                 "Content" => $object->Content,
+                "BasePrice" => $object->BasePrice,
                 "Price" => $price,
+                "Tax" => $tax,
                 "Image" => $object->Images()->first(),
                 "ID" => $object->ID,
                 "ClassName" => $object->ClassName
