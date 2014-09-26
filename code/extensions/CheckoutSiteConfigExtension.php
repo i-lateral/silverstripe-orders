@@ -9,10 +9,6 @@ class CheckoutSiteConfigExtension extends DataExtension {
     private static $db = array(
         'PaymentSuccessContent' => 'Text',
         'PaymentFailerContent'  => 'Text',
-        'OrderPrefix'           => 'Varchar(9)',
-        'TaxRate'               => "Decimal",
-        "TaxPriceInclude"       => "Boolean",
-        'TaxName'               => "Varchar"
     );
 
     private static $has_many = array(
@@ -20,31 +16,6 @@ class CheckoutSiteConfigExtension extends DataExtension {
         'Discounts'         => 'Discount',
         'PaymentMethods'    => 'PaymentMethod',
     );
-
-    private static $defaults = array(
-        "TaxPriceInclude" => true
-    );
-
-    /**
-     * Determine if there is tax name (from site config), if so
-     * include with the string determining if the price includes or exludes
-     * tax and return both.
-     *
-     * @return String
-     */
-    public function getTaxString() {
-        $return = "";
-
-        if($this->owner->TaxName && $this->owner->TaxPriceInclude) {
-            $return .= _t("Checkout.Including", "Including");
-            $return .= " " . $this->owner->TaxName;
-        } elseif($this->owner->TaxName && !$this->owner->TaxPriceInclude) {
-            $return .= _t("Checkout.Excluding", "Excluding");
-            $return .= " " . $this->owner->TaxName;
-        }
-
-        return $return;
-    }
 
     public function updateCMSFields(FieldList $fields) {
         
@@ -188,27 +159,9 @@ class CheckoutSiteConfigExtension extends DataExtension {
             )
         );
 
-        // Compress tax fields
-        $tax_fields = ToggleCompositeField::create(
-            'TaxSettings',
-            _t("CheckoutAdmin.TaxSettings", "Tax Settings"),
-            array(
-                NumericField::create('TaxRate'),
-                TextField::create(
-                    "TaxName",
-                    _t("CheckoutAdmin.TaxName", "Name of your tax (EG 'VAT')")
-                ),
-                CheckboxField::create(
-                    "TaxPriceInclude",
-                    _t("CheckoutAdmin.TaxPriceInclude", "Show price including tax?")
-                )
-            )
-        );
-
         // Add config sets
         $fields->addFieldToTab('Root.Checkout', $payment_fields);
         $fields->addFieldToTab('Root.Checkout', $postage_fields);
         $fields->addFieldToTab('Root.Checkout', $discount_fields);
-        $fields->addFieldToTab('Root.Checkout', $tax_fields);
     }
 }
