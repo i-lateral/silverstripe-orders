@@ -33,7 +33,8 @@ class OrderItem extends DataObject {
         "Title" => "Title",
         "CustomisationHTML" => "Customisations",
         "Quantity" => "QTY",
-        "Price" => "Price"
+        "Price" => "Price",
+        "Tax" => "Tax",
     );
     
     /**
@@ -55,7 +56,7 @@ class OrderItem extends DataObject {
         $items = $this->getCustomisationList();
         $return = "";
         
-        if($items->exists()) {
+        if($items && $items->exists()) {
             foreach($items as $item) {
                 $return .= $item->Title . ': ' . $item->Value . ";<br/>";
             }

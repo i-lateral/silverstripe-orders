@@ -83,12 +83,10 @@ class Order extends DataObject implements PermissionProvider {
         // Discount provided
         "DiscountAmount"    => "Currency",
         
-        // Tax
-        "TaxRate"           => "Varchar",
-        
         // Postage
         'PostageType'       => 'Varchar',
         'PostageCost'       => 'Currency',
+        'PostageTax'        => 'Currency',
         
         // Payment Gateway Info
         'GatewayData'       => 'Text'
@@ -223,7 +221,8 @@ class Order extends DataObject implements PermissionProvider {
         $postage_fields = ToggleCompositeField::create('Postage', 'Postage Details',
             array(
                 ReadonlyField::create('PostageType'),
-                ReadonlyField::create('PostageCost')
+                ReadonlyField::create('PostageCost'),
+                ReadonlyField::create('PostageTax')
             )
         )->setHeadingLevel(4);
 
@@ -372,31 +371,15 @@ class Order extends DataObject implements PermissionProvider {
      * @return Decimal
      */
     public function getSubTotal() {
-        $total = 0;
         $return = new Currency();
+        $total = 0;
 
         // Calculate total from items in the list
         foreach($this->Items() as $item) {
             $total += ($item->Price) ? $item->Price * $item->Quantity : 0;
         }
-
-        $return->setValue($total);
-        return $return;
-    }
-
-    /**
-     * Total values of items in this order
-     *
-     * @return Decimal
-     */
-    public function getTaxTotal() {
-        $return = new Currency();
-        $total = 0;
         
-        if($this->TaxRate > 0) {
-            $total = ($this->getSubTotal()->RAW() + $this->PostageCost) - $this->DiscountAmount;
-            $total = ($total > 0) ? ($total / 100) * $this->TaxRate : 0;
-        }
+        $this->extend("updateSubTotal", $total);
 
         $return->setValue($total);
         return $return;
@@ -409,8 +392,34 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function getPostage() {
         $return = new Currency();
+        $total = $this->PostageCost;
         
-        $return->setValue($this->PostageCost);
+        $this->extend("updatePostageCost", $total);
+        
+        $return->setValue($total);
+        return $return;
+    }
+    
+    /**
+     * Total values of items in this order
+     *
+     * @return Decimal
+     */
+    public function getTaxTotal() {
+        $return = new Currency();
+        $total = 0;
+        
+        // Calculate total from items in the list
+        foreach($this->Items() as $item) {
+            $total += ($item->Tax) ? $item->Tax * $item->Quantity : 0;
+        }
+        
+        if($this->PostageTax)
+            $total += $this->PostageTax;
+        
+        $this->extend("updateTaxTotal", $total);
+
+        $return->setValue($total);
         return $return;
     }
 
@@ -421,7 +430,9 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function getTotal() {
         $return = new Currency();
-        $total = (($this->getSubTotal()->RAW() + $this->PostageCost) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
+        $total = (($this->getSubTotal()->RAW() + $this->getPostage()->RAW()) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
+        
+        $this->extend("updateTotal", $total);
         
         $return->setValue($total);
         return $return;
@@ -437,37 +448,6 @@ class Order extends DataObject implements PermissionProvider {
 
         foreach($this->Items() as $item) {
             $return .= "{$item->Quantity} x {$item->Title};\n";
-        }
-
-        return $return;
-    }
-
-    public function getTranslatedStatus() {
-        switch($this->Status) {
-            case "incomplete":
-                $return = _t("Orders.Incomplete","Incomplete");
-                break;
-            case "failed":
-                $return = _t("Orders.Failed","Failed");
-                break;
-            case "canceled":
-                $return = _t("Orders.Cancelled","Cancelled");
-                break;
-            case "pending":
-                $return = _t("Orders.Pending","Pending");
-                break;
-            case "paid":
-                $return = _t("Orders.Paid","Paid");
-                break;
-            case "processing":
-                $return = _t("Orders.Processing","Processing");
-                break;
-            case "dispatched":
-                $return = _t("Orders.Dispatched","Dispatched");
-                break;
-            case "refunded":
-                $return = _t("Orders.Refunded","Refunded");
-                break;
         }
 
         return $return;
