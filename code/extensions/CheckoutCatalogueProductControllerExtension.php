@@ -62,6 +62,7 @@ class CheckoutCatalogueProductControllerExtension extends Extension {
                 "Price" => $price,
                 "Tax" => $tax,
                 "Image" => $object->Images()->first(),
+                "StockID" => $object->StockID,
                 "ID" => $object->ID,
                 "ClassName" => $object->ClassName
             ));
