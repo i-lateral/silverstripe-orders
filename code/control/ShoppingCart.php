@@ -143,6 +143,8 @@ class ShoppingCart extends Controller {
 
 
     public function __construct() {
+        parent::__construct();
+        
         $this->items = ArrayList::create();
         
         // If items are stored in a session, get them now
@@ -183,8 +185,6 @@ class ShoppingCart extends Controller {
         
         // Allow extension of the shopping cart after initial setup
         $this->extend("augmentSetup");
-
-        parent::__construct();
     }
     
     /**
