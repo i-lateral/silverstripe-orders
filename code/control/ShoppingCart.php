@@ -151,6 +151,20 @@ class ShoppingCart extends Controller {
             
             // Add our unserialised item
             foreach($items as $item) {
+                // If tax rate set work out tax
+                if($item->TaxRate) {
+                    $tax = new Currency("Tax");
+                    $tax->setValue(($item->Price / 100) * $item->TaxRate);
+                    $item->Tax = $tax;
+                }
+                
+                // Setup a price as currency (if it is set)
+                if($item->Price) {
+                    $price = new Currency("Price");
+                    $price->setValue($item->Price);
+                    $item->Price = $price;
+                }
+                
                 $this->items->add($item);
             }
         }
@@ -166,6 +180,9 @@ class ShoppingCart extends Controller {
             $this->discount = $member->getDiscount();
             Session::set('Checkout.Discount', serialize($this->discount));
         }
+        
+        // Allow extension of the shopping cart after initial setup
+        $this->extend("augmentSetup");
 
         parent::__construct();
     }
@@ -354,11 +371,24 @@ class ShoppingCart extends Controller {
      */
     public function save() {
         Session::clear("Checkout.PostageID");
+        
+        // Setup our items so they are suitable for storage
+        $items = ArrayList::create();
+        
+        foreach($this->Items as $item) {
+            if($item->Price && $item->Price instanceOf Currency)
+                $item->Price = $item->Price->RAW();
+            
+            $items->add($item);
+        }
+        
+        // Extend our save operation
+        $this->extend("onBeforeSave", $items);
 
         // Save cart items
         Session::set(
             "Checkout.ShoppingCart.Items",
-            serialize($this->items)
+            serialize($items)
         );
 
         // Save cart discounts

@@ -48,19 +48,17 @@ class CheckoutCatalogueProductControllerExtension extends Extension {
         
         $cart = ShoppingCart::get();
         
-        if($object = $classname::get()->byID($id)) {
-            $price = new Currency("Price");
-            $price->setValue($object->Price());
-            
-            $tax = new Currency("Tax");
-            $tax->setValue($object->Tax());
+        if($object = $classname::get()->byID($id)) {            
+            if($object->TaxRateID && $object->TaxRate()->Amount)
+                $tax_rate = $object->TaxRate()->Amount;
+            else
+                $tax_rate = 0;
             
             $item_to_add = new ArrayData(array(
                 "Title" => $object->Title,
                 "Content" => $object->Content,
-                "BasePrice" => $object->BasePrice,
-                "Price" => $price,
-                "Tax" => $tax,
+                "Price" => $object->Price(),
+                "TaxRate" => $tax_rate,
                 "Image" => $object->Images()->first(),
                 "StockID" => $object->StockID,
                 "ID" => $object->ID,
