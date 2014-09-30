@@ -6,22 +6,24 @@ if(class_exists("SS_Report")) {
     class OrdersReport extends SS_Report {
 
         public function title() {
-            return "Orders";
+            return _t("Orders.OrdersMade", "Orders made");
         }
 
         public function description() {
-            return "View reports on all orders made through this site";
+            return _t("Orders.OrdersReportDescription", "View reports on all orders made through this site");
         }
 
         public function columns() {
             return array(
-                'OrderNumber' => 'Order<br/>Number',
-                'Created' => 'Order<br/>Date',
+                'OrderNumber' => '#',
+                'Created' => 'Date',
+                'SubTotal' => 'Sub Total',
                 'PostageCost' => 'Postage',
-                'SubTotal' => 'Total<br/>(No Postage)',
-                'BillingEmail' => 'Email Address<br/><br/>',
-                'DeliveryFirstnames' => 'Delivery:<br/>First Name(s)',
-                'DeliverySurname' => 'Delivery:<br/>Surname',
+                'TaxTotal' => 'Tax',
+                'Total' => 'Total',
+                'FirstName' => 'First Name(s)',
+                'Surname' => 'Surname',
+                'Email' => 'Email Address',
                 'DeliveryAddress1' => 'Delivery:<br/>Address 1',
                 'DeliveryAddress2' => 'Delivery:<br/>Address 2',
                 'DeliveryCity' => 'Delivery:<br/>City',
@@ -65,9 +67,6 @@ if(class_exists("SS_Report")) {
 
             $limit = (isset($params['ResultsLimit']) && $params['ResultsLimit'] != 0) ? $params['ResultsLimit'] : '';
 
-            if(!isset($sort))
-                $sort = (isset($params['Sort'])) ? Convert::raw2sql($params['Sort']) : 'Created DESC';
-
             $orders = Order::get()
                 ->where(implode(' AND ', $where_filter))
                 ->limit($limit)
@@ -81,22 +80,30 @@ if(class_exists("SS_Report")) {
 
             // Check if any order exist
             if(Order::get()->exists()) {
-                // List all months
+                $first_order = Order::get()
+                    ->sort('Created ASC')
+                    ->first();
+                    
                 $months = array('All');
-                for ($i = 1; $i <= 12; $i++) { $months[] = date("F", mktime(0, 0, 0, $i + 1, 0, 0)); }
+                
+                $statuses = Order::config()->statuses;
+                array_unshift($statuses, 'All');
+                
+                for ($i = 1; $i <= 12; $i++) {
+                    $months[] = date("F", mktime(0, 0, 0, $i + 1, 0, 0));
+                }
 
                 // Get the first order, then count down from current year to that
                 $firstyear = new SS_Datetime('FirstDate');
-                $firstyear->setValue(Subsite::get_from_all_subsites("Order", null, 'Created ASC', null, 1)->First()->Created);
+                $firstyear->setValue($first_order->Created);
+                
                 $years = array();
-                for ($i = date('Y'); $i >= $firstyear->Year(); $i--) { $years[$i] = $i; }
-
-                // Order Status
-                $status = singleton('Order')->dbObject('Status')->enumValues();
-                array_unshift($status, 'All'); // Add an all filter to the top of the list
+                for ($i = date('Y'); $i >= $firstyear->Year(); $i--) {
+                    $years[$i] = $i;
+                }
 
                 //Result Limit
-                $ResultLimitOptions = array(
+                $result_limit_options = array(
                     0 => 'All',
                     50 => 50,
                     100 => 100,
@@ -104,17 +111,29 @@ if(class_exists("SS_Report")) {
                     500 => 500,
                 );
 
-                // Custom Sorting
-                $sort = array(
-                    'Created DESC'      => 'Date (newest first)',
-                    'Created ASC'       => 'Date (oldest first)'
-                );
-
-                $fields->push(DropdownField::create('Filter_Month', 'Filter by month', $months));
-                $fields->push(DropdownField::create('Filter_Year', 'Filter by year', $years));
-                $fields->push(DropdownField::create('Filter_Status', 'Filter By Status', $status));
-                $fields->push(DropdownField::create("ResultsLimit", "Limit results to", $ResultLimitOptions));
-                $fields->push(DropdownField::create('Sort', 'Sort results', $sort));
+                $fields->push(DropdownField::create(
+                    'Filter_Month',
+                    'Filter by month',
+                    $months
+                ));
+                
+                $fields->push(DropdownField::create(
+                    'Filter_Year',
+                    'Filter by year',
+                    $years
+                ));
+                
+                $fields->push(DropdownField::create(
+                    'Filter_Status',
+                    'Filter By Status',
+                    $statuses
+                ));
+                
+                $fields->push(DropdownField::create(
+                    "ResultsLimit",
+                    "Limit results to",
+                    $result_limit_options
+                ));
             }
 
             return $fields;
