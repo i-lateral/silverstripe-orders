@@ -266,7 +266,7 @@ class Payment_Controller extends Controller {
             return $callback["Template"];
         
         if(array_key_exists("Redirect",$callback))
-            return $callback["Redirect"];
+            return $this->redirect($callback["Redirect"]);
 
         // Otherwise just return the $callback
         return $callback;
