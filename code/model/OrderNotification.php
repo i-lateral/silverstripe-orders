@@ -29,6 +29,20 @@ class OrderNotification extends DataObject {
         "VendorEmail"
     );
     
+    public function getCMSFields() {
+        $fields = parent::getCMSFields();
+        
+        $status_field = DropdownField::create(
+            "Status",
+            $this->fieldLabel("Status"),
+            Order::config()->statuses
+        );
+        
+        $fields->replaceField("Status", $status_field);
+        
+        return $fields;
+    }
+    
     /**
      * Deal with sending a notification. This is assumed to be an email
      * by default, but can be extended through "augmentSend" to allow
