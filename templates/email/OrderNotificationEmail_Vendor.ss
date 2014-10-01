@@ -31,7 +31,7 @@
     <h2><%t Orders.DeliveryDetails 'Delivery Details' %></h2>
     
     <p>
-        <%t Orders.OrderDispatchedTo "The order it to be dispatched to" %><br/>
+        <%t Orders.OrderDispatchedTo "The order is to be dispatched to" %><br/>
         <br/>
         {$FirstName} {$Surname}<br/>
         {$DeliveryAddress1},<br/>
