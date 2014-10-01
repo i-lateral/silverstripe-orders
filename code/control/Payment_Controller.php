@@ -175,6 +175,7 @@ class Payment_Controller extends Controller {
         return $this
             ->customise($return)
             ->renderWith(array(
+                "Payment_" . $this->payment_handler,
                 "Payment",
                 "Checkout",
                 "Page"
@@ -257,6 +258,7 @@ class Payment_Controller extends Controller {
         return $this
             ->customise($return)
             ->renderWith(array(
+                "Payment_Response_" . $this->payment_handler,
                 "Payment_Response",
                 "Checkout",
                 "Page"
