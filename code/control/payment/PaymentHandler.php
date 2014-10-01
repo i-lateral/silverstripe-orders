@@ -8,6 +8,22 @@
 abstract class PaymentHandler extends Controller {
 
     /**
+     * The owner of this controller
+     *
+     * @var Controller
+     */
+    protected $parent_controller;
+
+    public function getParentController() {
+        return $this->parent_controller;
+    }
+
+    public function setParentController($parent) {
+        $this->parent_controller = $parent;
+        return $this;
+    }
+    
+    /**
      * The current payment gateway we are using
      *
      * @var PaymentMethod

@@ -35,6 +35,46 @@ class Payment_Controller extends Controller {
         'complete'
     );
 
+    /**
+     * Array of Data that we use when dealing with our, index, callback,
+     * etc.
+     * 
+     * @var array
+     */
+    protected $data;
+
+    public function getData() {
+        return $this->data;
+    }
+
+    public function setData($data) {
+        $this->data = $data;
+        return $this;
+    }
+    
+    /**
+     * Object containing the order this payment relates to. This can be
+     * just ArrayData (for basic orders) or a more specific object
+     * (if something like the orders module is installed).
+     * 
+     * @var Object
+     */
+    protected $order;
+
+    public function getOrder() {
+        return $this->order;
+    }
+
+    public function setOrder($order) {
+        $this->order = $order;
+        return $this;
+    }
+    
+    /**
+     * Name of the payment handler we are using
+     * 
+     * @var string
+     */
     protected $payment_handler;
 
     public function getPaymentHandler() {
@@ -46,7 +86,11 @@ class Payment_Controller extends Controller {
         return $this;
     }
 
-
+    /**
+     * Name of the payment method we are using
+     * 
+     * @var string
+     */
     protected $payment_method;
 
     public function getPaymentMethod() {
@@ -88,7 +132,7 @@ class Payment_Controller extends Controller {
     public function init() {
         parent::init();
 
-        // Check if payment slug is set and that corresponds to a payment
+        // Check if payment ID set and corresponds 
         if($this->request->param('ID') && $method = PaymentMethod::get()->byID($this->request->param('ID')))
             $this->payment_method = $method;
         // Then check session
@@ -101,6 +145,7 @@ class Payment_Controller extends Controller {
             $handler = $handler::$handler;
 
             $this->payment_handler = $handler::create();
+            $this->payment_handler->setParentController($this);
             $this->payment_handler->setRequest($this->request);
             $this->payment_handler->setURLParams = $this->request->allParams();
             $this->payment_handler->setPaymentGateway($this->getPaymentMethod());
@@ -163,6 +208,9 @@ class Payment_Controller extends Controller {
             $data['DiscountAmount'] = $cart->DiscountAmount()->RAW();
         }
         
+        // Set the current data to this object
+        $this->data = $data;
+        
         // Get gateway data
         $return = $this
             ->payment_handler
@@ -170,7 +218,7 @@ class Payment_Controller extends Controller {
             ->index();
         
         // Extend this method
-        $this->extend("onBeforeIndex", $data, $return);
+        $this->extend("onBeforeIndex");
 
         return $this
             ->customise($return)
