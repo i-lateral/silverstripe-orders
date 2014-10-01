@@ -38,7 +38,7 @@ class BillingDetailsForm extends Form {
                 _t('Checkout.Country','Country') . '*',
                 null,
                 'GB'
-            )->setAttribute("class",'countrydropdown dropdown btn')
+            )
         )->setName("AddressFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')

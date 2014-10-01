@@ -32,9 +32,9 @@ class DeliveryDetailsForm extends Form {
             TextField::create('DeliveryCity',_t('Checkout.City','City') . '*'),
             TextField::create('DeliveryPostCode',_t('Checkout.PostCode','Post Code') . '*'),
             CountryDropdownField::create(
-                    'DeliveryCountry',
-                    _t('Checkout.Country','Country')
-                )->setAttribute("class",'countrydropdown dropdown btn')
+                'DeliveryCountry',
+                _t('Checkout.Country','Country')
+            )
         )->setName("AddressFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')
