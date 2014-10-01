@@ -17,9 +17,7 @@
             <tbody><% loop $Items() %>
                 <td>
                     <strong>{$Title}</strong>
-                    <% loop $CustomisationList %>
-                        {$Title}: {$Value}<br/>
-                    <% end_loop %>
+                    $CustomisationHTML
                 </td>
                 <td>{$Quantity}</td>
             <% end_loop %></tbody>

@@ -5,6 +5,10 @@
  * @author morven
  */
 class OrderItem extends DataObject {
+    
+    /**
+     * @config
+     */
     private static $db = array(
         "Title"         => "Varchar",
         "StockID"       => "Varchar(100)",
@@ -15,35 +19,60 @@ class OrderItem extends DataObject {
         "Tax"           => "Currency"
     );
 
+    /**
+     * @config
+     */
     private static $has_one = array(
         "Parent"        => "Order"
     );
     
+    /**
+     * @config
+     */
     private static $defaults = array(
         "Tax"           => 0
     );
 
-    private static $casting = array(
-        "CustomisationList" => "ArrayList",
-        "CustomisationHTML" => "HTMLText"
+    /**
+     * @config
+     */
+    private static $summary_fields = array(
+        "StockID",
+        "Title",
+        "CustomisationList",
+        "Quantity",
+        "Price",
+        "Tax"
     );
 
-    private static $summary_fields = array(
-        "StockID" => "SKU",
-        "Title" => "Title",
-        "CustomisationHTML" => "Customisations",
-        "Quantity" => "QTY",
-        "Price" => "Price",
-        "Tax" => "Tax",
-    );
-    
     /**
      * Unserialise the list of customisations
      *
      * @return ArrayList
      */
-    public function getCustomisationList() {
-        return $this->Customisation ? unserialize($this->Customisation) : ArrayList::create();
+    public function Customisations() {
+        $customisations = unserialize($this->Customisation);
+        return ($customisations) ? $customisations : ArrayList::create();
+    }
+    
+    /**
+     * Provide a string of customisations seperated by a comma
+     *
+     * @return String
+     */
+    public function CustomisationList() {
+        $return = "";
+        $items = $this->Customisations();
+        
+        if($items && $items->exists()) {
+            foreach($items as $item) {
+                $return .= $item->Title . ': ' . $item->Value;
+                
+                if(!$item->Last()) $return .= ", ";
+            }
+        }
+        
+        return $return;
     }
     
     /**
@@ -51,18 +80,19 @@ class OrderItem extends DataObject {
      * HTML string
      *
      */
-    public function getCustomisationHTML() {
-        $htmltext = HTMLText::create();
-        $items = $this->getCustomisationList();
-        $return = "";
+    public function CustomisationHTML() {
+        $return = HTMLText::create();
+        $items = $this->Customisations();
+        $html = "";
         
         if($items && $items->exists()) {
             foreach($items as $item) {
-                $return .= $item->Title . ': ' . $item->Value . ";<br/>";
+                $html .= $item->Title . ': ' . $item->Value . ";<br/>";
             }
         }
 
-        return $htmltext->setValue($return);
+        $return->setValue($html);
+        return $return;
     }
 
     /**
