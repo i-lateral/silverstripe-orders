@@ -88,11 +88,12 @@ class WorldPayHandler extends PaymentHandler {
             ->setFormAction($gateway_url);
 
         $this->extend('updateForm',$form);
+        
+        $this->parent_controller->setOrder($order);
 
         return array(
             "Title"     => _t('Checkout.Summary',"Summary"),
             "MetaTitle" => _t('Checkout.Summary',"Summary"),
-            "Order"     => $order,
             "Form"      => $form
         );
     }

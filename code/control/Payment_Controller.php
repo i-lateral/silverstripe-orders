@@ -287,14 +287,6 @@ class Payment_Controller extends Controller {
         else
             $return = $this->success_data();
 
-        if($order) {
-            $return['CheckoutPaymentSuccess'] = true;
-            $return['Order'] = $order;
-        } else {
-            $return['CheckoutPaymentSuccess'] = false;
-            $return['Order'] = false;
-        }
-
         // Clear our session data
         if(isset($_SESSION)) {
             ShoppingCart::get()->clear();
@@ -306,8 +298,8 @@ class Payment_Controller extends Controller {
         return $this
             ->customise($return)
             ->renderWith(array(
-                "Payment_Response_" . $this->payment_handler,
-                "Payment_Response",
+                "Payment_complete_" . $this->payment_handler,
+                "Payment_complete",
                 "Checkout",
                 "Page"
             ));
