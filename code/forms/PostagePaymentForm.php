@@ -41,7 +41,12 @@ class PostagePaymentForm extends Form {
         }
 
         // Get available payment methods and setup payment
-        $payment_methods = SiteConfig::current_site_config()->PaymentMethods();
+        $payment_methods = ArrayList::create();
+        
+        foreach(SiteConfig::current_site_config()->PaymentMethods() as $payment_method) {
+            if($payment_method->canView())
+                $payment_methods->add($payment_method);
+        }
 
         // Deal with payment methods
         if($payment_methods->exists()) {

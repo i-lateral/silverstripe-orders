@@ -7,7 +7,7 @@
  *
  *
  */
-class PaymentMethod extends DataObject {
+class PaymentMethod extends DataObject implements PermissionProvider {
 
     /**
      * Shall this class appear in the list of payment providers. Use this to
@@ -142,5 +142,68 @@ class PaymentMethod extends DataObject {
     // Get relevent payment gateway URL to use in HTML form
     public function GatewayURL() {
         return $this->URL;
+    }
+    
+    public function providePermissions() {
+        return array(
+            "MANAGE_PAYMENTS" => array(
+                'name' => 'Manage payment methods',
+                'help' => 'Allow user to create, edit and delete payment methods',
+                'category' => 'Checkout',
+                'sort' => 50
+            ),
+        );
+    }
+    
+    public function canView($member = null) {
+        return true;
+    }
+    
+    public function canCreate($member = null) {
+        if($member instanceof Member)
+            $memberID = $member->ID;
+        else if(is_numeric($member))
+            $memberID = $member;
+        else
+            $memberID = Member::currentUserID();
+
+        if($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS")))
+            return true;
+        else if($memberID && $memberID == $this->CustomerID)
+            return true;
+
+        return false;
+    }
+
+    public function canEdit($member = null) {
+        if($member instanceof Member)
+            $memberID = $member->ID;
+        else if(is_numeric($member))
+            $memberID = $member;
+        else
+            $memberID = Member::currentUserID();
+
+        if($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS")))
+            return true;
+        else if($memberID && $memberID == $this->CustomerID)
+            return true;
+
+        return false;
+    }
+
+    public function canDelete($member = null) {
+        if($member instanceof Member)
+            $memberID = $member->ID;
+        else if(is_numeric($member))
+            $memberID = $member;
+        else
+            $memberID = Member::currentUserID();
+
+        if($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS")))
+            return true;
+        else if($memberID && $memberID == $this->CustomerID)
+            return true;
+
+        return false;
     }
 }
