@@ -16,7 +16,7 @@
     },
     "require": {
         "silverstripe/framework": ">=3.1",
-        "colymba/gridfield-bulk-editing-tools": ">=2.1.1"
+        "colymba/gridfield-bulk-editing-tools": ">=2.0.2"
     },
     "suggest": {
         "silverstripe/cms": "Add full content management support to your site",
