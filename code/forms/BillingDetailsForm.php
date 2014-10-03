@@ -17,7 +17,7 @@ class BillingDetailsForm extends Form {
             TextField::create('Surname',_t('Checkout.Surname','Surname') . '*'),
             TextField::create("Company",_t('Checkout.Company',"Company")),
             EmailField::create('Email',_t('Checkout.Email','Email') . '*'),
-            TextField::create('PhoneNumber',_t('Checkout.Phone','Phone Number'))
+            TextField::create('PhoneNumber',_t('Checkout.Phone','Phone Number') . "*")
         )->setName("PersonalFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')
@@ -96,7 +96,8 @@ class BillingDetailsForm extends Form {
             'City',
             'PostCode',
             'Country',
-            'Email'
+            'Email',
+            'PhoneNumber'
         );
 
         parent::__construct($controller, $name, $fields, $actions, $validator);

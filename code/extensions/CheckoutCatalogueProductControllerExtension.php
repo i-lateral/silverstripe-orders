@@ -48,7 +48,7 @@ class CheckoutCatalogueProductControllerExtension extends Extension {
         
         $cart = ShoppingCart::get();
         
-        if($object = $classname::get()->byID($id)) {            
+        if($object = $classname::get()->byID($id)) {
             if($object->TaxRateID && $object->TaxRate()->Amount)
                 $tax_rate = $object->TaxRate()->Amount;
             else
