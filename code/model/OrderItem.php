@@ -16,7 +16,8 @@ class OrderItem extends DataObject {
         "Customisation" => "Text",
         "Quantity"      => "Int",
         "Price"         => "Currency",
-        "Tax"           => "Currency"
+        "TaxAmount"     => "Currency",
+        "TaxRate"       => "Decimal"
     );
 
     /**
@@ -24,13 +25,6 @@ class OrderItem extends DataObject {
      */
     private static $has_one = array(
         "Parent"        => "Order"
-    );
-    
-    /**
-     * @config
-     */
-    private static $defaults = array(
-        "Tax"           => 0
     );
 
     /**
@@ -42,7 +36,8 @@ class OrderItem extends DataObject {
         "CustomisationList",
         "Quantity",
         "Price",
-        "Tax"
+        "TaxAmount",
+        "TaxRate"
     );
 
     /**
