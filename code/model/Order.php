@@ -411,7 +411,7 @@ class Order extends DataObject implements PermissionProvider {
         
         // Calculate total from items in the list
         foreach($this->Items() as $item) {
-            $total += ($item->Tax) ? $item->Tax * $item->Quantity : 0;
+            $total += $item->Tax() * $item->Quantity : 0;
         }
         
         if($this->PostageTax)

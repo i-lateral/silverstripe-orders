@@ -16,7 +16,6 @@ class OrderItem extends DataObject {
         "Customisation" => "Text",
         "Quantity"      => "Int",
         "Price"         => "Currency",
-        "TaxAmount"     => "Currency",
         "TaxRate"       => "Decimal"
     );
 
@@ -36,9 +35,25 @@ class OrderItem extends DataObject {
         "CustomisationList",
         "Quantity",
         "Price",
-        "TaxAmount",
+        "Tax",
         "TaxRate"
     );
+    
+    /**
+     * @config
+     */
+    private static $casting = array(
+        "Tax" => "Currency"
+    );
+    
+    /**
+     * Get the amount of tax for a single unit of this item
+     * 
+     * @return Float
+     */
+    public function Tax() {
+        return ($this->Price / 100) * $this->TaxRate;
+    }
 
     /**
      * Unserialise the list of customisations
