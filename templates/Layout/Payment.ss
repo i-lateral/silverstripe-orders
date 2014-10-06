@@ -16,9 +16,9 @@
                     <br/>
                 <% end_if %>
 
-                <% if $Postage.RAW > 0 %>
+                <% if $PostageCost.RAW > 0 %>
                     <strong><%t Checkout.Postage "Postage" %>:</strong>
-                    $Top.Order.PostageType ($PostageCost.Nice)
+                    $Top.Order.PostageType ({$PostageCost.Nice})
                     <br/>
                 <% end_if %>
 
