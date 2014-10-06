@@ -75,12 +75,16 @@ class OrderItem extends DataObject {
         $items = $this->Customisations();
         
         if($items && $items->exists()) {
+            $i = 1;
+
             foreach($items as $item) {
                 $return .= $item->Title . ': ' . $item->Value;
-                
-                if(!$item->Last()) $return .= ", ";
+
+                if($i < $items->count()) $return .= ", ";
+                $i++;
             }
         }
+
         
         return $return;
     }
