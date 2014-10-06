@@ -16,9 +16,7 @@ class WorldPay extends PaymentMethod {
     public function getCMSFields() {
         $fields = parent::getCMSFields();
 
-        if($this->ID) {
-            $fields->removeByName("URL");
-            
+        if($this->ID) {            
             $fields->addFieldToTab(
                 "Root.Main",
                 TextField::create('InstallID', 'Instalation ID'),

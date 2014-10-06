@@ -16,8 +16,6 @@ class PayPal extends PaymentMethod {
         $fields = parent::getCMSFields();
 
         if($this->ID) {
-            $fields->removeByName("URL");
-
             $fields->addFieldToTab(
                 "Root.Main",
                 TextField::create('BusinessID', 'Business ID'),

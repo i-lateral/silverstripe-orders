@@ -33,7 +33,6 @@ class PaymentMethod extends DataObject implements PermissionProvider {
     private static $db = array(
         // Payment Gateway config
         "Summary"           => "Text",
-        "URL"               => "Varchar(200)",
         "Default"           => "Boolean",
         "PaymentInfo"       => "HTMLText"
     );
@@ -85,7 +84,6 @@ class PaymentMethod extends DataObject implements PermissionProvider {
 
         if($this->ID) {
             $fields->addFieldToTab("Root.Main", TextField::create('Summary', 'Summary message to appear on website'));
-            $fields->addFieldToTab("Root.Main", TextField::create('URL', 'Payment gateway URL'));
             $fields->addFieldToTab("Root.Main", CheckboxField::create('Default', 'Default payment method?'));
             $fields->addFieldToTab("Root.Main", HTMLEditorField::create("PaymentInfo", "Message to appear on payment summary page"));
 
@@ -129,7 +127,6 @@ class PaymentMethod extends DataObject implements PermissionProvider {
 
             $fields->addFieldToTab("Root.Main", $url_field);
         } else {
-            $fields->removeByName('URL');
             $fields->removeByName('Summary');
             $fields->removeByName('Default');
             $fields->removeByName('GatewayMessage');

@@ -120,11 +120,11 @@ class PayPalHandler extends PaymentHandler {
         
         // Set our order
         $this->parent_controller->setOrder($order);
+        $this->parent_controller->setPaymentForm($form);
 
         return array(
             "Title"     => _t('Checkout.Summary',"Summary"),
-            "MetaTitle" => _t('Checkout.Summary',"Summary"),
-            "Form"      => $form
+            "MetaTitle" => _t('Checkout.Summary',"Summary")
         );
     }
 
