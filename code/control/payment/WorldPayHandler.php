@@ -31,6 +31,7 @@ class WorldPayHandler extends PaymentHandler {
             // Account details
             HiddenField::create('instId', null, $this->payment_gateway->InstallID),
             HiddenField::create('cartId', null, $order->OrderNumber),
+            HiddenField::create('MC_callback', null, $callback_url),
 
             // Amount and Currency details
             HiddenField::create('amount', null, number_format($cart->TotalCost()->RAW(),2)),
@@ -51,7 +52,6 @@ class WorldPayHandler extends PaymentHandler {
         $desc_string = "";
         
         foreach($cart->getItems() as $item) {
-            $desc_string .= $item->Title . ' x ' . $item->Quantity . ', ';
             $desc_string .= $item->Title . ' x ' . $item->Quantity . ', ';
         }
         
