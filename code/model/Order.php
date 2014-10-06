@@ -503,10 +503,15 @@ class Order extends DataObject implements PermissionProvider {
     public function onAfterWrite() {
         parent::onAfterWrite();
 
-        // Deal with sending the status email
-        if($this->isChanged('Status') && $notification = OrderNotification::get()->filter("Status", $this->Status)->first()) {
-            // Send this notification
-            $notification->sendNotification($this);
+        // Deal with sending the status emails
+        if($this->isChanged('Status')) {
+            $notifications = OrderNotification::get()
+                ->filter("Status", $this->Status);
+                
+            // Loop through available notifications and send
+            foreach($notifications as $notification) {
+                $notification->sendNotification($this);
+            }
         }
     }
 
