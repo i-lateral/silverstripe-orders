@@ -71,7 +71,7 @@ class Checkout_Controller extends Controller {
      *
      */
     public function index() {
-        // If we are using simmple checkout, skip
+        // If we are using simple checkout, skip
         if(Checkout::config()->simple_checkout)
             return $this->redirect($this->Link('finish'));
         
@@ -102,9 +102,13 @@ class Checkout_Controller extends Controller {
     public function billing() {
         $form = $this->BillingForm();
         
-        // If we are using simmple checkout, skip
+        // If we are using simple checkout, skip
         if(Checkout::config()->simple_checkout)
             return $this->redirect($this->Link('finish'));
+            
+        // Check permissions for guest checkout
+        if(!Member::currentUserID() && !Checkout::config()->guest_checkout)
+            return $this->redirect($this->Link('index'));
 
         // Pre populate form with member info
         if(Member::currentUserID())
@@ -135,6 +139,10 @@ class Checkout_Controller extends Controller {
         // If we are using simmple checkout, skip
         if(Checkout::config()->simple_checkout)
             return $this->redirect($this->Link('finish'));
+        
+        // Check permissions for guest checkout
+        if(!Member::currentUserID() && !Checkout::config()->guest_checkout)
+            return $this->redirect($this->Link('index'));
         
         $this->customise(array(
             'Title'     => _t('Checkout.DeliveryDetails',"Delivery Details"),
@@ -229,6 +237,10 @@ class Checkout_Controller extends Controller {
         $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
 
         if(!Checkout::config()->simple_checkout && !is_array($billing_data) && !is_array($delivery_data))
+            return $this->redirect($this->Link('index'));
+        
+        // Check permissions for guest checkout
+        if(!Member::currentUserID() && !Checkout::config()->guest_checkout)
             return $this->redirect($this->Link('index'));
             
         if(Checkout::config()->simple_checkout)

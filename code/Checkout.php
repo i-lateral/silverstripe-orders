@@ -40,6 +40,15 @@ class Checkout extends ViewableData {
     private static $simple_checkout = true;
     
     /**
+     * Allow users to checkout as a "guest" meaning they do not have to
+     * register/login
+     * 
+     * @var Boolean
+     * @config
+     */
+    private static $guest_checkout = true;
+    
+    /**
      * Currency symbol used by default
      * 
      * @var string
@@ -87,6 +96,16 @@ class Checkout extends ViewableData {
         "PostageType",
         "PostageCost"
     );
+    
+    /**
+     * Return guest checkout status in a way that can be seen by
+     * templates
+     * 
+     * @return Boolean
+     */
+    public function GuestCheckout() {
+        return $this->config()->guest_checkout;
+    }
     
     /**
      * Generate a random number based on the current time, a random int

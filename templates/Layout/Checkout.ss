@@ -19,15 +19,17 @@
                 </a>
             </p>
 
-            <p class="units-row line text-centered">
-                <strong><%t Checkout.Or "Or" %></strong>
-            </p>
+            <% if $Checkout.GuestCheckout %>
+                <p class="units-row line text-centered">
+                    <strong><%t Checkout.Or "Or" %></strong>
+                </p>
 
-            <p class="units-row line">
-                <a href="{$Link('billing')}" class="btn text-centered unit-push-right width-100">
-                    <%t Checkout.ContinueAsGuest "Continue as a Guest" %>
-                </a>
-            </p>
+                <p class="units-row line">
+                    <a href="{$Link('billing')}" class="btn text-centered unit-push-right width-100">
+                        <%t Checkout.ContinueAsGuest "Continue as a Guest" %>
+                    </a>
+                </p>
+            <% end_if %>
         </div>
     </div>
 </div>
