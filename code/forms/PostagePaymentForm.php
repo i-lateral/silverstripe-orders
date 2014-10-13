@@ -5,6 +5,7 @@
  * @author morven
  */
 class PostagePaymentForm extends Form {
+    
     public function __construct($controller, $name = "PostagePaymentForm") {
         
         if(!Checkout::config()->simple_checkout) {
@@ -50,21 +51,23 @@ class PostagePaymentForm extends Form {
 
         // Deal with payment methods
         if($payment_methods->exists()) {
-            $payment_map = $payment_methods->map('ID','Label');
-            $payment_value = $payment_methods->filter('Default',1)->first()->ID;
+            $payment_field = OptionsetField::create(
+                'PaymentMethodID',
+                _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
+                $payment_methods->map('ID','Label'),
+                $payment_methods->filter('Default',1)->first()->ID
+            );
         } else {
-            $payment_map = array();
-            $payment_value = 0;
+            $payment_field = ReadonlyField::create(
+                "PaymentMethodID",
+                _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
+                _t('Checkout.NoPaymentMethods', 'You cannot pay at this time, if you feel there has been an error please contact us.')
+            );
         }
 
         $payment_field = CompositeField::create(
             HeaderField::create('PaymentHeading', _t('Checkout.Payment', 'Payment'), 2),
-            OptionsetField::create(
-                'PaymentMethodID',
-                _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
-                $payment_map,
-                $payment_value
-            )
+            $payment_field
         )->setName("PaymentFields")
         ->addExtraClass("unit")
         ->addExtraClass("size1of2")
@@ -80,18 +83,21 @@ class PostagePaymentForm extends Form {
         );
 
         $back_url = $controller->Link("billing");
+        
+        if($payment_methods->exists()) {
+            $actions = FieldList::create(
+                LiteralField::create(
+                    'BackButton',
+                    '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back','Back') . '</a>'
+                ),
 
-        $actions = FieldList::create(
-            LiteralField::create(
-                'BackButton',
-                '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back','Back') . '</a>'
-            ),
-
-            FormAction::create('doContinue', _t('Checkout.PaymentDetails','Enter Payment Details'))
-                ->addExtraClass('btn')
-                ->addExtraClass('checkout-action-next')
-                ->addExtraClass('btn-green')
-        );
+                FormAction::create('doContinue', _t('Checkout.PaymentDetails','Enter Payment Details'))
+                    ->addExtraClass('btn')
+                    ->addExtraClass('checkout-action-next')
+                    ->addExtraClass('btn-green')
+            );
+        } else
+            $actions = FieldList::create();
 
         $validator = RequiredFields::create(array(
             "PostageID",
