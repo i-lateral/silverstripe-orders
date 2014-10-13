@@ -20,15 +20,31 @@ class PostageArea extends DataObject {
         "Site"          => "SiteConfig"
     );
 
+    public function canView($member = null) {
+		$extended = $this->extendedCan('canView', $member);
+		if($extended !== null) return $extended;
+        
+        return true;
+    }
+    
     public function canCreate($member = null) {
+		$extended = $this->extendedCan('canCreate', $member);
+		if($extended !== null) return $extended;
+        
         return true;
     }
 
     public function canEdit($member = null) {
+		$extended = $this->extendedCan('canEdit', $member);
+		if($extended !== null) return $extended;
+        
         return true;
     }
 
     public function canDelete($member = null) {
+		$extended = $this->extendedCan('canDelete', $member);
+		if($extended !== null) return $extended;
+        
         return true;
     }
 }

@@ -31,6 +31,9 @@ class MemberAddress extends DataObject {
     public function canCreate($member = null) {
         if(!$member) $member = Member::currentUser();
 
+		$extended = $this->extendedCan('canCreate', $member);
+		if($extended !== null) return $extended;
+
         if($member)
             return true;
         else
@@ -44,6 +47,9 @@ class MemberAddress extends DataObject {
      */
     public function canView($member = null) {
         if(!$member) $member = Member::currentUser();
+        
+		$extended = $this->extendedCan('canView', $member);
+		if($extended !== null) return $extended;
 
         if($member && $this->OwnerID == $member->ID)
             return true;
@@ -60,7 +66,10 @@ class MemberAddress extends DataObject {
      */
     public function canEdit($member = null) {
         if(!$member) $member = Member::currentUser();
-
+        
+		$extended = $this->extendedCan('canEdit', $member);
+		if($extended !== null) return $extended;
+        
         if($member && $this->OwnerID == $member->ID)
             return true;
         else if($member && Permission::checkMember($member->ID, array("ADMIN")))
@@ -76,6 +85,9 @@ class MemberAddress extends DataObject {
      */
     public function canDelete($member = null) {
         if(!$member) $member = Member::currentUser();
+        
+		$extended = $this->extendedCan('canDelete', $member);
+		if($extended !== null) return $extended;
 
         if($member && $this->OwnerID == $member->ID)
             return true;
