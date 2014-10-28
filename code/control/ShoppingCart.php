@@ -172,15 +172,15 @@ class ShoppingCart extends Controller {
         }
 
         // If discounts stored in a session, get them, else create new list
-        if(Session::get('Checkout.Discount'))
-            $this->discount = unserialize(Session::get('Checkout.Discount'));
+        if(Session::get('Checkout.ShoppingCart.Discount'))
+            $this->discount = unserialize(Session::get('Checkout.ShoppingCart.Discount'));
 
         // If we don't have any discounts, a user is logged in and he has
         // access to discounts through a group, add the discount here
         if(!$this->discount && Member::currentUserID()) {
             $member = Member::currentUser();
             $this->discount = $member->getDiscount();
-            Session::set('Checkout.Discount', serialize($this->discount));
+            Session::set('Checkout.ShoppingCart.Discount', serialize($this->discount));
         }
         
         // Allow extension of the shopping cart after initial setup
