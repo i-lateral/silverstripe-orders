@@ -544,15 +544,19 @@ class ShoppingCart extends Controller {
     public function TaxCost() {
         $total = 0;
         $return = new Currency();
-        
-        foreach($this->items as $item) {
-            if($item->Tax && $item->Quantity)
-                $total = $total + ($item->Quantity * $item->Tax->RAW());
+
+        // Only use discount amount if the subtotal is greater than
+        // any tacx
+        if($this->SubTotalCost()->RAW() > $this->DiscountAmount()->RAW()) {
+            foreach($this->items as $item) {
+                if($item->Tax && $item->Quantity)
+                    $total = $total + ($item->Quantity * $item->Tax->RAW());
+            }
         }
-        
+
         // Calculate postage tax (if any)
         $postage = PostageArea::get()->byID(Session::get("Checkout.PostageID"));
-        
+
         if($postage && $postage->Cost && $postage->Tax)
             $total += ($postage->Cost / 100) * $postage->Tax;
 
