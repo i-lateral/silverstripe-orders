@@ -168,9 +168,9 @@ class Checkout extends ViewableData {
 
         // Now we have a list of locations, start checking for additional
         // rules an remove if not applicable.
-        $total_cost = str_replace(",","",$cart->SubTotalCost());
-        $total_weight = str_replace(",","",$cart->TotalWeight());
-        $total_items = str_replace(",","",$cart->TotalItems());
+        $total_cost = (float)$cart->SubTotalCost()->RAW();
+        $total_weight = (float)$cart->TotalWeight()->RAW();
+        $total_items = (float)$cart->TotalItems()->RAW();
 
         $max_cost = 0;
         $max_weight = 0;
@@ -178,13 +178,13 @@ class Checkout extends ViewableData {
 
         // First loop through and find items that are invalid
         foreach($return as $location) {
-            if($location->Calculation == "Price" && ((float)$total_cost < $location->Unit))
+            if($location->Calculation == "Price" && ($total_cost < $location->Unit))
                 $return->remove($location);
 
-            if($location->Calculation == "Weight" && ((float)$total_weight < $location->Unit))
+            if($location->Calculation == "Weight" && ($total_weight < $location->Unit))
                 $return->remove($location);
 
-            if($location->Calculation == "Items" && ((float)$total_items < $location->Unit))
+            if($location->Calculation == "Items" && ($total_items < $location->Unit))
                 $return->remove($location);
         }
 
