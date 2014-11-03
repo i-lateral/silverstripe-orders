@@ -10,8 +10,10 @@
         
         <table style="width: 100%;">
             <thead>
-                <td><%t Orders.Details "Details" %></td>
-                <td><%t Orders.Quantity "Quantity" %></td>
+                <tr>
+                    <td><%t Orders.Details "Details" %></td>
+                    <td><%t Orders.Quantity "Quantity" %></td>
+                </tr>
             </thead>
 
             <tbody><% loop $Items() %>
