@@ -12,11 +12,13 @@
         </thead>
 
         <tbody><% loop $Items() %>
-            <td>
-                <strong>{$Title}</strong>
-                $CustomisationHTML
-            </td>
-            <td>{$Quantity}</td>
+            <tr>
+                <td>
+                    <strong>{$Title}</strong>
+                    $CustomisationHTML
+                </td>
+                <td>{$Quantity}</td>
+            </tr>
         <% end_loop %></tbody>
     </table>
 
