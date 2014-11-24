@@ -531,13 +531,20 @@ class ShoppingCart extends Controller {
      */
     public function DiscountAmount() {
         $total = 0;
+        $discount = 0;
         $return = new Currency();
         
         foreach($this->items as $item) {
-            if($item->Discount) $total += $item->Discount->RAW();
+            if($item->Price)
+                $total += $item->Price->RAW();
+            
+            if($item->Discount)
+                $discount += $item->Discount->RAW();
         }
         
-        $return->setValue($total);
+        if($discount > $total) $discount = $total;
+        
+        $return->setValue($discount);
         
         $this->extend("updateDiscountAmount", $return);
 
