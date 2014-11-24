@@ -57,6 +57,19 @@
                             {$SubTotalCost.Nice}
                         </td>
                     </tr>
+                    
+                    <% if $Discount %>
+                        <tr class="discount">
+                            <td class="text-right">
+                                <strong>
+                                    <%t Checkout.Discount 'Discount' %>
+                                </strong>
+                            </td>
+                            <td class="text-right">
+                                {$DiscountAmount.Nice}
+                            </td>
+                        </tr>
+                    <% end_if %>
 
                     <% if $PostageForm %>
                         <tr class="shipping">
@@ -80,19 +93,6 @@
                             </td>
                             <td class="text-right">
                                 {$TaxCost.Nice}
-                            </td>
-                        </tr>
-                    <% end_if %>
-                    
-                    <% if $Discount %>
-                        <tr class="discounts">
-                            <td class="text-right">
-                                <strong>
-                                    <%t Checkout.Discount 'Discount' %>
-                                </strong>
-                            </td>
-                            <td class="text-right">
-                                {$DiscountAmount.Nice}
                             </td>
                         </tr>
                     <% end_if %>
