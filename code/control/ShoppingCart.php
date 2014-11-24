@@ -155,29 +155,11 @@ class ShoppingCart extends Controller {
         $this->items = ArrayList::create();
         
         // If items are stored in a session, get them now
-        if(Session::get('Checkout.ShoppingCart.Items')) {
+        if(Session::get('Checkout.ShoppingCart.Items'))
             $items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
-            
-            // Add our unserialised item
-            foreach($items as $item) {
-                // If tax rate set work out tax
-                if($item->TaxRate) {
-                    $tax = new Currency("Tax");
-                    $tax->setValue(($item->Price / 100) * $item->TaxRate);
-                    $item->Tax = $tax;
-                }
-                
-                // Setup a price as currency (if it is set)
-                if($item->Price) {
-                    $price = new Currency("Price");
-                    $price->setValue($item->Price);
-                    $item->Price = $price;
-                }
-                
-                $this->items->add($item);
-            }
-        }
-
+        else
+            $items = ArrayList::create();
+        
         // If discounts stored in a session, get them, else create new list
         if(Session::get('Checkout.ShoppingCart.Discount'))
             $this->discount = unserialize(Session::get('Checkout.ShoppingCart.Discount'));
@@ -188,6 +170,35 @@ class ShoppingCart extends Controller {
             $member = Member::currentUser();
             $this->discount = $member->getDiscount();
             Session::set('Checkout.ShoppingCart.Discount', serialize($this->discount));
+        }
+            
+        // Add our unserialised item
+        foreach($items as $item) {
+            // Setup a price as currency (if it is set)
+            if($item->Price) {
+                $price = $item->Price;
+                $item->Price = new Currency("Price");
+                $item->Price->setValue($price);
+            }
+            
+            // Calculate the discount
+            if($this->discount) {
+                if($item->Price->RAW() && $this->discount->Type == "Fixed" && $this->discount->Amount) {
+                    $item->Discount = new Currency("Discount");
+                    $item->Discount->setValue($this->discount->Amount / $items->count());
+                } elseif($item->Price && $this->discount->Type == "Percentage" && $this->discount->Amount) {
+                    $item->Discount = new Currency("Discount");
+                    $item->Discount->setValue(($item->Price->RAW() / 100) * $this->discount->Amount);
+                }
+            }
+            
+            // If tax rate set work out tax
+            if($item->TaxRate) {
+                $item->Tax = new Currency("Tax");
+                $item->Tax->setValue((($item->Price->RAW() - $item->Discount->RAW()) / 100) * $item->TaxRate);
+            }
+            
+            $this->items->add($item);
         }
         
         // Setup postage
@@ -520,36 +531,16 @@ class ShoppingCart extends Controller {
      */
     public function DiscountAmount() {
         $total = 0;
-        $subtotal = 0;
         $return = new Currency();
-        $discount = $this->discount;
-
-        if($discount) {
-            // Get total of items plus tax
-            foreach($this->items as $item) {
-                if($item->Price && $item->Quantity)
-                    $subtotal = $subtotal + ($item->Quantity * $item->Price->RAW());
-                
-                if($item->Tax && $item->Quantity)
-                    $subtotal = $subtotal + ($item->Quantity * $item->Tax->RAW());
-            }
-            
-            // If fixed and subtotal is greater than discount, add full
-            // discount, else ensure we don't get a negative total!
-            if($subtotal && $discount->Type == "Fixed") {
-                if($subtotal > $discount->Amount)
-                    $total = $discount->Amount;
-                else
-                    $total = $subtotal;
-            }
-            // If percentage and subtotal, calculate discount
-            elseif($subtotal && $discount->Type == "Percentage" && $discount->Amount)
-                $total = (($discount->Amount / 100) * $subtotal);
+        
+        foreach($this->items as $item) {
+            if($item->Discount) $total += $item->Discount->RAW();
         }
         
-        $this->extend("updateDiscountAmount", $total);
-
         $return->setValue($total);
+        
+        $this->extend("updateDiscountAmount", $return);
+
         return $return;
     }
 
@@ -565,15 +556,18 @@ class ShoppingCart extends Controller {
 
         foreach($this->items as $item) {
             if($item->Tax && $item->Quantity)
-                $total = $total + ($item->Quantity * $item->Tax->RAW());
+                $total += ($item->Quantity * $item->Tax->RAW());
+            
         }
 
         if($this->postage && $this->postage->Cost && $this->postage->Tax)
             $total += ($this->postage->Cost / 100) * $this->postage->Tax;
-
-        $this->extend("updateTaxCost", $total);
-
+        
+        
         $return->setValue($total);
+
+        $this->extend("updateTaxCost", $return);
+        
         return $return;
     }
 
@@ -592,7 +586,7 @@ class ShoppingCart extends Controller {
         
         foreach($this->items as $item) {
             if($item->Tax && $item->Quantity)
-                $tax = $tax + ($item->Quantity * $item->Tax->RAW());
+                $tax += ($item->Quantity * $item->Tax->RAW());
         }
         
         $postage = $this->PostageCost()->RAW();
@@ -602,7 +596,7 @@ class ShoppingCart extends Controller {
         else
             $postage_tax = 0;
 
-        $total = (($subtotal + $tax) - $discount) + $postage + $postage_tax;
+        $total = (($subtotal - $discount) + $tax) + $postage + $postage_tax;
 
         $this->extend("updateTotalCost", $total);
 
