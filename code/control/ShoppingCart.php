@@ -182,18 +182,18 @@ class ShoppingCart extends Controller {
             }
             
             // Calculate the discount
-            if($this->discount) {
-                if($item->Price->RAW() && $this->discount->Type == "Fixed" && $this->discount->Amount) {
-                    $item->Discount = new Currency("Discount");
+            $item->Discount = new Currency("Discount");
+            
+            if($item->Price && $this->discount) {
+                if($item->Price->RAW() && $this->discount->Type == "Fixed" && $this->discount->Amount)
                     $item->Discount->setValue($this->discount->Amount / $items->count());
-                } elseif($item->Price && $this->discount->Type == "Percentage" && $this->discount->Amount) {
-                    $item->Discount = new Currency("Discount");
+                elseif($item->Price && $this->discount->Type == "Percentage" && $this->discount->Amount)
                     $item->Discount->setValue(($item->Price->RAW() / 100) * $this->discount->Amount);
-                }
-            }
+            } else
+                $item->Discount->setValue(0);
             
             // If tax rate set work out tax
-            if($item->TaxRate) {
+            if($item->Price && $item->TaxRate) {
                 $item->Tax = new Currency("Tax");
                 $item->Tax->setValue((($item->Price->RAW() - $item->Discount->RAW()) / 100) * $item->TaxRate);
             }
