@@ -604,10 +604,13 @@ class ShoppingCart extends Controller {
             $postage_tax = 0;
 
         $total = (($subtotal - $discount) + $tax) + $postage + $postage_tax;
+        
+        // Make sure we always round up to 2 decimal places.
+        $pow = pow(10, 2);
+        $return->setValue((ceil($pow * $total) + ceil ($pow * $total - ceil($pow * $total))) / $pow);
 
-        $this->extend("updateTotalCost", $total);
+        $this->extend("updateTotalCost", $return);
 
-        $return->setValue($total);
         return $return;
     }
 
