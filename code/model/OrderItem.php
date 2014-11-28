@@ -35,7 +35,6 @@ class OrderItem extends DataObject {
         "CustomisationList",
         "Quantity",
         "Price",
-        "Tax",
         "TaxRate"
     );
     

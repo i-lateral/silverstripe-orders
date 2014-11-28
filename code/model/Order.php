@@ -248,7 +248,7 @@ class Order extends DataObject implements PermissionProvider {
         $fields->addFieldToTab(
             "Root.Info",
             ReadonlyField::create("SubTotal")
-                ->setValue($this->getSubTotal()->nice())
+                ->setValue($this->getSubTotal()->Nice())
         );
 
         $fields->addFieldToTab(
@@ -260,19 +260,19 @@ class Order extends DataObject implements PermissionProvider {
         $fields->addFieldToTab(
             "Root.Info",
             ReadonlyField::create("Postage")
-                ->setValue($this->getPostage()->nice())
+                ->setValue($this->getPostage()->Nice())
         );
         
         $fields->addFieldToTab(
             "Root.Info",
             ReadonlyField::create("Tax")
-                ->setValue($this->getTaxTotal()->nice())
+                ->setValue($this->getTaxTotal()->Nice())
         );
 
         $fields->addFieldToTab(
             "Root.Info",
             ReadonlyField::create("Total")
-                ->setValue($this->getTotal()->nice())
+                ->setValue($this->getTotal()->Nice())
         );
 
         $member = Member::currentUser();
@@ -394,9 +394,10 @@ class Order extends DataObject implements PermissionProvider {
         $return = new Currency();
         $total = $this->PostageCost;
         
-        $this->extend("updatePostageCost", $total);
-        
         $return->setValue($total);
+        
+        $this->extend("updatePostageCost", $return);
+        
         return $return;
     }
     
@@ -408,18 +409,22 @@ class Order extends DataObject implements PermissionProvider {
     public function getTaxTotal() {
         $return = new Currency();
         $total = 0;
+        $items = $this->Items();
         
         // Calculate total from items in the list
-        foreach($this->Items() as $item) {
-            $total += $item->Tax() * $item->Quantity;
+        foreach($items as $item) {
+            $tax = (($item->Price - ($this->DiscountAmount / $items->count())) / 100) * $item->TaxRate;
+            
+            $total += $tax * $item->Quantity;
         }
         
         if($this->PostageTax)
             $total += $this->PostageTax;
-        
-        $this->extend("updateTaxTotal", $total);
 
         $return->setValue($total);
+        
+        $this->extend("updateTaxTotal", $return);
+
         return $return;
     }
 
@@ -432,9 +437,10 @@ class Order extends DataObject implements PermissionProvider {
         $return = new Currency();
         $total = (($this->getSubTotal()->RAW() + $this->getPostage()->RAW()) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
         
-        $this->extend("updateTotal", $total);
-        
         $return->setValue($total);
+        
+        $this->extend("updateTotal", $return);
+        
         return $return;
     }
 
