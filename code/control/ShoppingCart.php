@@ -536,10 +536,10 @@ class ShoppingCart extends Controller {
         
         foreach($this->items as $item) {
             if($item->Price)
-                $total += $item->Price->RAW();
+                $total += ($item->Price->RAW() * $item->Quantity);
             
             if($item->Discount)
-                $discount += $item->Discount->RAW();
+                $discount += ($item->Discount->RAW() * $item->Quantity);
         }
         
         if($discount > $total) $discount = $total;
