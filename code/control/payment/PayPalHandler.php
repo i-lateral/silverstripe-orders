@@ -82,7 +82,7 @@ class PayPalHandler extends PaymentHandler {
 
         foreach($cart->getItems() as $item) {
             $fields->add(HiddenField::create('item_name_' . $i, null, $item->Title));
-            $fields->add(HiddenField::create('amount_' . $i, null, number_format(($item->Price)), 2)));
+            $fields->add(HiddenField::create('amount_' . $i, null, number_format($item->Price,2)));
             $fields->add(HiddenField::create('quantity_' . $i, null, $item->Quantity));
 
             $i++;
@@ -96,11 +96,11 @@ class PayPalHandler extends PaymentHandler {
         }
         
         // Add tax (if needed) else just total
-        if($cart->TaxCost() > 0) {
+        if($cart->TaxCost) {
             $fields->add(HiddenField::create(
                 'tax_cart',
                 null,
-                number_format($cart->TaxCost(), 2)
+                number_format($cart->TaxCost, 2)
             ));
         }
 
