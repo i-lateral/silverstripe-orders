@@ -220,7 +220,7 @@ class Payment_Controller extends Controller {
             $data['PostageType'] = $postage->Title;
             $data['PostageCost'] = $postage->Cost;
             $data['PostageTax'] = ($postage->Tax) ? ($postage->Cost / 100) * $postage->Tax : 0;
-            $data['DiscountAmount'] = $cart->DiscountAmount()->RAW();
+            $data['DiscountAmount'] = $cart->DiscountAmount;
         }
         
         // Set the current data to this object and extend

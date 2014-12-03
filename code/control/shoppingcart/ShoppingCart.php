@@ -25,6 +25,14 @@ class ShoppingCart extends Controller {
      * @config
      */
     private static $class_name = "ShoppingCart";
+    
+    /**
+     * Name of the current controller. Mostly used in templates.
+     *
+     * @var string
+     * @config
+     */
+    private static $item_class = "ShoppingCartItem";
 
     private static $allowed_actions = array(
         "remove",
@@ -75,7 +83,16 @@ class ShoppingCart extends Controller {
      * @config
      */
     private static $show_discount_form = false;
-
+    
+    private static $casting = array(
+        "TotalWeight" => "Decimal",
+        "TotalItems" => "Int",
+        "SubTotalCost" => "Currency",
+        "DiscountAmount" => "Currency",
+        "TaxCost" => "Currency",
+        "PostageCost" => "Currency",
+        "TotalCost" => "Currency"
+    );
 
     /**
      * Getters and setters
@@ -152,13 +169,11 @@ class ShoppingCart extends Controller {
     public function __construct() {
         parent::__construct();
         
-        $this->items = ArrayList::create();
-        
         // If items are stored in a session, get them now
         if(Session::get('Checkout.ShoppingCart.Items'))
-            $items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
+            $this->items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
         else
-            $items = ArrayList::create();
+            $this->items = ArrayList::create();
         
         // If discounts stored in a session, get them, else create new list
         if(Session::get('Checkout.ShoppingCart.Discount'))
@@ -170,35 +185,6 @@ class ShoppingCart extends Controller {
             $member = Member::currentUser();
             $this->discount = $member->getDiscount();
             Session::set('Checkout.ShoppingCart.Discount', serialize($this->discount));
-        }
-            
-        // Add our unserialised item
-        foreach($items as $item) {
-            // Setup a price as currency (if it is set)
-            if($item->Price) {
-                $price = $item->Price;
-                $item->Price = new Currency("Price");
-                $item->Price->setValue($price);
-            }
-            
-            // Calculate the discount
-            $item->Discount = new Currency("Discount");
-            
-            if($item->Price && $this->discount) {
-                if($item->Price->RAW() && $this->discount->Type == "Fixed" && $this->discount->Amount)
-                    $item->Discount->setValue($this->discount->Amount / $items->count());
-                elseif($item->Price && $this->discount->Type == "Percentage" && $this->discount->Amount)
-                    $item->Discount->setValue(($item->Price->RAW() / 100) * $this->discount->Amount);
-            } else
-                $item->Discount->setValue(0);
-            
-            // If tax rate set work out tax
-            if($item->Price && $item->TaxRate) {
-                $item->Tax = new Currency("Tax");
-                $item->Tax->setValue((($item->Price->RAW() - $item->Discount->RAW()) / 100) * $item->TaxRate);
-            }
-            
-            $this->items->add($item);
         }
         
         // Setup postage
@@ -215,9 +201,7 @@ class ShoppingCart extends Controller {
      * @return string
      */
     public function getViewCartButton(){
-        return $this
-            ->owner
-            ->renderWith('ViewCartButton');
+        return $this->renderWith('ViewCartButton');
     }
 
     /**
@@ -327,31 +311,36 @@ class ShoppingCart extends Controller {
      * @param $object Object that we will add to the shopping cart
      * @param $quantity Number of these objects to add
      */
-    public function add($object, $quantity = 1) {
-        $added = false;
+    public function add($data, $quantity = 1) {
+        if(array_key_exists("Key", $data)) {
+            $added = false;
+            $item_key = $data['Key'];
 
-        // Make a string to match id's against ones already in the cart
-        $key = ($object->Customisations) ? (int)$object->ID . ':' . base64_encode(serialize($object->Customisations)) : (int)$object->ID;
-
-        // Check if object already in the cart and update quantity
-        foreach($this->items as $item) {
-            if($item->Key == $key) {
-                $this->update($item->Key, ($item->Quantity + $quantity));
-                $added = true;
+            // Check if object already in the cart and update quantity
+            foreach($this->items as $item) {
+                if($item->Key == $item_key) {
+                    $this->update($item->Key, ($item->Quantity + $quantity));
+                    $added = true;
+                }
             }
-        }
 
-        // If no update was sucessfull then add to cart items
-        if(!$added) {
-            $object->Key = $key;
-            $object->Quantity = $quantity;
-            
-            $this->extend("onBeforeAdd", $object);
+            // If no update was sucessfull then add to cart items
+            if(!$added) {
+                $cart_item = self::config()->item_class;
+                $cart_item = $cart_item::create();
+                
+                foreach($data as $key => $value) {                
+                    $cart_item->$key = $value;
+                }
+                
+                $cart_item->Key = $item_key;
+                $cart_item->Quantity = $quantity;
+                
+                $this->extend("onBeforeAdd", $cart_item);
 
-            $this->items->add($object);
-            $this->save();
-
-            $this->extend("onAfterAdd", $object);
+                $this->items->add($cart_item);
+                $this->save();
+            }
         }
     }
 
@@ -362,16 +351,18 @@ class ShoppingCart extends Controller {
      * @param Quantity
      */
     public function update($item_key, $quantity) {
-        foreach($this->items as $item) {
-            if ($item->Key === $item_key) {
-                $this->extend("onBeforeUpdate", $item);
-
-                $item->Quantity = $quantity;
-                $this->save();
-
-                $this->extend("onAfterUpdate", $item);
-                return true;
-            }
+        $item = $this
+            ->items
+            ->find("Key", $item_key);
+        
+        if($item) {
+            $item->Quantity = $quantity;
+            
+            $this->extend("onBeforeUpdate", $item);
+            
+            $this->save();
+            
+            return true;
         }
 
         return false;
@@ -394,23 +385,13 @@ class ShoppingCart extends Controller {
     public function save() {
         Session::clear("Checkout.PostageID");
         
-        // Setup our items so they are suitable for storage
-        $items = ArrayList::create();
-        
-        foreach($this->Items as $item) {
-            if($item->Price && $item->Price instanceOf Currency)
-                $item->Price = $item->Price->RAW();
-            
-            $items->add($item);
-        }
-        
         // Extend our save operation
-        $this->extend("onBeforeSave", $items);
+        $this->extend("onBeforeSave");
 
         // Save cart items
         Session::set(
             "Checkout.ShoppingCart.Items",
-            serialize($items)
+            serialize($this->items)
         );
 
         // Save cart discounts
@@ -453,19 +434,15 @@ class ShoppingCart extends Controller {
      *
      * @return Decimal
      */
-    public function TotalWeight() {
+    public function getTotalWeight() {
         $total = 0;
-        $return = new Decimal();
 
         foreach($this->items as $item) {
             if($item->Weight && $item->Quantity)
                 $total = $total + ($item->Weight * $item->Quantity);
         }
         
-        $this->extend("updateTotalWeight", $total);
-        
-        $return->setValue($total);
-        return $return;
+        return $total;
     }
 
     /**
@@ -473,18 +450,14 @@ class ShoppingCart extends Controller {
      *
      * @return Int
      */
-    public function TotalItems() {
+    public function getTotalItems() {        
         $total = 0;
-        $return = new Int();
-
-        foreach($this->items as $item) {
-            $total = ($item->Quantity) ? $total + $item->Quantity : 0;
-        }
         
-        $this->extend("updateTotalItems", $total);
+        foreach($this->items as $item) {
+            $total += ($item->Quantity) ? $item->Quantity : 1;
+        }
 
-        $return->setValue($total);
-        return $return;
+        return $total;
     }
 
     /**
@@ -492,19 +465,14 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function SubTotalCost() {
+    public function getSubTotalCost() {
         $total = 0;
-        $return = new Currency();
 
         foreach($this->items as $item) {
-            if($item->Price && $item->Quantity)
-                $total = $total + ($item->Quantity * $item->Price->RAW());
+            if($item->SubTotal) $total += $item->SubTotal;
         }
         
-        $this->extend("updateSubTotalCost", $total);
-
-        $return->setValue($total);
-        return $return;
+        return $total;
     }
 
     /**
@@ -512,16 +480,12 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function PostageCost() {
+    public function getPostageCost() {
         $total = 0;
-        $return = new Currency();
         
         if($this->postage) $total = $this->postage->Cost;
-            
-        $this->extend("updatePostageCost", $total);
-
-        $return->setValue($total);
-        return $return;
+        
+        return $total;
     }
 
     /**
@@ -529,26 +493,21 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function DiscountAmount() {
+    public function getDiscountAmount() {
         $total = 0;
         $discount = 0;
-        $return = new Currency();
         
         foreach($this->items as $item) {
             if($item->Price)
-                $total += ($item->Price->RAW() * $item->Quantity);
+                $total += ($item->Price * $item->Quantity);
             
             if($item->Discount)
-                $discount += ($item->Discount->RAW() * $item->Quantity);
+                $discount += ($item->TotalDiscount);
         }
         
         if($discount > $total) $discount = $total;
-        
-        $return->setValue($discount);
-        
-        $this->extend("updateDiscountAmount", $return);
 
-        return $return;
+        return $discount;
     }
 
     /**
@@ -557,25 +516,17 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function TaxCost() {
+    public function getTaxCost() {
         $total = 0;
-        $return = new Currency();
 
         foreach($this->items as $item) {
-            if($item->Tax && $item->Quantity)
-                $total += ($item->Quantity * $item->Tax->RAW());
-            
+            if($item->TotalTax) $total += $item->TotalTax;
         }
 
         if($this->postage && $this->postage->Cost && $this->postage->Tax)
             $total += ($this->postage->Cost / 100) * $this->postage->Tax;
         
-        
-        $return->setValue($total);
-
-        $this->extend("updateTaxCost", $return);
-        
-        return $return;
+        return $total;
     }
 
     /**
@@ -584,34 +535,13 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function TotalCost() {
-        $return = new Currency();
-        
-        $subtotal = $this->SubTotalCost()->RAW();
-        $discount = $this->DiscountAmount()->RAW();
-        $tax = 0;
-        
-        foreach($this->items as $item) {
-            if($item->Tax && $item->Quantity)
-                $tax += ($item->Quantity * $item->Tax->RAW());
-        }
-        
-        $postage = $this->PostageCost()->RAW();
-        
-        if($this->postage && $this->postage->Cost && $this->postage->Tax)
-            $postage_tax = ($this->postage->Cost / 100) * $this->postage->Tax;
-        else
-            $postage_tax = 0;
+    public function getTotalCost() {
+        $subtotal = $this->SubTotalCost;
+        $discount = $this->DiscountAmount;
+        $postage = $this->PostageCost;
+        $tax = $this->TaxCost;
 
-        $total = (($subtotal - $discount) + $tax) + $postage + $postage_tax;
-        
-        // Make sure we always round up to 2 decimal places.
-        $pow = pow(10, 2);
-        $return->setValue((ceil($pow * $total) + ceil ($pow * $total - ceil($pow * $total))) / $pow);
-
-        $this->extend("updateTotalCost", $return);
-
-        return $return;
+        return ($subtotal - $discount) + $postage + $tax;
     }
 
 

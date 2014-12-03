@@ -1,3 +1,3 @@
 <a href="$Link">
-    <%t Checkout.ViewCart "View Cart" %> ({$TotalItems})
+    <%t Checkout.ViewCart "View Cart" %> - {$TotalCost.Nice}
 </a>

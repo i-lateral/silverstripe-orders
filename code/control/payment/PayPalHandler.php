@@ -49,7 +49,7 @@ class PayPalHandler extends PaymentHandler {
             HiddenField::create('invoice', null, $order->OrderNumber),
             HiddenField::create('custom', null, $order->OrderNumber), //Track the order number in the paypal custom field
             HiddenField::create('upload', null, 1),
-            HiddenField::create('discount_amount_cart', null, number_format($cart->DiscountAmount()->RAW(), 2)),
+            HiddenField::create('discount_amount_cart', null, number_format($cart->DiscountAmount, 2)),
 
             // Currency details
             HiddenField::create('currency_code', null, Checkout::config()->currency_code),
@@ -82,7 +82,7 @@ class PayPalHandler extends PaymentHandler {
 
         foreach($cart->getItems() as $item) {
             $fields->add(HiddenField::create('item_name_' . $i, null, $item->Title));
-            $fields->add(HiddenField::create('amount_' . $i, null, number_format(($item->Price->RAW()), 2)));
+            $fields->add(HiddenField::create('amount_' . $i, null, number_format(($item->Price)), 2)));
             $fields->add(HiddenField::create('quantity_' . $i, null, $item->Quantity));
 
             $i++;
@@ -91,16 +91,16 @@ class PayPalHandler extends PaymentHandler {
         if(!Checkout::config()->simple_checkout) {
             // Add shipping as an extra product
             $fields->add(HiddenField::create('item_name_' . $i, null, $order->PostageType));
-            $fields->add(HiddenField::create('amount_' . $i, null, number_format($cart->PostageCost()->RAW(), 2)));
+            $fields->add(HiddenField::create('amount_' . $i, null, number_format($cart->PostageCost, 2)));
             $fields->add(HiddenField::create('quantity_' . $i, null, "1"));
         }
         
         // Add tax (if needed) else just total
-        if($cart->TaxCost()->RAW() > 0) {
+        if($cart->TaxCost() > 0) {
             $fields->add(HiddenField::create(
                 'tax_cart',
                 null,
-                number_format($cart->TaxCost()->RAW(), 2)
+                number_format($cart->TaxCost(), 2)
             ));
         }
 

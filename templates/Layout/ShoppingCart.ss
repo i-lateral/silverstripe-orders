@@ -44,8 +44,6 @@
             </div>
 
             <div class="unit-33 unit size1of3">
-                <h2><%t Checkout.Total "Total" %></h2>
-
                 <table class="checkout-tax-table width-100">
                     <tr class="subtotal">
                         <td class="text-right">

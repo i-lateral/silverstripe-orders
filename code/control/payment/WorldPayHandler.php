@@ -34,7 +34,7 @@ class WorldPayHandler extends PaymentHandler {
             HiddenField::create('MC_callback', null, $callback_url),
 
             // Amount and Currency details
-            HiddenField::create('amount', null, number_format($cart->TotalCost()->RAW(),2)),
+            HiddenField::create('amount', null, number_format($cart->TotalCost,2)),
             HiddenField::create('currency', null, Checkout::config()->currency_code),
 
             // Payee details

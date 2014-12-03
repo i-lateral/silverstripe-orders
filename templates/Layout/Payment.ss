@@ -37,38 +37,36 @@
     <hr/>
     
     <% with $Order %>
-        <% if $FirstName && $Email %>
-            <div class="checkout-payment-summary units-row line">
-                <div class="unit-50 unit size1of2">
-                    <h2><%t Checkout.BillingDetails "Billing Details" %></h2>
-                    <p>
-                        <strong><%t Checkout.Name "Name" %>:</strong> $FirstName $Surname<br/>
-                        <strong><%t Checkout.Email "Email" %>:</strong> $Email<br/>
-                        <% if $Company %><strong><%t Checkout.Company "Company" %>:</strong> $Company<br/><% end_if %>
-                        <% if $PhoneNumber %><strong><%t Checkout.Phone "Phone Number" %>:</strong> $PhoneNumber<br/><% end_if %>
-                        <strong><%t Checkout.Address "Address" %>:</strong><br/>
-                        $Address1<br/>
-                        <% if $Address2 %>$Address2<br/><% end_if %>
-                        $City<br/>
-                        <strong><%t Checkout.PostCode "Post Code" %>:</strong> $PostCode<br/>
-                        <strong><%t Checkout.Country "Country" %>:</strong> $Country
-                    </p>
-                </div>
-
-                <div class="unit-50 unit size1of2">
-                    <h2><%t Checkout.DeliveryDetails "Delivery Details" %></h2>
-                    <p>
-                        <strong><%t Checkout.Name "Name" %>:</strong> $DeliveryFirstnames $DeliverySurname<br/>
-                        <strong><%t Checkout.Address "Address" %></strong><br/>
-                        $DeliveryAddress1<br/>
-                        <% if $DeliveryAddress2 %>$DeliveryAddress2<br/><% end_if %>
-                        $DeliveryCity<br/>
-                        <strong><%t Checkout.PostCode "Post Code" %>:</strong> $DeliveryPostCode<br/>
-                        <strong><%t Checkout.Country "Country" %>:</strong> $DeliveryCountry
-                    </p>
-                </div>
+        <div class="checkout-payment-summary units-row line">
+            <div class="unit-50 unit size1of2">
+                <h2><%t Checkout.BillingDetails "Billing Details" %></h2>
+                <p>
+                    <strong><%t Checkout.Name "Name" %>:</strong> $FirstName $Surname<br/>
+                    <strong><%t Checkout.Email "Email" %>:</strong> $Email<br/>
+                    <% if $Company %><strong><%t Checkout.Company "Company" %>:</strong> $Company<br/><% end_if %>
+                    <% if $PhoneNumber %><strong><%t Checkout.Phone "Phone Number" %>:</strong> $PhoneNumber<br/><% end_if %>
+                    <strong><%t Checkout.Address "Address" %>:</strong><br/>
+                    $Address1<br/>
+                    <% if $Address2 %>$Address2<br/><% end_if %>
+                    $City<br/>
+                    <strong><%t Checkout.PostCode "Post Code" %>:</strong> $PostCode<br/>
+                    <strong><%t Checkout.Country "Country" %>:</strong> $Country
+                </p>
             </div>
-        <% end_if %>
+
+            <div class="unit-50 unit size1of2">
+                <h2><%t Checkout.DeliveryDetails "Delivery Details" %></h2>
+                <p>
+                    <strong><%t Checkout.Name "Name" %>:</strong> $DeliveryFirstnames $DeliverySurname<br/>
+                    <strong><%t Checkout.Address "Address" %></strong><br/>
+                    $DeliveryAddress1<br/>
+                    <% if $DeliveryAddress2 %>$DeliveryAddress2<br/><% end_if %>
+                    $DeliveryCity<br/>
+                    <strong><%t Checkout.PostCode "Post Code" %>:</strong> $DeliveryPostCode<br/>
+                    <strong><%t Checkout.Country "Country" %>:</strong> $DeliveryCountry
+                </p>
+            </div>
+        </div>
     <% end_with %>
 
     <% if $PaymentInfo %>

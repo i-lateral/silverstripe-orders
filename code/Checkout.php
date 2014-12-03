@@ -168,9 +168,9 @@ class Checkout extends ViewableData {
 
         // Now we have a list of locations, start checking for additional
         // rules an remove if not applicable.
-        $total_cost = (float)$cart->SubTotalCost()->RAW();
-        $total_weight = (float)$cart->TotalWeight()->RAW();
-        $total_items = (float)$cart->TotalItems()->RAW();
+        $total_cost = $cart->SubTotalCost;
+        $total_weight = $cart->TotalWeight;
+        $total_items = $cart->TotalItems;
 
         $max_cost = 0;
         $max_weight = 0;

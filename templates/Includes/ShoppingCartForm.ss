@@ -26,8 +26,11 @@
                             $Image.CroppedImage(75,75)
                         </td>
                         <td>
-                            <strong>$Title</strong><br/>
-                            <% if $Content %>$Content.Summary(10)<br/><% end_if %>
+                            <strong>
+                                <% if $FindStockItem %><a href="{$FindStockItem.Link}">$Title</a>
+                                <% else %>$Title<% end_if %>
+                            </strong><br/>
+                            <% if $Content %>$Content.Summary(10)<br/><% end_if %>                            
                             <% if $Customisations && $Customisations.exists %><div class="small">
                                 <% loop $Customisations %><div class="{$ClassName}">
                                     <strong>{$Title}:</strong> {$Value}
@@ -39,7 +42,7 @@
                             <input type="text" name="Quantity_{$Key}" value="{$Quantity}" />
                         </td>
                         <td class="price">
-                            {$Price.nice}
+                            {$Price.Nice}
                         </td>
                         <td class="remove">
                             <a href="{$Top.Controller.Link('remove')}/{$Key}" class="btn btn-red">
