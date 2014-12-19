@@ -108,7 +108,8 @@ class Order extends DataObject implements PermissionProvider {
         'Postage'           => 'Currency',
         'TaxTotal'          => 'Currency',
         'Total'             => 'Currency',
-        'ItemSummary'       => 'HTMLText',
+        'ItemSummary'       => 'Text',
+        'ItemSummaryHTML'   => 'HTMLText',
         'TranslatedStatus'  => 'Varchar'
     );
 
@@ -457,6 +458,21 @@ class Order extends DataObject implements PermissionProvider {
         }
 
         return $return;
+    }
+    
+    /**
+     * Return a list string summarising each item in this order
+     *
+     * @return string
+     */
+    public function getItemSummaryHTML() {
+        $html = new HTMLText("ItemSummary");
+        
+        $html->setValue(nl2br($this->ItemSummary));
+        
+        $this->extend("updateItemSummary", $html);
+
+        return $html;
     }
 
     protected function generate_order_number() {
