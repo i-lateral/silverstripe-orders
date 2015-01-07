@@ -167,8 +167,18 @@ class BillingDetailsForm extends Form {
      * @param $data Form data submitted
      */
     private function save_address($data) {
+        $member = Member::currentUser();
+        
         // If the user ticked "save address" then add to their account
-        if(array_key_exists('SaveAddress',$data) && $data['SaveAddress']) {
+        if($member && array_key_exists('SaveAddress',$data) && $data['SaveAddress']) {
+            // First save the details to the users account if they aren't set
+            // We don't save email, as this is used for login
+            $member->FirstName = ($member->FirstName) ? $member->FirstName : $data['FirstName'];
+            $member->Surname = ($member->Surname) ? $member->Surname : $data['Surname'];
+            $member->Company = ($member->Company) ? $member->Company : $data['Company'];
+            $member->PhoneNumber = ($member->PhoneNumber) ? $member->PhoneNumber : $data['PhoneNumber'];
+            $member->write();
+            
             $address = MemberAddress::create();
             $address->FirstName = $data['FirstName'];
             $address->Surname = $data['Surname'];
@@ -177,7 +187,7 @@ class BillingDetailsForm extends Form {
             $address->City = $data['City'];
             $address->PostCode = $data['PostCode'];
             $address->Country = $data['Country'];
-            $address->OwnerID = Member::currentUserID();
+            $address->OwnerID = $member->ID;
             $address->write();
         }
     }
