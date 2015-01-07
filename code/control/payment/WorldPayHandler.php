@@ -46,6 +46,7 @@ class WorldPayHandler extends PaymentHandler {
             HiddenField::create('postcode', null, $order->PostCode),
             HiddenField::create('country', null, $order->Country),
             HiddenField::create('email', null, $order->Email)
+            HiddenField::create('tel', null, $order->PhoneNumber)
         );
 
         // Create a string of items ordered (to manage the order via WorldPay)

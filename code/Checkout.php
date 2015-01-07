@@ -83,6 +83,7 @@ class Checkout extends ViewableData {
         "City",
         "PostCode",
         "Country",
+        "PhoneNumber",
         "Email",
         "DeliveryFirstnames",
         "DeliverySurname",
@@ -96,7 +97,7 @@ class Checkout extends ViewableData {
         "PostageType",
         "PostageCost"
     );
-    
+
     /**
      * Return guest checkout status in a way that can be seen by
      * templates
