@@ -18,6 +18,15 @@ class CheckoutControllerExtension extends Extension {
         return ShoppingCart::get();
     }
     
+    /**
+     * Get the checkout config
+     * 
+     * @return ShoppingCart
+     */
+    public function getCheckout() {
+        return Checkout::create();
+    }
+    
     public function onBeforeInit() {        
         // Set the default currency symbol for this site
         Currency::config()->currency_symbol = Checkout::config()->currency_symbol;
