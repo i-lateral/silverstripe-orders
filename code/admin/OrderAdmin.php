@@ -68,11 +68,12 @@ class OrderAdmin extends ModelAdmin {
 
     public function getEditForm($id = null, $fields = null) {
         $form = parent::getEditForm($id, $fields);
+        $fields = $form->Fields();
 
         if($this->modelClass == 'Order') {
-            $fields = $form->Fields();
             $gridField = $fields->fieldByName('Order');
-
+            $config = $gridField->getConfig();
+            
             // Bulk manager
             $manager = new GridFieldBulkManager();
             $manager->removeBulkAction("bulkedit");
@@ -105,9 +106,10 @@ class OrderAdmin extends ModelAdmin {
 
 
             // Add dispatch button
-            $field_config = $gridField->getConfig();
-            $field_config
-                ->addComponent($manager);
+            $config
+                ->removeComponentsByType('GridFieldDetailForm')
+                ->addComponent($manager)
+				->addComponent(new OrderGridFieldDetailForm());
 
             // Update list of items for subsite (if used)
             if(class_exists('Subsite')) {

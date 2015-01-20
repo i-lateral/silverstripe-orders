@@ -153,6 +153,6 @@ class OrderItem extends DataObject {
         $extended = $this->extend('canDelete', $member);
         if($extended && $extended !== null) return $extended;
 
-        return $this->Parent()->canDelete($member);
+        return $this->Parent()->canEdit($member);
     }
 }

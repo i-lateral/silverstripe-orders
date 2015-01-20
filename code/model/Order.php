@@ -14,7 +14,7 @@
  *
  * Any user can create an order (this allows us to support "guest" users).
  *
- * @author morven
+ * @author ilateral (http://www.ilateral.co.uk)
  */
 class Order extends DataObject implements PermissionProvider {
     
@@ -44,6 +44,21 @@ class Order extends DataObject implements PermissionProvider {
         "processing" => "Processing",
         "dispatched" => "Dispatched",
         "refunded" => "Refunded"
+    );
+    
+    /**
+     * List of statuses that allow editing of an order. We can use this
+     * to fix certain orders in the CMS 
+     * 
+     * @var array
+     * @config
+     */
+    private static $editable_statuses = array(
+        "incomplete",
+        "pending",
+        "paid",
+        "failed",
+        "cancelled"
     );
     
     /**
@@ -136,205 +151,6 @@ class Order extends DataObject implements PermissionProvider {
 
     public function getCMSFields() {
         $fields = parent::getCMSFields();
-
-        // Remove default item admin
-        $fields->removeByName('Items');
-        $fields->removeByName('Status');
-        $fields->removeByName('EmailDispatchSent');
-        $fields->removeByName('PostageID');
-        $fields->removeByName('PaymentID');
-        $fields->removeByName('GatewayData');
-
-        // Remove Billing Details
-        $fields->removeByName('Address1');
-        $fields->removeByName('Address2');
-        $fields->removeByName('City');
-        $fields->removeByName('PostCode');
-        $fields->removeByName('Country');
-
-        // Remove Delivery Details
-        $fields->removeByName('DeliveryFirstnames');
-        $fields->removeByName('DeliverySurname');
-        $fields->removeByName('DeliveryAddress1');
-        $fields->removeByName('DeliveryAddress2');
-        $fields->removeByName('DeliveryCity');
-        $fields->removeByName('DeliveryPostCode');
-        $fields->removeByName('DeliveryCountry');
-
-        // Remove default postage fields
-        $fields->removeByName('PostageType');
-        $fields->removeByName('PostageCost');
-        $fields->removeByName('PostageTax');
-
-        $fields->addFieldToTab(
-            'Root.Main',
-            ReadonlyField::create('OrderNumber', "#"),
-            'Company'
-        );
-        
-        $fields->addFieldToTab(
-            'Root.Main',
-            $statusfield = DropdownField::create('Status', null, $this->config()->statuses),
-            'Company'
-        );
-        
-        // Set default status if we can
-        if($this->config()->default_status && !$this->Status)
-            $statusfield->setValue($this->config()->default_status);
-
-        $fields->addFieldToTab(
-            'Root.Main',
-            ReadonlyField::create('Created')
-        );
-
-        $fields->addFieldToTab(
-            'Root.Main',
-            ReadonlyField::create('LastEdited', 'Last time order was saved')
-        );
-
-        // Structure billing details
-        $billing_fields = ToggleCompositeField::create('BillingDetails', 'Billing Details',
-            array(
-                TextField::create('Address1', 'Address 1'),
-                TextField::create('Address2', 'Address 2'),
-                TextField::create('City', 'City'),
-                TextField::create('PostCode', 'Post Code'),
-                TextField::create('Country', 'Country')
-            )
-        )->setHeadingLevel(4);
-
-
-        // Structure delivery details
-        $delivery_fields = ToggleCompositeField::create('DeliveryDetails', 'Delivery Details',
-            array(
-                TextField::create('DeliveryFirstnames', 'First Name(s)'),
-                TextField::create('DeliverySurname', 'Surname'),
-                TextField::create('DeliveryAddress1', 'Address 1'),
-                TextField::create('DeliveryAddress2', 'Address 2'),
-                TextField::create('DeliveryCity', 'City'),
-                TextField::create('DeliveryPostCode', 'Post Code'),
-                TextField::create('DeliveryCountry', 'Country'),
-            )
-        )->setHeadingLevel(4);
-
-        // Postage details
-        // Structure billing details
-        $postage_fields = ToggleCompositeField::create('Postage', 'Postage Details',
-            array(
-                ReadonlyField::create('PostageType'),
-                ReadonlyField::create('PostageCost'),
-                ReadonlyField::create('PostageTax')
-            )
-        )->setHeadingLevel(4);
-
-        $fields->addFieldToTab('Root.Main', $billing_fields);
-        $fields->addFieldToTab('Root.Main', $delivery_fields);
-        $fields->addFieldToTab('Root.Main', $postage_fields);
-
-
-        // Add order items and totals
-        $fields->addFieldToTab(
-            'Root.Info',
-            GridField::create(
-                'Items',
-                "Order Items",
-                $this->Items(),
-                GridFieldConfig::create()->addComponents(
-                    new GridFieldSortableHeader(),
-                    new GridFieldDataColumns()
-                )
-            )
-        );
-
-        $fields->addFieldToTab(
-            "Root.Info",
-            ReadonlyField::create("SubTotal")
-                ->setValue($this->getSubTotal()->Nice())
-        );
-
-        $fields->addFieldToTab(
-            "Root.Info",
-            ReadonlyField::create("DiscountAmount")
-                ->setValue($this->DiscountAmount)
-        );
-
-        $fields->addFieldToTab(
-            "Root.Info",
-            ReadonlyField::create("Postage")
-                ->setValue($this->getPostage()->Nice())
-        );
-        
-        $fields->addFieldToTab(
-            "Root.Info",
-            ReadonlyField::create("Tax")
-                ->setValue($this->getTaxTotal()->Nice())
-        );
-
-        $fields->addFieldToTab(
-            "Root.Info",
-            ReadonlyField::create("Total")
-                ->setValue($this->getTotal()->Nice())
-        );
-
-        $member = Member::currentUser();
-
-        if(Permission::check('ADMIN', 'any', $member)) {
-            // Add non-editable payment ID
-            $paymentid_field = TextField::create('PaymentID', "Payment gateway ID number")
-                ->setReadonly(true)
-                ->performReadonlyTransformation();
-
-
-            $gateway_data = LiteralField::create(
-                "FormattedGatewayData",
-                "<strong>Data returned from the payment gateway:</strong><br/><br/>" .
-                str_replace(",",",<br/>",$this->GatewayData)
-            );
-
-
-            $fields->addFieldToTab('Root.Gateway', $paymentid_field);
-            $fields->addFieldToTab("Root.Gateway", $gateway_data);
-        }
-
-        if(Permission::check(array('COMMERCE_ORDER_HISTORY','ADMIN'), 'any', $member)) {
-            // Setup basic history of this order
-            $versions = $this->AllVersions();
-            $curr_version = $versions->First()->Version;
-            $message = "";
-
-            foreach($versions as $version) {
-                $i = $version->Version;
-                $name = "History_{$i}";
-
-                if($i > 1) {
-                    $frm = Versioned::get_version($this->class, $this->ID, $i - 1);
-                    $to = Versioned::get_version($this->class, $this->ID, $i);
-                    $diff = new DataDifferencer($frm, $to);
-
-                    if($version->Author())
-                        $message = "<p>{$version->Author()->FirstName} ({$version->LastEdited})</p>";
-                    else
-                        $message = "<p>Unknown ({$version->LastEdited})</p>";
-
-                    if($diff->ChangedFields()->exists()) {
-                        $message .= "<ul>";
-
-                        // Now loop through all changed fields and track as message
-                        foreach($diff->ChangedFields() as $change) {
-                            if($change->Name != "LastEdited")
-                                $message .= "<li>{$change->Title}: {$change->Diff}</li>";
-                        }
-
-                        $message .= "</ul>";
-                    }
-                }
-
-                $fields->addFieldToTab("Root.History", LiteralField::create(
-                    $name,
-                    "<div class=\"field\">{$message}</div>"
-                ));
-            }
-        }
 
         $this->extend("updateCMSFields", $fields);
 
@@ -631,7 +447,11 @@ class Order extends DataObject implements PermissionProvider {
         else
             $memberID = Member::currentUserID();
 
-        if($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_EDIT_ORDERS")))
+        if(
+            $memberID &&
+            Permission::checkMember($memberID, array("ADMIN", "COMMERCE_EDIT_ORDERS")) &&
+            in_array($this->Status, $this->config()->editable_statuses)
+        )
             return true;
 
         return false;
