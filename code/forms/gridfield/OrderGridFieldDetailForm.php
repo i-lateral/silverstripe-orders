@@ -21,19 +21,32 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
 	public function ItemEditForm(){
 		$form = parent::ItemEditForm();
         $fields = $form->Fields();
+        $actions = $form->Actions();
         $record = $this->record;
+        $member = Member::currentUser();
         
-        // Change default status field
-        
-        if($record->canEdit()) {
+        // Allow users to change status (as long as they have permission)
+        if($record->canEdit() || $record->canChangeStatus()) {
             $status_field = DropdownField::create(
                 'Status',
                 null,
                 $record->config()->statuses
             );
             
-            $fields->replaceField("Status", $status_field);
+            // Set default status if we can
+            if(!$record->Status && !$record->config()->default_status) {
+                $status_field
+                    ->setValue($record->config()->default_status);
+            } else {
+                $status_field
+                    ->setValue($record->Status);
+            }
             
+            $fields->replaceField("Status", $status_field);
+        }
+        
+        
+        if($record->canEdit()) {
             $item_field = $fields->dataFieldByName("Items");
             
             if($item_field) {
@@ -46,161 +59,31 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
             }
         }
         
-        
-        /*
-        // Remove default item admin
-        $fields->removeByName('Items');
-        $fields->removeByName('Status');
-        $fields->removeByName('EmailDispatchSent');
-        $fields->removeByName('PostageID');
-        $fields->removeByName('PaymentID');
-        $fields->removeByName('GatewayData');
-
-        // Remove Billing Details
-        $fields->removeByName('Address1');
-        $fields->removeByName('Address2');
-        $fields->removeByName('City');
-        $fields->removeByName('PostCode');
-        $fields->removeByName('Country');
-
-        // Remove Delivery Details
-        $fields->removeByName('DeliveryFirstnames');
-        $fields->removeByName('DeliverySurname');
-        $fields->removeByName('DeliveryAddress1');
-        $fields->removeByName('DeliveryAddress2');
-        $fields->removeByName('DeliveryCity');
-        $fields->removeByName('DeliveryPostCode');
-        $fields->removeByName('DeliveryCountry');
-
-        // Remove default postage fields
-        $fields->removeByName('PostageType');
-        $fields->removeByName('PostageCost');
-        $fields->removeByName('PostageTax');
-
         $fields->addFieldToTab(
-            'Root.Main',
-            ReadonlyField::create('OrderNumber', "#"),
-            'Company'
-        );
-        
-        // Set default status if we can
-        if($record->config()->default_status && !$record->Status)
-            $statusfield->setValue($record->config()->default_status);
-
-        $fields->addFieldToTab(
-            'Root.Main',
-            ReadonlyField::create('Created')
-        );
-
-        $fields->addFieldToTab(
-            'Root.Main',
-            ReadonlyField::create('LastEdited', 'Last time order was saved')
-        );
-
-        // Structure billing details
-        $billing_fields = ToggleCompositeField::create('BillingDetails', 'Billing Details',
-            array(
-                TextField::create('Address1', 'Address 1'),
-                TextField::create('Address2', 'Address 2'),
-                TextField::create('City', 'City'),
-                TextField::create('PostCode', 'Post Code'),
-                TextField::create('Country', 'Country')
-            )
-        )->setHeadingLevel(4);
-
-
-        // Structure delivery details
-        $delivery_fields = ToggleCompositeField::create('DeliveryDetails', 'Delivery Details',
-            array(
-                TextField::create('DeliveryFirstnames', 'First Name(s)'),
-                TextField::create('DeliverySurname', 'Surname'),
-                TextField::create('DeliveryAddress1', 'Address 1'),
-                TextField::create('DeliveryAddress2', 'Address 2'),
-                TextField::create('DeliveryCity', 'City'),
-                TextField::create('DeliveryPostCode', 'Post Code'),
-                TextField::create('DeliveryCountry', 'Country'),
-            )
-        )->setHeadingLevel(4);
-
-        // Postage details
-        // Structure billing details
-        $postage_fields = ToggleCompositeField::create('Postage', 'Postage Details',
-            array(
-                ReadonlyField::create('PostageType'),
-                ReadonlyField::create('PostageCost'),
-                ReadonlyField::create('PostageTax')
-            )
-        )->setHeadingLevel(4);
-
-        $fields->addFieldToTab('Root.Main', $billing_fields);
-        $fields->addFieldToTab('Root.Main', $delivery_fields);
-        $fields->addFieldToTab('Root.Main', $postage_fields);
-
-
-        // Add order items and totals
-        $fields->addFieldToTab(
-            'Root.Info',
-            GridField::create(
-                'Items',
-                "Order Items",
-                $record->Items(),
-                GridFieldConfig::create()->addComponents(
-                    new GridFieldSortableHeader(),
-                    new GridFieldDataColumns()
-                )
-            )
-        );
-
-        $fields->addFieldToTab(
-            "Root.Info",
+            "Root.Items",
             ReadonlyField::create("SubTotal")
                 ->setValue($record->getSubTotal()->Nice())
         );
 
         $fields->addFieldToTab(
-            "Root.Info",
-            ReadonlyField::create("DiscountAmount")
-                ->setValue($record->DiscountAmount)
-        );
-
-        $fields->addFieldToTab(
-            "Root.Info",
+            "Root.Items",
             ReadonlyField::create("Postage")
                 ->setValue($record->getPostage()->Nice())
         );
         
         $fields->addFieldToTab(
-            "Root.Info",
+            "Root.Items",
             ReadonlyField::create("Tax")
                 ->setValue($record->getTaxTotal()->Nice())
         );
 
         $fields->addFieldToTab(
-            "Root.Info",
+            "Root.Items",
             ReadonlyField::create("Total")
                 ->setValue($record->getTotal()->Nice())
         );
-
-        $member = Member::currentUser();
-
-        if(Permission::check('ADMIN', 'any', $member)) {
-            // Add non-editable payment ID
-            $paymentid_field = TextField::create('PaymentID', "Payment gateway ID number")
-                ->setReadonly(true)
-                ->performReadonlyTransformation();
-
-
-            $gateway_data = LiteralField::create(
-                "FormattedGatewayData",
-                "<strong>Data returned from the payment gateway:</strong><br/><br/>" .
-                str_replace(",",",<br/>",$record->GatewayData)
-            );
-
-
-            $fields->addFieldToTab('Root.Gateway', $paymentid_field);
-            $fields->addFieldToTab("Root.Gateway", $gateway_data);
-        }
-
+        
+        // Setup order history
         if(Permission::check(array('COMMERCE_ORDER_HISTORY','ADMIN'), 'any', $member)) {
             // Setup basic history of this order
             $versions = $record->AllVersions();
@@ -233,15 +116,81 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
 
                         $message .= "</ul>";
                     }
+                    
+                    $fields->addFieldToTab("Root.History", LiteralField::create(
+                        $name,
+                        "<div class=\"field\">{$message}</div>"
+                    ));
                 }
-
-                $fields->addFieldToTab("Root.History", LiteralField::create(
-                    $name,
-                    "<div class=\"field\">{$message}</div>"
-                ));
             }
         }
-        */
+        
+        
+        // Is user cannot edit, but can change status, add change
+        // status button
+        if(!$record->canEdit() && $record->canChangeStatus()) {
+            $actions
+                ->push(FormAction::create('doChangeStatus', _t('Orders.ChangeStatus', 'Change Status'))
+                ->setUseButtonTag(true)
+                ->addExtraClass('ss-ui-action-constructive')
+                ->setAttribute('data-icon', 'accept'));
+        }
+        
 		return $form;
+	}
+    
+    public function doChangeStatus($data, $form) {
+		$new_record = $this->record->ID == 0;
+		$controller = $this->getToplevelController();
+		$list = $this->gridField->getList();
+
+		try {
+			$this->record->Status = $data["Status"];
+			$this->record->write();
+		} catch(ValidationException $e) {
+			$form->sessionMessage($e->getResult()->message(), 'bad', false);
+            
+			$responseNegotiator = new PjaxResponseNegotiator(array(
+				'CurrentForm' => function() use(&$form) {
+					return $form->forTemplate();
+				},
+				'default' => function() use(&$controller) {
+					return $controller->redirectBack();
+				}
+			));
+            
+			if($controller->getRequest()->isAjax()){
+				$controller->getRequest()->addHeader('X-Pjax', 'CurrentForm');
+			}
+            
+			return $responseNegotiator->respond($controller->getRequest());
+		}
+
+		$link = '<a href="' . $this->Link('edit') . '">"'
+			. htmlspecialchars($this->record->Title, ENT_QUOTES)
+			. '"</a>';
+
+		$message = _t(
+			'Orders.StatusChanged', 
+			'Status Changed {name} {link}',
+			array(
+				'name' => $this->record->i18n_singular_name(),
+				'link' => $link
+			)
+		);
+		
+		$form->sessionMessage($message, 'good', false);
+
+		if($this->gridField->getList()->byId($this->record->ID)) {
+			// Return new view, as we can't do a "virtual redirect" via the CMS Ajax
+			// to the same URL (it assumes that its content is already current, and doesn't reload)
+			return $this->edit($controller->getRequest());
+		} else {
+			// Changes to the record properties might've excluded the record from
+			// a filtered list, so return back to the main view if it can't be found
+			$noActionURL = $controller->removeAction($data['url']);
+			$controller->getRequest()->addHeader('X-Pjax', 'Content'); 
+			return $controller->redirect($noActionURL, 302); 
+		}
 	}
 }

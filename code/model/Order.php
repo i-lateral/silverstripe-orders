@@ -71,8 +71,8 @@ class Order extends DataObject implements PermissionProvider {
     private static $default_status = "incomplete";
 
     private static $db = array(
-        'OrderNumber'       => 'Varchar',
         'Status'            => "Varchar",
+        'OrderNumber'       => 'Varchar',
         
         // Billing Details
         'Company'           => 'Varchar',
@@ -371,25 +371,31 @@ class Order extends DataObject implements PermissionProvider {
             "COMMERCE_VIEW_ORDERS" => array(
                 'name' => 'View any order',
                 'help' => 'Allow user to view any commerce order',
-                'category' => 'Commerce',
+                'category' => 'Orders',
                 'sort' => 99
+            ),
+            "COMMERCE_STATUS_ORDERS" => array(
+                'name' => 'Change status of any order',
+                'help' => 'Allow user to change the status of any order',
+                'category' => 'Orders',
+                'sort' => 98
             ),
             "COMMERCE_EDIT_ORDERS" => array(
                 'name' => 'Edit any order',
-                'help' => 'Allow user to edit any commerce order',
-                'category' => 'Commerce',
+                'help' => 'Allow user to edit any order',
+                'category' => 'Orders',
                 'sort' => 98
             ),
             "COMMERCE_DELETE_ORDERS" => array(
                 'name' => 'Delete any order',
-                'help' => 'Allow user to delete any commerce order',
-                'category' => 'Commerce',
+                'help' => 'Allow user to delete any order',
+                'category' => 'Orders',
                 'sort' => 97
             ),
             "COMMERCE_ORDER_HISTORY" => array(
                 'name' => 'View order history',
                 'help' => 'Allow user to see the history of an order',
-                'category' => 'Commerce',
+                'category' => 'Orders',
                 'sort' => 96
             )
         );
@@ -452,6 +458,28 @@ class Order extends DataObject implements PermissionProvider {
             Permission::checkMember($memberID, array("ADMIN", "COMMERCE_EDIT_ORDERS")) &&
             in_array($this->Status, $this->config()->editable_statuses)
         )
+            return true;
+
+        return false;
+    }
+    
+    /**
+     * Only users with EDIT admin rights can view an order
+     *
+     * @return Boolean
+     */
+    public function canChangeStatus($member = null) {
+        $extended = $this->extend('canEdit', $member);
+        if($extended && $extended !== null) return $extended;
+
+        if($member instanceof Member)
+            $memberID = $member->ID;
+        else if(is_numeric($member))
+            $memberID = $member;
+        else
+            $memberID = Member::currentUserID();
+
+        if($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_STATUS_ORDERS")))
             return true;
 
         return false;
