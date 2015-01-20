@@ -107,6 +107,14 @@ class OrderItem extends DataObject {
         $return->setValue($html);
         return $return;
     }
+    
+    public function getCMSFields() {
+        $fields = parent::getCMSFields();
+        
+        $fields->removeByName("Customisation");
+        
+        return $fields;
+    }
 
     /**
      * Only order creators or users with VIEW admin rights can view
