@@ -154,6 +154,9 @@ class Order extends DataObject implements PermissionProvider {
         
         $member = Member::currentUser();
         
+        $fields->removeByName("GatewayData");
+        $fields->removeByName("CustomerID");
+        
         // Add created date
         $fields->addFieldToTab(
             "Root.Main",
@@ -236,6 +239,15 @@ class Order extends DataObject implements PermissionProvider {
                 _t("Orders.DeliveryDetails", "Delivery Details")
             ),
             "DeliveryFirstnames"
+        );
+        
+        $fields->addFieldToTab(
+            "Root.Main",
+            new HeaderField(
+                "PostageDetailsHeader",
+                _t("Orders.PostageDetails", "Postage Details")
+            ),
+            "PostageType"
         );
 
         $this->extend("updateCMSFields", $fields);
