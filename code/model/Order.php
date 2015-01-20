@@ -151,6 +151,85 @@ class Order extends DataObject implements PermissionProvider {
 
     public function getCMSFields() {
         $fields = parent::getCMSFields();
+        
+        $member = Member::currentUser();
+        
+        // Allow users to change status (as long as they have permission)
+        if($this->canEdit() || $this->canChangeStatus()) {
+            $status_field = DropdownField::create(
+                'Status',
+                null,
+                $this->config()->statuses
+            );
+            
+            // Set default status if we can
+            if(!$this->Status && !$this->config()->default_status) {
+                $status_field
+                    ->setValue($this->config()->default_status);
+            } else {
+                $status_field
+                    ->setValue($this->Status);
+            }
+            
+            $fields->replaceField("Status", $status_field);
+        }
+        
+        
+        if($this->canEdit()) {
+            $item_field = $fields->dataFieldByName("Items");
+            
+            if($item_field) {
+                $item_config = $item_field->getConfig();
+                
+                $item_config
+                    ->removeComponentsByType("GridFieldAddExistingAutocompleter")
+                    ->removeComponentsByType("GridFieldDeleteAction")
+                    ->addComponent(new GridFieldDeleteAction());
+            }
+        }
+        
+        $fields->addFieldToTab(
+            "Root.Items",
+            ReadonlyField::create("SubTotal")
+                ->setValue($this->getSubTotal()->Nice())
+        );
+
+        $fields->addFieldToTab(
+            "Root.Items",
+            ReadonlyField::create("Postage")
+                ->setValue($this->getPostage()->Nice())
+        );
+        
+        $fields->addFieldToTab(
+            "Root.Items",
+            ReadonlyField::create("Tax")
+                ->setValue($this->getTaxTotal()->Nice())
+        );
+
+        $fields->addFieldToTab(
+            "Root.Items",
+            ReadonlyField::create("Total")
+                ->setValue($this->getTotal()->Nice())
+        );
+        
+        // Add headings
+        $fields->addFieldToTab(
+            "Root.Main",
+            new HeaderField(
+                "BillingDetailsHeader",
+                _t("Orders.BillingDetails", "Billing Details")
+            ),
+            "Company"
+        );
+        
+        $fields->addFieldToTab(
+            "Root.Main",
+            new HeaderField(
+                "DeliveryDetailsHeader",
+                _t("Orders.DeliveryDetails", "Delivery Details")
+            ),
+            "DeliveryFirstnames"
+        );
 
         $this->extend("updateCMSFields", $fields);
 

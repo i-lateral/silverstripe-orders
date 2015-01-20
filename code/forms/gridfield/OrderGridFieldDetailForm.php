@@ -25,67 +25,8 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
         $record = $this->record;
         $member = Member::currentUser();
         
-        // Allow users to change status (as long as they have permission)
-        if($record->canEdit() || $record->canChangeStatus()) {
-            $status_field = DropdownField::create(
-                'Status',
-                null,
-                $record->config()->statuses
-            );
-            
-            // Set default status if we can
-            if(!$record->Status && !$record->config()->default_status) {
-                $status_field
-                    ->setValue($record->config()->default_status);
-            } else {
-                $status_field
-                    ->setValue($record->Status);
-            }
-            
-            $fields->replaceField("Status", $status_field);
-        }
-        
-        
-        if($record->canEdit()) {
-            $item_field = $fields->dataFieldByName("Items");
-            
-            if($item_field) {
-                $item_config = $item_field->getConfig();
-                
-                $item_config
-                    ->removeComponentsByType("GridFieldAddExistingAutocompleter")
-                    ->removeComponentsByType("GridFieldDeleteAction")
-                    ->addComponent(new GridFieldDeleteAction());
-            }
-        }
-        
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("SubTotal")
-                ->setValue($record->getSubTotal()->Nice())
-        );
-
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("Postage")
-                ->setValue($record->getPostage()->Nice())
-        );
-        
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("Tax")
-                ->setValue($record->getTaxTotal()->Nice())
-        );
-
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("Total")
-                ->setValue($record->getTotal()->Nice())
-        );
-        
         // Setup order history
         if(Permission::check(array('COMMERCE_ORDER_HISTORY','ADMIN'), 'any', $member)) {
-            // Setup basic history of this order
             $versions = $record->AllVersions();
             $first_version = $versions->First();
             $curr_version = ($first_version) ? $versions->First() : null;
