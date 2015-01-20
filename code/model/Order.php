@@ -154,6 +154,13 @@ class Order extends DataObject implements PermissionProvider {
         
         $member = Member::currentUser();
         
+        // Add created date
+        $fields->addFieldToTab(
+            "Root.Main",
+            ReadonlyField::create("Created"),
+            "Company"
+        );
+        
         // Allow users to change status (as long as they have permission)
         if($this->canEdit() || $this->canChangeStatus()) {
             $status_field = DropdownField::create(
