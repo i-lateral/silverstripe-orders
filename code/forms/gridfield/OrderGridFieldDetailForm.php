@@ -35,12 +35,15 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
             $fields->replaceField("Status", $status_field);
             
             $item_field = $fields->dataFieldByName("Items");
-            $item_config = $item_field->getConfig();
             
-            $item_config
-                ->removeComponentsByType("GridFieldAddExistingAutocompleter")
-                ->removeComponentsByType("GridFieldDeleteAction")
-                ->addComponent(new GridFieldDeleteAction());
+            if($item_field) {
+                $item_config = $item_field->getConfig();
+                
+                $item_config
+                    ->removeComponentsByType("GridFieldAddExistingAutocompleter")
+                    ->removeComponentsByType("GridFieldDeleteAction")
+                    ->addComponent(new GridFieldDeleteAction());
+            }
         }
         
         
