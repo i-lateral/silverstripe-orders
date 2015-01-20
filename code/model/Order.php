@@ -54,6 +54,7 @@ class Order extends DataObject implements PermissionProvider {
      * @config
      */
     private static $editable_statuses = array(
+        "",
         "incomplete",
         "pending",
         "paid",

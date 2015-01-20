@@ -66,10 +66,9 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
             }
         }
         
-        
         // Is user cannot edit, but can change status, add change
         // status button
-        if(!$record->canEdit() && $record->canChangeStatus()) {
+        if($record->ID && !$record->canEdit() && $record->canChangeStatus()) {
             $actions
                 ->push(FormAction::create('doChangeStatus', _t('Orders.ChangeStatus', 'Change Status'))
                 ->setUseButtonTag(true)
