@@ -165,26 +165,6 @@ class Order extends DataObject implements PermissionProvider {
             "Company"
         );
         
-        // Allow users to change status (as long as they have permission)
-        if($this->canEdit() || $this->canChangeStatus()) {
-            $status_field = DropdownField::create(
-                'Status',
-                null,
-                $this->config()->statuses
-            );
-            
-            // Set default status if we can
-            if(!$this->Status && !$this->config()->default_status) {
-                $status_field
-                    ->setValue($this->config()->default_status);
-            } else {
-                $status_field
-                    ->setValue($this->Status);
-            }
-            
-            $fields->replaceField("Status", $status_field);
-        }
-        
         
         if($this->canEdit()) {
             $item_field = $fields->dataFieldByName("Items");

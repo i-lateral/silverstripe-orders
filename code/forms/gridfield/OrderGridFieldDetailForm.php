@@ -25,6 +25,28 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
         $record = $this->record;
         $member = Member::currentUser();
         
+        // Set our status field as a dropdown (has to be here to
+        // ignore canedit)
+        // Allow users to change status (as long as they have permission)
+        if($record->canEdit() || $record->canChangeStatus()) {
+            $status_field = DropdownField::create(
+                'Status',
+                null,
+                $record->config()->statuses
+            );
+            
+            // Set default status if we can
+            if(!$record->Status && !$record->config()->default_status) {
+                $status_field
+                    ->setValue($record->config()->default_status);
+            } else {
+                $status_field
+                    ->setValue($record->Status);
+            }
+            
+            $fields->replaceField("Status", $status_field);
+        }
+        
         // Setup order history
         if(Permission::check(array('COMMERCE_ORDER_HISTORY','ADMIN'), 'any', $member)) {
             $versions = $record->AllVersions();
@@ -75,6 +97,8 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
                 ->addExtraClass('ss-ui-action-constructive')
                 ->setAttribute('data-icon', 'accept'));
         }
+        
+        $this->extend("updateItemEditForm", $form);
         
 		return $form;
 	}
