@@ -58,7 +58,7 @@ class OrderGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemReque
                 $i = $version->Version;
                 $name = "History_{$i}";
 
-                if($i > 1) {
+                if($i > 0) {
                     $frm = Versioned::get_version($record->class, $record->ID, $i - 1);
                     $to = Versioned::get_version($record->class, $record->ID, $i);
                     $diff = new DataDifferencer($frm, $to);
