@@ -157,6 +157,7 @@ class Order extends DataObject implements PermissionProvider {
         
         $fields->removeByName("GatewayData");
         $fields->removeByName("CustomerID");
+        $fields->removeByName("Items");
         
         // Add created date
         $fields->addFieldToTab(
@@ -165,19 +166,27 @@ class Order extends DataObject implements PermissionProvider {
             "Company"
         );
         
+        // Setup order items
+        $fields->removeByName("Items");
         
-        if($this->canEdit()) {
-            $item_field = $fields->dataFieldByName("Items");
-            
-            if($item_field) {
-                $item_config = $item_field->getConfig();
-                
-                $item_config
-                    ->removeComponentsByType("GridFieldAddExistingAutocompleter")
-                    ->removeComponentsByType("GridFieldDeleteAction")
-                    ->addComponent(new GridFieldDeleteAction());
-            }
-        }
+        // Add gridfield
+        $fields->addFieldToTab(
+            "Root.Items",
+            new OrderItemGridField(
+                "Items",
+                "",
+                $this->Items(),
+                $config = new GridFieldConfig_RelationEditor()
+            )
+        );
+        
+        $config
+            ->removeComponentsByType("GridFieldDeleteAction")
+            ->removeComponentsByType("GridFieldAddExistingAutocompleter")
+            ->removeComponentsByType("GridFieldPageCount")
+            ->removeComponentsByType("GridFieldToolbarHeader")
+            ->removeComponentsByType("GridFieldPaginator")
+            ->addComponent(new GridFieldDeleteAction());
         
         $fields->addFieldToTab(
             "Root.Items",
