@@ -2,5 +2,5 @@
 Name: orderconfig
 ---
 LeftAndMain:
-  extensions:
-    - OrdersLeftAndMainExtension
+  extra_requirements_css:
+    - orders/css/admin.css
