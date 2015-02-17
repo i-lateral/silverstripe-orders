@@ -227,12 +227,12 @@ class CheckoutUserAccountControllerExtension extends Extension {
     public function updateEditAccountForm($form) {
         $form->Fields()->insertBefore(TextField::create(
             "Company",
-            _t('CommerceAccount.Company',"Company")
+            _t('CheckoutUsers.Company',"Company")
         ),"FirstName");
 
         $form->Fields()->add(TextField::create(
             "PhoneNumber",
-            _t("CommerceAccount.PhoneNumber","Phone Number")
+            _t("CheckoutUsers.PhoneNumber","Phone Number")
         ));
     }
 }

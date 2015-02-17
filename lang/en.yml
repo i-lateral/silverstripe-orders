@@ -1,0 +1,122 @@
+en:
+  Checkout:
+    Add: Add
+    AddAddress: 'Add Address'
+    Address: Address
+    Address1: 'Address Line 1'
+    Address2: 'Address Line 2'
+    AddressRemoved: 'Address Removed'
+    AddressSaved: 'Address Saved'
+    Addresses: Addresses
+    Back: Back
+    BillingDetails: 'Billing Details'
+    CartEmpty: 'Empty Cart'
+    CartIsEmpty: 'Your cart is currently empty'
+    CartName: 'Shopping Cart'
+    CartProceed: 'Proceed to Checkout'
+    CartTotal: Total
+    City: City
+    Company: Company
+    Confirm: Confirm
+    ConfirmPay: 'Confirm and Pay'
+    ContinueAsGuest: 'Continue as a Guest'
+    Country: Country
+    DeliverThisAddress: 'Deliver to this address'
+    DeliveryDetails: 'Delivery Details'
+    DeliverySavedAddress: 'Deliver to a saved address'
+    Description: Description
+    Discount: Discount
+    DiscountAdded: 'Discount Added'
+    DiscountCode: 'Discount Code'
+    DiscountFixedText: '{title} will be deducted from your next order'
+    DiscountNotValid: 'Discount Not Valid'
+    DiscountNotValidText: 'This discount is either not valid or has expired'
+    DiscountPercentText: 'A credit of £{amount} will be applied to your order'
+    DontHaveAccount: 'Don''t have an account?'
+    Edit: Edit
+    EditAddress: 'Edit Address'
+    Email: Email
+    EnterDifferentAddress: 'Enter a different address'
+    EnterDiscountCode: 'Enter a discount code'
+    Error: 'There was an error'
+    EstimateShipping: 'Estimate Shipping'
+    FirstName: 'First Name(s)'
+    Name: Name
+    NoPaymentMethods: 'You cannot pay at this time, if you feel there has been an error please contact us.'
+    NoSavedAddresses: 'You have no saved addresses.'
+    Or: Or
+    Order: Order
+    OrderProblem: 'There was a problem with your order'
+    Payment: Payment
+    PaymentDetails: 'Enter Payment Details'
+    PaymentSelection: 'Please choose how you would like to pay'
+    PersonalDetails: 'Personal Details'
+    Phone: 'Phone Number'
+    PostCode: 'Post Code'
+    PostTo: 'Post to'
+    Postage: Postage
+    PostageDetails: 'Select Postage'
+    PostageSelection: 'Please select your prefered postage'
+    Price: Price
+    Processing: Processing
+    Qty: Qty
+    RedirectingToStore: 'We are now redirecting you, if you are not redirected automatically then click the link below.'
+    Register: Register
+    Remove: Remove
+    Save: Save
+    SaveAddress: 'Save this address for later'
+    Search: Search
+    SeelctPostagePayment: 'Select Postage and Payment Method'
+    SelectPaymentMethod: 'Select Payment Method'
+    SelectPostage: 'Select Postage'
+    SetDeliveryAddress: 'Deliver to another address'
+    Shipping: Shipping
+    SignIn: 'Sign in'
+    StartShopping: 'Start shopping'
+    SubTotal: 'Sub Total'
+    Summary: Summary
+    SummaryCopy: 'Please review your personal information before proceeding and entering your payment details.'
+    Surname: Surname
+    Tax: Tax
+    ThankYouForOrder: 'Thank you for your order'
+    Total: Total
+    Update: Update
+    UpdateCart: 'Update Cart'
+    UseBillingSavedAddress: 'Use a saved billing address'
+    UseThisAddress: 'Use this address'
+    ViewCart: 'View Cart'
+    YourAddresses: 'Your Addresses'
+    ZipCode: 'Zip/Postal Code'
+  CheckoutAdmin:
+    AddDiscountURL: 'Add discount URL'
+    OrderPrefix: 'Add prefix to order numbers'
+    OrderPrefixPlaceholder: 'EG ''abc'''
+    PaymentFailerContent: 'Payment failer content'
+    PaymentMethods: 'Payment Methods'
+    PaymentSuccessContent: 'Payment successfull content'
+    Payments: 'Payment Settings'
+  CheckoutUsers:
+    Company: Company
+    PhoneNumber: 'Phone Number'
+  Discount:
+    PLURALNAME: Discounts
+    SINGULARNAME: Discount
+  Form:
+    FIELDISREQUIRED: '%s is required'
+  MemberAddress:
+    PLURALNAME: 'Member Addresss'
+    SINGULARNAME: 'Member Address'
+  NumericField:
+    VALIDATION: '''{value}'' is not a number, only numbers can be accepted for this field'
+  PayPal:
+    PLURALNAME: 'Pay Pal'
+    SINGULARNAME: 'Pay Pal'
+  PaymentMethod:
+    PLURALNAME: 'Payment Methods'
+    SINGULARNAME: 'Payment Method'
+  PostageArea:
+    PLURALNAME: 'Postage Areas'
+    SINGULARNAME: 'Postage Area'
+  WorldPay:
+    PLURALNAME: 'World Pay'
+    SINGULARNAME: 'World Pay'
