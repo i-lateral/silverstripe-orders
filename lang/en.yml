@@ -1,0 +1,63 @@
+en:
+  OrderAdmin:
+    MENUTITLE: Orders
+  Order:
+    PLURALNAME: Orders
+    SINGULARNAME: Order
+  OrderItem:
+    PLURALNAME: 'Order Items'
+    SINGULARNAME: 'Order Item'
+  OrderNotification:
+    PLURALNAME: 'Order Notifications'
+    SINGULARNAME: 'Order Notification'
+  Orders:
+    AddToCart: 'Add to cart'
+    Address1: 'Address Line 1'
+    Address2: 'Address Line 2'
+    BillingDetails: 'Billing Details'
+    ChangeStatus: 'Change Status'
+    City: City
+    Country: Country
+    CustomerDetails: 'Customer Details'
+    CustomerEmailFooter: 'Many thanks'
+    Date: Date
+    DeliveryDetails: 'Delivery Details'
+    Details: Details
+    Email: Email
+    FailedNotice: 'Unfortunately we could not process your order. Please contact us to complete your order.'
+    FirstNames: 'First Name(s)'
+    Item: Item
+    Items: Items
+    ItemsOrdered: 'Items Ordered'
+    Name: Name
+    NoOrders: 'There are currently no orders'
+    NotFound: 'Order not found'
+    Order: Order
+    OrderDispatchedTo: 'The order is to be dispatched to'
+    OrderHistory: 'Order history'
+    OrderItemReportDescription: 'View all individual products ordered through this site'
+    OrderItems: 'Items ordered'
+    OrderMarkedAs: 'Order {ordernumber} has been marked as {status}'
+    OrderStatusUpdate: 'Order Status Update'
+    OrdersMade: 'Orders made'
+    OrdersReportDescription: 'View reports on all orders made through this site'
+    OutstandingOrders: 'Outstanding Orders'
+    Phone: Phone
+    PhoneNumber: 'Phone Number'
+    PostCode: 'Post Code'
+    Postage: Postage
+    PostageDetails: 'Postage Details'
+    Price: Price
+    Qty: Qty
+    Quantity: Quantity
+    Reorder: Reorder
+    Status: Status
+    StatusChanged: 'Status Changed {name} {link}'
+    SubTotal: 'Sub Total'
+    Surname: Surname
+    Tax: Tax
+    ThankYou: 'Thank you for ordering from {title}'
+    Total: Total
+  Users:
+    NotVerified: 'You have not verified your email address'
+    Send: 'Send now'
