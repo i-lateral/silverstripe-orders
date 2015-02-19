@@ -7,6 +7,7 @@
  */
 class CheckoutSiteConfigExtension extends DataExtension {
     private static $db = array(
+        "PaymentNumberPrefix" => "Varchar(5)",
         'PaymentSuccessContent' => 'Text',
         'PaymentFailerContent'  => 'Text',
     );
@@ -42,7 +43,7 @@ class CheckoutSiteConfigExtension extends DataExtension {
             _t("CheckoutAdmin.Payments","Payment Settings"),
             array(
                 TextField::create(
-                    'OrderPrefix',
+                    'PaymentNumberPrefix',
                     _t("CheckoutAdmin.OrderPrefix","Add prefix to order numbers"),
                     null,
                     9
