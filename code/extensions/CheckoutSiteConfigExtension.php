@@ -7,7 +7,7 @@
  */
 class CheckoutSiteConfigExtension extends DataExtension {
     private static $db = array(
-        "PaymentNumberPrefix" => "Varchar(5)",
+        "PaymentNumberPrefix" => "Varchar(6)",
         'PaymentSuccessContent' => 'Text',
         'PaymentFailerContent'  => 'Text',
     );
