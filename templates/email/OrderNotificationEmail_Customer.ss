@@ -36,7 +36,6 @@
         <h2><%t Orders.DeliveryDetails 'Delivery Details' %></h2>
         
         <p>
-            <%t Orders.OrderDispatchedTo "The order is to be dispatched to" %><br/>
             {$BillingFirstnames} {$BillingSurname}<br/>
             {$DeliveryAddress1},<br/>
             <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>

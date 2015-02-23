@@ -35,7 +35,7 @@
     <p>
         <%t Orders.Name "Name" %>: {$FirstName} {$Surname}<br/>
         <% if $Phone %><%t Orders.Phone "Phone" %>: {$Phone}<br/><% end_if %>
-        <% if $Email %><%t Orders.Email "Email" %>: {$Email}<br/><% end_if %>
+        <% if $Email %><%t Orders.Email "Email" %>: <a href="mailto:{$Email}">{$Email}</a><br/><% end_if %>
     </p>
         
     <hr/>
@@ -43,8 +43,6 @@
     <h2><%t Orders.DeliveryDetails 'Delivery Details' %></h2>
     
     <p>
-        <%t Orders.OrderDispatchedTo "The order is to be dispatched to" %><br/>
-        <br/>
         {$FirstName} {$Surname}<br/>
         {$DeliveryAddress1},<br/>
         <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
