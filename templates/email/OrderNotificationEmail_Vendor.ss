@@ -20,7 +20,7 @@
         <tbody><% loop $Items %>
             <tr>
                 <td>
-                    {$Title}<br/>
+                    {$Title} <% if $StockID %>($StockID)<% end_if %><br/>
                     <em>$CustomisationHTML</em>
                 </td>
                 <td style="text-align: center">{$Quantity}</td>
