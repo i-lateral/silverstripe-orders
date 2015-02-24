@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Order objects track all the details of an order and if they were completed or
  * not.
@@ -118,7 +119,9 @@ class Order extends DataObject implements PermissionProvider {
 
     // Cast method calls nicely
     private static $casting = array(
+        'CountryFull'       => 'Varchar',
         'BillingAddress'    => 'Text',
+        'DeliveryCountryFull'=> 'Varchar',
         'DeliveryAddress'   => 'Text',
         'SubTotal'          => 'Currency',
         'Postage'           => 'Currency',
@@ -160,6 +163,23 @@ class Order extends DataObject implements PermissionProvider {
         $fields->removeByName("Items");
         
         // Add created date
+        $fields->addFieldToTab(
+            "Root.Main",
+            ReadonlyField::create("Created"),
+            "Company"
+        );
+        
+        // Change country fields to country dropdowns
+        $fields->replaceField(
+            "Country",
+            CountryDropdownField::create("Country")
+        );
+        
+        $fields->replaceField(
+            "DeliveryCountry",
+            CountryDropdownField::create("DeliveryCountry")
+        );
+        
         $fields->addFieldToTab(
             "Root.Main",
             ReadonlyField::create("Created"),
@@ -254,6 +274,25 @@ class Order extends DataObject implements PermissionProvider {
 
         return $address;
     }
+    
+    /**
+     * Get the rendered name of the billing country, based on the local
+     * 
+     * @return String 
+     */
+    public function getCountryFull() {
+        try {
+            $source = Zend_Locale::getTranslationList(
+                'territory',
+                $this->Country,
+                2
+            );
+
+            return (array_key_exists($this->Country, $source)) ? $source[$this->Country] : $this->Country;
+        } catch(Exception $e) {
+            return "";
+        }
+    }
 
     public function getDeliveryAddress() {
         $address = ($this->DeliveryAddress1) ? $this->DeliveryAddress1 . ",\n" : '';
@@ -263,6 +302,25 @@ class Order extends DataObject implements PermissionProvider {
         $address .= ($this->DeliveryCountry) ? $this->DeliveryCountry : '';
 
         return $address;
+    }
+    
+    /**
+     * Get the rendered name of the delivery country, based on the local
+     * 
+     * @return String 
+     */
+    public function getDeliveryCountryFull() {
+        try {
+            $source = Zend_Locale::getTranslationList(
+                'territory',
+                $this->DeliveryCountry,
+                2
+            );
+
+            return (array_key_exists($this->DeliveryCountry, $source)) ? $source[$this->DeliveryCountry] : $this->DeliveryCountry;
+        } catch(Exception $e) {
+            return "";
+        }
     }
 
 
