@@ -8,6 +8,7 @@ class OrderNotification extends DataObject {
     private static $db = array(
         "Status" => "Varchar",
         "SendNotificationTo" => "Enum('Customer,Vendor,Both','Customer')",
+        "CustomSubject" => "Varchar(255)",
         "FromEmail" => "Varchar",
         "VendorEmail" => "Varchar"
     );
@@ -26,7 +27,8 @@ class OrderNotification extends DataObject {
         "Status",
         "SendNotificationTo",
         "FromEmail",
-        "VendorEmail"
+        "VendorEmail",
+        "CustomSubject"
     );
     
     public function getCMSFields() {
@@ -40,6 +42,24 @@ class OrderNotification extends DataObject {
         
         $fields->replaceField("Status", $status_field);
         
+        $vendor = $fields->dataFieldByName("VendorEmail");
+        
+        if($vendor) {
+            $vendor->setDescription(_t(
+                "Orders.VendorEmailDescription",
+                "Only needed when notification sent to vendor (or both)"
+            ));
+        }
+        
+        $subject = $fields->dataFieldByName("CustomSubject");
+        
+        if($subject) {
+            $subject->setDescription(_t(
+                "Orders.CustomSubjectDescription",
+                "Overwrite the default subject created in the notification email"
+            ));
+        }
+        
         return $fields;
     }
     
@@ -52,7 +72,10 @@ class OrderNotification extends DataObject {
     public function sendNotification($order) {
         // Deal with customer email
         if($order->Email && ($this->SendNotificationTo == 'Customer' || $this->SendNotificationTo == "Both")) {
-            $subject = _t('Orders.Order', 'Order') . " {$order->OrderNumber} {$order->Status}";
+            if($this->CustomSubject)
+                $subject = $this->CustomSubject;
+            else
+                $subject = _t('Orders.Order', 'Order') . " {$order->OrderNumber} {$order->Status}";
 
             $email = new Email();
             $email->setSubject($subject);
@@ -72,7 +95,10 @@ class OrderNotification extends DataObject {
 
         // Deal with vendor email
         if($this->VendorEmail && ($this->SendNotificationTo == 'Vendor' || $this->SendNotificationTo == "Both")) {
-            $subject = _t('Orders.Order', 'Order') . " {$order->OrderNumber} {$order->Status}";
+            if($this->CustomSubject)
+                $subject = $this->CustomSubject;
+            else
+                $subject = _t('Orders.Order', 'Order') . " {$order->OrderNumber} {$order->Status}";
             
             $email = new Email();
             $email->setSubject($subject);
