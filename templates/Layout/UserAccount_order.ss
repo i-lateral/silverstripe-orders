@@ -20,7 +20,7 @@
                     <strong><%t Orders.Address2 "Address Line 2" %>:</strong> $DeliveryAddress1 <br/>
                     <strong><%t Orders.City "City" %>:</strong> $DeliveryCity <br/>
                     <strong><%t Orders.PostCode "Post Code" %>:</strong> $DeliveryPostCode <br/>
-                    <strong><%t Orders.Country "Country" %>:</strong> $DeliveryCountry
+                    <strong><%t Orders.Country "Country" %>:</strong> $DeliveryCountryFull
                 </p>
             </div>
 

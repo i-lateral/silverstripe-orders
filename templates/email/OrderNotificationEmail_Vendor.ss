@@ -48,7 +48,7 @@
         <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
         {$DeliveryCity},<br/>
         {$DeliveryPostCode},<br/>
-        {$DeliveryCountry}
+        {$DeliveryCountryFull}
     </p>
 <% end_with %>
 
