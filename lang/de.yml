@@ -1,0 +1,64 @@
+de:
+  OrderAdmin:
+    MENUTITLE: Orders
+  Order:
+    PLURALNAME: Orders
+    SINGULARNAME: Order
+  OrderItem:
+    PLURALNAME: 'Order Items'
+    SINGULARNAME: 'Order Item'
+  OrderNotification:
+    PLURALNAME: 'Order Notifications'
+    SINGULARNAME: 'Order Notification'
+  Orders:
+    AddToCart: 'In den Warenkorb'
+    Address1: 'Adresszeile 1'
+    Address2: 'Adresszeile 2'
+    BillingDetails: Rechnungsanschrift
+    ChangeStatus: 'Change Status'
+    City: Stadt
+    Country: Land
+    CustomerDetails: 'Customer Details'
+    CustomerEmailFooter: 'Many thanks'
+    Date: Datum
+    DeliveryDetails: 
+    Details: DetailsLieferanschrift
+    Email: E-Mail
+    FailedNotice: 'Leider konnten wir Ihren Auftrag und Zahlung nicht bearbeiten. Bitte setzen Sie mit uns in Verbindung, wenn Sie.'
+    FirstNames: 'First Name(s)'
+    Item: Item
+    Items: 'Einzelheiten Ihrer Auftrag'
+    ItemsOrdered: 'Items Ordered'
+    Name: Name
+    NoOrders: 'Keine Bestellungen'
+    NotFound: 'Bestellung nicht gefunden wurde'
+    Order: 'Der Status ihres Auftrages'
+    OrderDispatchedTo: 'Ihr Auftrag wurde an die folgende Adresse versandt'
+    OrderHistory: 'herausragende Geschichte'
+    OrderItemReportDescription: 'View all individual products ordered through this site'
+    OrderItems: 'Items ordered'
+    OrderMarkedAs: 'Order {ordernumber} has been marked as {status}'
+    OrderStatusUpdate: 'Order Status Update'
+    OrdersMade: 'Orders made'
+    OrdersReportDescription: 'View reports on all orders made through this site'
+    OutstandingOrders: 'Offene Aufträge'
+    Phone: Telefonnummer
+    PhoneNumber: 'Telefon'
+    PostCode: Postleitzahl
+    Postage: Versand
+    PostageDetails: 'Wählen Sie eine Versandart'
+    Price: Preis
+    Qty: Menge
+    Quantity: Quantity
+    Reorder: Wiederverkaufen
+    Status: Status
+    StatusChanged: 'Status Changed {name} {link}'
+    SubTotal: 'Zwischensumme'
+    Surname: Familienname
+    Tax: Steuer
+    ThankYou: 'Vielen Dank, dass Sie auf {title} bestellt haben'
+    Total: Summe
+  Users:
+    NotVerified: 'You have not verified your email address'
+    Send: 'Send now'
+

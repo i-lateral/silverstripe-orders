@@ -1,0 +1,64 @@
+fr:
+  OrderAdmin:
+    MENUTITLE: Orders
+  Order:
+    PLURALNAME: Orders
+    SINGULARNAME: Order
+  OrderItem:
+    PLURALNAME: 'Order Items'
+    SINGULARNAME: 'Order Item'
+  OrderNotification:
+    PLURALNAME: 'Order Notifications'
+    SINGULARNAME: 'Order Notification'
+  Orders:
+    AddToCart: 'Ajouter au panier'
+    Address1: 'Ligne d'adresse 1'
+    Address2: 'Ligne d'adresse 2'
+    BillingDetails: 'Informations de facturation'
+    ChangeStatus: 'Change Status'
+    City: Ville
+    Country: Pays
+    CustomerDetails: 'Customer Details'
+    CustomerEmailFooter: 'Many thanks'
+    Date: Date
+    DeliveryDetails: 'Informations de livraison'
+    Details: Details
+    Email: E-mail
+    FailedNotice: 'Malheureusement, votre commande et votre paiement n'ont pas pu être pris en compte. Pour toute question, veuillez nous contacter.'
+    FirstNames: 'Prénom(s)'
+    Item: Article
+    Items: 'Articles commandés'
+    ItemsOrdered: 'Items Ordered'
+    Name: Nom
+    NoOrders: 'Vous n'avez passé aucune commande'
+    NotFound: 'Commande non trouvée'
+    Order: Commande
+    OrderDispatchedTo: 'Votre commande sera expédiée à l'adresse suivante'
+    OrderHistory: 'historique des commandes'
+    OrderItemReportDescription: 'View all individual products ordered through this site'
+    OrderItems: 'Items ordered'
+    OrderMarkedAs: 'Order {ordernumber} has been marked as {status}'
+    OrderStatusUpdate: 'Order Status Update'
+    OrdersMade: 'Orders made'
+    OrdersReportDescription: 'View reports on all orders made through this site'
+    OutstandingOrders: 'Commandes en cours'
+    Phone: Téléphone
+    PhoneNumber: 'Numéro de téléphone'
+    PostCode: 'Code postal'
+    Postage: 'Frais d'expedition'
+    PostageDetails: 'Selectionner mode d’expédition'
+    Price: Prix
+    Qty: Qté
+    Quantity: Quantity
+    Reorder: 'Commander encore'
+    Status: État
+    StatusChanged: 'Status Changed {name} {link}'
+    SubTotal: 'Sous-total'
+    Surname: 'Nom de famille'
+    Tax: Taxe
+    ThankYou: 'Merci d'avoir commandé chez {title}'
+    Total: Total
+  Users:
+    NotVerified: 'You have not verified your email address'
+    Send: 'Send now'
+
