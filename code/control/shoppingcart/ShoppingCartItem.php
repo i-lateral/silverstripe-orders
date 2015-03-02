@@ -152,12 +152,7 @@ class ShoppingCartItem extends ViewableData {
      * @return Float
      */
     public function getTotalDiscount() {
-        $discount = $this->Discount;
-        
-        if($discount && $this->Quantity)
-            $discount = $discount * $this->Quantity;
-        
-        return $discount;
+        return $this->Discount;
     }
     
     /**
