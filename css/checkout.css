@@ -41,24 +41,33 @@
 
 /* Shopping Cart Total
 ----------------------------------------- */
-.checkout-cart .checkout-tax-table {
+.checkout-cart .checkout-total-table {
     width: 100%;
 }
-.checkout-cart .checkout-cart-total {
-    text-align: center;
-    color: #fff;
-    font-size: 1.5em;
-    padding: 0.5em;
-    margin: 1.5em 0;
-    background: #95C902;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-}
+    .checkout-cart .checkout-total-table td {
+        text-align: right;
+        padding: 0.5em;
+    }
+    
+    .checkout-cart .total td {
+        color: #b80000;
+        font-size: 1.5em;
+        padding: 0.5em 0.25em;
+    }
 
 /* Checkout
 ---------------------------------------- */
 .checkout-checkout form {
     width: auto;
     max-width: none;
+}
+
+/* Proceed Button
+--------------------------------------------------------------------- */
+.checkout-cart-proceed .btn {
+    display: block;
+    float: none;
+    text-align: center;
+    line-height: 2em;
+    margin: 1em 0;
 }

@@ -12,24 +12,20 @@
 
         <div class="units-row line">
             <div class="unit-66 unit size2of3">
-                <div class="checkout-cart-discounts line units-row-end">
-                    <% if $Discount || $ShowDiscountForm %>
-                        <h2><%t Checkout.Discount "Discount" %></h2>
-                    <% end_if %>
-
-                    <% if $Discount %>
-                        <p>
-                            <%t Checkout.Discount "Discount" %>
-                            $Discount.Title
-                        </p>
-                    <% end_if %>
-
-                    <% if $ShowDiscountForm %>
-                        $DiscountForm
-                    <% end_if %>
-                </div>
-
                 <% if $Discount || $ShowDiscountForm %>
+                    <div class="checkout-cart-discounts line units-row end">
+                        <% if $Discount %>
+                            <h2>
+                                <%t Checkout.Discount "Discount" %>
+                                $Discount.Title
+                            </h2>
+                        <% end_if %>
+
+                        <% if $ShowDiscountForm %>
+                            $DiscountForm
+                        <% end_if %>
+                    </div>
+                    
                     <hr/>
                 <% end_if %>
 
@@ -44,7 +40,7 @@
             </div>
 
             <div class="unit-33 unit size1of3">
-                <table class="checkout-tax-table width-100">
+                <table class="checkout-total-table width-100">
                     <tr class="subtotal">
                         <td class="text-right">
                             <strong>
@@ -94,24 +90,24 @@
                             </td>
                         </tr>
                     <% end_if %>
+                    
+                    <tr class="total">
+                        <td class="text-right">
+                            <strong class="uppercase bold">
+                                <%t Checkout.CartTotal 'Total' %>
+                            </strong>
+                        </td>
+                        <td class="text-right">
+                            {$TotalCost.Nice}
+                        </td>
+                    </tr>
                 </table>
-
-                <p class="checkout-cart-total">
-                    <strong class="uppercase bold">
-                        <%t Checkout.CartTotal 'Total' %>:
-                    </strong>
-                    {$TotalCost.Nice}
+                
+                <p class="checkout-cart-proceed line units-row end">
+                    <a href="{$BaseHref}checkout/checkout" class="btn btn-green btn-big">
+                        <%t Checkout.CartProceed 'Proceed to Checkout' %>
+                    </a>
                 </p>
-            </div>
-        </div>
-
-        <hr/>
-
-        <div class="checkout-cart-proceed line units-row-end">
-            <div class="unit-push-right">
-                <a href="{$BaseHref}checkout/checkout" class="btn btn-green btn-big">
-                    <%t Checkout.CartProceed 'Proceed to Checkout' %>
-                </a>
             </div>
         </div>
     <% else %>
