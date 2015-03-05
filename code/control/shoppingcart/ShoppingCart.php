@@ -519,9 +519,7 @@ class ShoppingCart extends Controller {
     public function getTaxCost() {
         $total = 0;
 
-        foreach($this->items as $item) {
-            Debug::show($item->Title);
-            
+        foreach($this->items as $item) {            
             if($item->TotalTax) $total += $item->TotalTax;
         }
 
