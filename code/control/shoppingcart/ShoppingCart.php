@@ -520,6 +520,8 @@ class ShoppingCart extends Controller {
         $total = 0;
 
         foreach($this->items as $item) {
+            Debug::show($item->Title);
+            
             if($item->TotalTax) $total += $item->TotalTax;
         }
 

@@ -173,7 +173,7 @@ class ShoppingCartItem extends ViewableData {
     public function getTax() {
         $amount = 0;
 
-        if($this->BasePrice && $this->TaxRate)
+        if($this->Price && $this->TaxRate)
             $amount = (($this->Price - $this->Discount) / 100) * $this->TaxRate;
         
         return $amount;
@@ -187,8 +187,8 @@ class ShoppingCartItem extends ViewableData {
     public function getTotalTax() {
         $amount = 0;
 
-        if($this->Tax && $this->Quantity)
-            $amount = $this->Tax * $this->Quantity;
+        if($this->Price && $this->TaxRate && $this->Quantity)
+            $amount = ((($this->Price * $this->Quantity) - $this->Discount) / 100) * $this->TaxRate;
         
         return $amount;
     }
