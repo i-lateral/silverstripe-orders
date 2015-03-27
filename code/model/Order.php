@@ -106,7 +106,8 @@ class Order extends DataObject implements PermissionProvider {
         'PostageTax'        => 'Currency',
         
         // Payment Gateway Info
-        'GatewayData'       => 'Text'
+        "PaymentNo"         => "Varchar(255)",
+        "GatewayData"       => "Text"
     );
 
     private static $has_one = array(
