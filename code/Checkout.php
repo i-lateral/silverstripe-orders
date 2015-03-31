@@ -128,43 +128,21 @@ class Checkout extends ViewableData {
      * @param $zipcode String listing the zip/postage code to filter by
      */
     public static function getPostageAreas($country, $zipcode) {
-        $return = new ArrayList();
-        $countries = new ArrayList();
+        $return = ArrayList::create();
         $cart = ShoppingCart::create();
         $config = SiteConfig::current_site_config();
-        $all_rates = $config->PostageAreas();
-
-        // First find all area's for this country directly (no wildcards)
-        foreach($all_rates as $rate) {
-            if(!(strpos(strtolower($rate->Country), strtolower($country)) === false))
-                $countries->add($rate);
-        }
-
-        // If we have no countries in the list specificly, then check for wildcards
-        if(!$countries->exists()) {
-            foreach($all_rates as $rate) {
-                if($rate->Country == "*") $countries->add($rate);
-            }
-        }
-
-        // If we have a list of countries check them for post codes
-        foreach($countries as $rate) {
-            $rate_codes = explode(",",$rate->ZipCode);
-
-            foreach($rate_codes as $rate_to_check) {
-                $curr_length = strlen($rate_to_check);
-                if(strtolower(substr($zipcode, 0, $curr_length)) == strtolower($rate_to_check)) {
-                    $return->add($rate);
-                }
-            }
-        }
-
-        // If we still don't have anything to return, check or list of countries
-        // for a wildcard
-        if(!$return->exists()) {
-            foreach($countries as $rate) {
-                if($rate->ZipCode == "*") $return->add($rate);
-            }
+        $filter_zipcode = strtolower(substr($zipcode, 0, 2));
+        
+        $postage_areas = $config
+            ->PostageAreas()
+            ->filter(array(
+                "Country" => array($country, "*"),
+                "ZipCode:PartialMatch" => array($filter_zipcode, "*")
+            ));
+        
+        // Make sure we don't effect any associations
+        foreach($postage_areas as $item) {
+            $return->add($item);
         }
 
         // Now we have a list of locations, start checking for additional
