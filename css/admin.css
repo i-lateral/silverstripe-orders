@@ -2,3 +2,38 @@
     background-image: url('../images/order.png');
     background-position: 0 0;
 }
+
+.order-admin-sidebar {
+  width: 180px;
+  border-right: none;
+  border-left: 1px solid #C0C0C2;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  height: 100%;
+}
+
+.order-admin-sidebar .cms-panel-content {
+    box-sizing: border-box;
+    padding: 5px 12px 8px 8px;
+}
+
+.order-admin-sidebar .cms-panel-content .field label.left {
+    float: left;
+    padding: 8px 8px 8px 0;
+}
+
+.order-admin-sidebar .cms-panel-content .field .middleColumn {
+    margin: 0;
+    text-align: right;
+}
+
+#Root .order-admin-items {
+  width: 100%;
+  padding-right: 190px;
+  position: absolute;
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}

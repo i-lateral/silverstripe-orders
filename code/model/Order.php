@@ -198,6 +198,23 @@ class Order extends DataObject implements PermissionProvider {
                 new GridFieldDeleteAction(),
                 new GridFieldAddOrderItem()
             );
+            
+        $fields->addFieldToTab(
+            "Root.Items",
+            OrderSidebar::create(
+                ReadonlyField::create("SubTotal")
+                    ->setValue($this->SubTotal),
+                
+                ReadonlyField::create("Postage")
+                    ->setValue($this->Postage),
+                    
+                ReadonlyField::create("Tax")
+                    ->setValue($this->TaxTotal),
+                    
+                ReadonlyField::create("Total")
+                    ->setValue($this->Total)
+            )->setTitle("Order Totals")
+        );
         
         // Add gridfield
         $fields->addFieldToTab(
@@ -208,30 +225,6 @@ class Order extends DataObject implements PermissionProvider {
                 $this->Items(),
                 $config
             )
-        );
-        
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("SubTotal")
-                ->setValue($this->getSubTotal()->Nice())
-        );
-
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("Postage")
-                ->setValue($this->getPostage()->Nice())
-        );
-        
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("Tax")
-                ->setValue($this->getTaxTotal()->Nice())
-        );
-
-        $fields->addFieldToTab(
-            "Root.Items",
-            ReadonlyField::create("Total")
-                ->setValue($this->getTotal()->Nice())
         );
         
         // Add headings
@@ -263,6 +256,9 @@ class Order extends DataObject implements PermissionProvider {
         );
 
         $this->extend("updateCMSFields", $fields);
+        
+        $root_field = $fields->fieldByName('Root.Items');
+        $root_field->addExtraClass("order-admin-items");
 
         return $fields;
     }
