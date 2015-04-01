@@ -190,6 +190,15 @@ class Order extends DataObject implements PermissionProvider {
         // Setup order items
         $fields->removeByName("Items");
         
+        $config = GridFieldConfig::create()
+            ->addComponents(
+                new GridFieldButtonRow('before'),
+                new GridFieldTitleHeader(),
+                new GridFieldEditableColumns(),
+                new GridFieldDeleteAction(),
+                new GridFieldAddOrderItem()
+            );
+        
         // Add gridfield
         $fields->addFieldToTab(
             "Root.Items",
@@ -197,17 +206,9 @@ class Order extends DataObject implements PermissionProvider {
                 "Items",
                 "",
                 $this->Items(),
-                $config = new GridFieldConfig_RelationEditor()
+                $config
             )
         );
-        
-        $config
-            ->removeComponentsByType("GridFieldDeleteAction")
-            ->removeComponentsByType("GridFieldAddExistingAutocompleter")
-            ->removeComponentsByType("GridFieldPageCount")
-            ->removeComponentsByType("GridFieldToolbarHeader")
-            ->removeComponentsByType("GridFieldPaginator")
-            ->addComponent(new GridFieldDeleteAction());
         
         $fields->addFieldToTab(
             "Root.Items",

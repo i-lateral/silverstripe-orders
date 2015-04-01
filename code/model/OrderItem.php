@@ -30,10 +30,10 @@ class OrderItem extends DataObject {
      * @config
      */
     private static $summary_fields = array(
-        "StockID",
-        "Title",
-        "CustomisationList",
         "Quantity",
+        "Title",
+        "StockID",
+        "CustomisationList",
         "Price",
         "TaxRate"
     );
