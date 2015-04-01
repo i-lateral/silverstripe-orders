@@ -13,7 +13,8 @@ class OrderAdmin extends ModelAdmin {
     private static $menu_priority = 4;
 
     private static $managed_models = array(
-        'Order'
+        'Estimate' => array("title" => "Estimates"),
+        'Order' => array("title" => "Orders")
     );
 
     private static $model_importers = array();
