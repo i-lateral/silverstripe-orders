@@ -16,7 +16,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 * HTML Fragment to render the field.
 	 *
 	 * @var string
-	**/
+	 **/
 	protected $targetFragment;
 
 
@@ -25,14 +25,14 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 * Default field to create the dataobject by should be Title.
 	 *
 	 * @var string
-	**/
+	 **/
 	protected $dataObjectField = "Title";
     
     /**
 	 * Default field to create the dataobject from.
 	 *
 	 * @var string
-	**/
+	 **/
 	protected $source_class = "Product";
 
 
@@ -43,6 +43,67 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
     
     public function setSourceClass($class) {
         $this->source_class = $class;
+        return $this;
+    }
+    
+    /**
+	 * Fields that we try and find our source object based on
+	 *
+	 * @var array
+	 **/
+	protected $filter_fields = array(
+        "StockID"
+    );
+
+
+    public function getFilterFields() {
+        return $this->filter_fields;
+    }
+    
+    
+    public function setFilterFields($fields) {
+        $this->filter_fields = $fields;
+        return $this;
+    }
+    
+    /**
+	 * If filter fails, set this field when creating
+	 *
+	 * @var String
+	 **/
+	protected $create_field = "Title";
+
+
+    public function getCreateField() {
+        return $this->create_field;
+    }
+    
+    
+    public function setCreateField($field) {
+        $this->create_field = $field;
+        return $this;
+    }
+    
+    /**
+	 * Fields that we are mapping from the source object to our item
+	 *
+	 * @var array
+	 **/
+	protected $source_fields = array(
+        "Title" => "Title",
+        "StockID" => "StockID",
+        "Price" => "Price",
+        "TaxRate" => "TaxPercent"
+    );
+
+
+    public function getSourceFields() {
+        return $this->source_fields;
+    }
+    
+    
+    public function setSourceFields($fields) {
+        $this->source_fields = $fields;
         return $this;
     }
 
@@ -58,7 +119,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 * @param $gridField GridField
 	 *
 	 * @return array
-	**/
+	 **/
 	public function getActions($gridField) {
 		return array("add");
 	}
@@ -71,7 +132,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 * @param $actionName string
 	 * @param $arguments mixed
 	 * @param $data array
-	**/
+	 **/
 	public function handleAction(GridField $gridField, $actionName, $arguments, $data) {
 		if($actionName == "add") {
 			$dbField = $this->getDataObjectField();
@@ -84,22 +145,28 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 				if($obj->canCreate()) {
                     $string = $data['gridfieldaddbydbfield'][$obj->ClassName][$dbField];
                 
-                    // First we see if the source class has a matched stock ID
+                    // First we see if the source class has a matched filter
+                    $filter = array();
+                    
+                    foreach($this->getFilterFields() as $filter_field) {
+                        $filter[$filter_field] = $string;
+                    }
+                    
                     $source_item = $source_class::get()
-                        ->filter("StockID",$string)
+                        ->filter($filter)
                         ->first();
                         
                     if($source_item) {
-                        $obj->Title = $source_item->Title;
-                        $obj->StockID = $source_item->StockID;
-                        $obj->Type = $source_item->Type;
-                        $obj->Quantity = 1;
-                        $obj->Price = $source_item->Price();
-                        $obj->TaxRate = ($source_item->TaxRateID) ? $source_item->TaxRate()->Amount : 0;
-                    } else {
-                        $obj->setCastedField("Title", $string);
-                        $obj->setCastedField("Quantity", 1);
-                    }
+                        foreach($this->getSourceFields() as $obj_field => $source_field) {
+                            $obj->setCastedField(
+                                $obj_field,
+                                $source_item->$source_field
+                            );
+                        }
+                    } else
+                        $obj->setCastedField($this->getCreateField(), $string);
+                    
+                    $obj->setCastedField("Quantity", 1);
                     
 					$id = $gridField->getList()->add($obj);
 					if(!$id) {
@@ -140,18 +207,26 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 * @param $girdField GridField
 	 *
 	 * @return string HTML
-	**/
+	 **/
 	public function getHTMLFragments($gridField) {
 		$dataClass = $gridField->getList()->dataClass();
 		$obj = singleton($dataClass);
 		if(!$obj->canCreate()) return "";
 
 		$dbField = $this->getDataObjectField();
+        
 
 		$textField = TextField::create("gridfieldaddbydbfield[" . $obj->ClassName . "][" . Convert::raw2htmlatt($dbField) . "]")
             ->setAttribute(
                 "placeholder",
-                _t("GridFieldAddOrderItem.Add","Stock ID or Product Name")
+                _t(
+                    "GridFieldAddOrderItem.Add",
+                    "Add by {Filters} or {Title}",
+                    array(
+                        "Filters" => implode(",", $this->getFilterFields()),
+                        "Title" => $this->getCreateField()
+                    )
+                )
             )->addExtraClass("no-change-track");
 
 		$addAction = new GridField_FormAction(
@@ -181,7 +256,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 * Returns the database field for which we'll add the new data object.
 	 *
 	 * @return string
-	**/
+	 **/
 	public function getDataObjectField() {
 		return $this->dataObjectField;
 	}
@@ -192,7 +267,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 * Set the database field.
 	 *
 	 * @param $field string
-	**/
+	 **/
 	public function setDataObjectField($field) {
 		$this->dataObjectField = (string) $field;
 	}
