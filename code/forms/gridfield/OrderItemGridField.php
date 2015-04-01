@@ -14,6 +14,7 @@ class OrderItemGridField extends GridField {
         $this->getConfig()
             ->removeComponentsByType("GridFieldDeleteAction")
             ->removeComponentsByType("GridFieldAddExistingAutocompleter")
+            ->removeComponentsByType("GridFieldEditableColumns")
             ->removeComponentsByType("GridFieldAddNewButton");
             
         return $this;
