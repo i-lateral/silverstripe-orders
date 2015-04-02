@@ -43,12 +43,16 @@
 
 
 .order-customer-sidebar .cms-panel-content {
-    width: 450px;
+    width: 550px;
 }
+
+    .order-customer-sidebar table.ss-gridfield-table tr th div.fieldgroup {
+        min-width: 100px;
+    }
 
 #Root .order-admin-customer {
   width: 100%;
-  padding-right: 500px;
+  padding-right: 590px;
   position: absolute;
   height: 100%;
   overflow-y: hidden;
