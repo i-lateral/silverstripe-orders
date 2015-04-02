@@ -3,13 +3,15 @@
 class Estimate extends Order {
     
     private static $summary_fields = array(
-        "OrderNumber"   => "#",
-        "Status"        => "Status",
-        "Total"         => "Total",
-        "Created"       => "Created"
+        "ID"        => "#",
+        "Status"    => "Status",
+        "Total"     => "Total",
+        "Created"   => "Created"
     );
     
     public function getCMSFields() {
+        
+        $existing_customer = $this->config()->existing_customer_class;
         
         $fields = new FieldList(
             $tab_root = new TabSet(
@@ -21,17 +23,14 @@ class Estimate extends Order {
                     
                     // Sidebar
                     OrderSidebar::create(
-                        ReadonlyField::create("OrderNumber", "#"),
-                        
+                        ReadonlyField::create("QuoteNumber", "#")
+                            ->setValue($this->ID),
                         ReadonlyField::create("SubTotal")
                             ->setValue($this->SubTotal),
-                        
                         ReadonlyField::create("Postage")
                             ->setValue($this->Postage),
-                            
                         ReadonlyField::create("Tax")
                             ->setValue($this->TaxTotal),
-                            
                         ReadonlyField::create("Total")
                             ->setValue($this->Total)
                     )->setTitle("Details"),
@@ -50,11 +49,50 @@ class Estimate extends Order {
                                 new GridFieldAddOrderItem()
                             )
                     )
+                ),
+                
+                // Main Tab Fields
+                $tab_customer = new Tab(
+                    'Customer',
+                    
+                    // Sidebar
+                    CustomerSidebar::create(
+                        // Items field
+                        new GridField(
+                            "ExistingCustomers",
+                            "",
+                            $existing_customer::get(),
+                            $config = GridFieldConfig_Base::create()
+                                ->addComponents(
+                                    $map_extension = new GridFieldMapExistingAction()
+                                )
+                        )
+                    )->setTitle("Use Existing Customer"),
+                    
+                    TextField::create("Company"),
+                    TextField::create("FirstName"),
+                    TextField::create("Surname"),
+                    TextField::create("Address1"),
+                    TextField::create("Address2"),
+                    TextField::create("City"),
+                    TextField::create("PostCode"),
+                    TextField::create("Country"),
+                    TextField::create("Email"),
+                    TextField::create("PhoneNumber")
                 )
             )
         );
         
+        // Set the record ID
+        $map_extension
+            ->setMapFields(array(
+                "FirstName",
+                "Surname",
+                "Email"
+            ));
+        
         $tab_main->addExtraClass("order-admin-items");
+        $tab_customer->addExtraClass("order-admin-customer");
         
         return $fields;
     }

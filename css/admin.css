@@ -4,7 +4,6 @@
 }
 
 .order-admin-sidebar {
-  width: 180px;
   border-right: none;
   border-left: 1px solid #C0C0C2;
   position: absolute;
@@ -13,17 +12,21 @@
   height: 100%;
 }
 
-.order-admin-sidebar .cms-panel-content {
+.order-items-sidebar {
+  width: 180px;
+}
+
+.order-items-sidebar .cms-panel-content {
     box-sizing: border-box;
     padding: 5px 12px 8px 8px;
 }
 
-.order-admin-sidebar .cms-panel-content .field label.left {
+.order-items-sidebar .cms-panel-content .field label.left {
     float: left;
     padding: 8px 8px 8px 0;
 }
 
-.order-admin-sidebar .cms-panel-content .field .middleColumn {
+.order-items-sidebar .cms-panel-content .field .middleColumn {
     margin: 0;
     text-align: right;
 }
@@ -37,3 +40,24 @@
   overflow-x: hidden;
   box-sizing: border-box;
 }
+
+
+.order-customer-sidebar .cms-panel-content {
+    width: 450px;
+}
+
+#Root .order-admin-customer {
+  width: 100%;
+  padding-right: 500px;
+  position: absolute;
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+    .order-admin-customer .field label.left { 
+        width: 135px;
+    }
+    .order-admin-customer .field .middleColumn {
+        margin-left: 145px;
+    }

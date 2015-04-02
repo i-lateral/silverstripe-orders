@@ -71,6 +71,15 @@ class Order extends DataObject implements PermissionProvider {
      * @config
      */
     private static $default_status = "incomplete";
+    
+    
+    /**
+     * This is the class that can be auto mapped to an order/estimate.
+     * This is used to generate the gridfield under the customer details
+     * tab.
+     * 
+     */
+    private static $existing_customer_class = "Member";
 
     private static $db = array(
         'Status'            => "Varchar",
