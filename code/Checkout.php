@@ -136,7 +136,7 @@ class Checkout extends ViewableData {
         $postage_areas = $config
             ->PostageAreas()
             ->filter(array(
-                "Country" => array($country, "*"),
+                "Country:PartialMatch" => array($country, "*"),
                 "ZipCode:PartialMatch" => array($filter_zipcode, "*")
             ));
         
@@ -144,6 +144,22 @@ class Checkout extends ViewableData {
         foreach($postage_areas as $item) {
             $return->add($item);
         }
+        
+        // Before doing anything else, remove any wildcards (if needed)
+        $exact_country = false;
+        
+        // Find any countries that are exactly matched 
+        foreach($return as $location) {
+            if($location->Country != "*")
+                $exact_country = true;
+        }
+        
+        // If exactly matched, remove any wildcards
+        foreach($return as $location) {
+            if($exact_country && $location->Country == "*")
+                $return->remove($location);
+        }
+        
 
         // Now we have a list of locations, start checking for additional
         // rules an remove if not applicable.
