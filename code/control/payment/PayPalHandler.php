@@ -2,11 +2,12 @@
 
 class PayPalHandler extends PaymentHandler {
 
-    public function index() {
+    public function index($request) {
         $site = SiteConfig::current_site_config();
-        $data = $this->order_data;
-        $order = ArrayData::create($data);
+        $order = $this->getOrderData();
         $cart = ShoppingCart::get();
+        
+        $this->extend('onBeforeIndex');
 
         // Setup the paypal gateway URL
         if(Director::isDev())
@@ -116,31 +117,33 @@ class PayPalHandler extends PaymentHandler {
             ->setFormMethod('POST')
             ->setFormAction($gateway_url);
 
-        $this->extend('updateForm',$form);
-        
-        // Set our order
-        $this->parent_controller->setOrder($order);
-        $this->parent_controller->setPaymentForm($form);
-
-        return array(
+        $this->customise(array(
             "Title"     => _t('Checkout.Summary',"Summary"),
-            "MetaTitle" => _t('Checkout.Summary',"Summary")
-        );
+            "MetaTitle" => _t('Checkout.Summary',"Summary"),
+            "Form"      => $form,
+            "Order"     => $order
+        ));
+        
+        $this->extend('onAfterIndex');
+        
+        return $this->renderWith(array(
+            "Payment_PayPal",
+            "Payment",
+            "Checkout",
+            "Page"
+        ));
     }
 
     /**
      * Process the callback data from the payment provider
      */
-    public function callback() {
+    public function callback($request) {
         $data = $this->request->postVars();
         $status = "error";
-        $order_id = null;
-
-        $success_url = Controller::join_links(
-            Director::absoluteBaseURL(),
-            Payment_Controller::config()->url_segment,
-            'complete'
-        );
+        $order_id = 0;
+        $payment_id = 0;
+        
+        $this->extend('onBeforeCallback');
 
         $error_url = Controller::join_links(
             Director::absoluteBaseURL(),
@@ -152,10 +155,13 @@ class PayPalHandler extends PaymentHandler {
         // Check if CallBack data exists and install id matches the saved ID
         if(isset($data) && isset($data['custom']) && isset($data['payment_status'])) {
             $order_id = $data['custom'];
-            $request = 'cmd=_notify-validate';
+            $paypal_request = 'cmd=_notify-validate';
+            
+            // If the transaction ID is set, keep it
+            if(array_key_exists("txn_id", $data)) $payment_id = $data["txn_id"];
 
             foreach($data as $key => $value) {
-                $request .= '&' . $key . '=' . urlencode(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
+                $paypal_request .= '&' . $key . '=' . urlencode(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
             }
 
             if(Director::isDev())
@@ -166,7 +172,7 @@ class PayPalHandler extends PaymentHandler {
             $curl = curl_init($paypal_url);
 
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $request);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $paypal_request);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_HEADER, false);
             curl_setopt($curl, CURLOPT_TIMEOUT, 30);
@@ -174,8 +180,7 @@ class PayPalHandler extends PaymentHandler {
 
             $response = curl_exec($curl);
 
-            if (!$response)
-                return false;
+            if(!$response) return $this->httpError(500);
 
             if((strcmp($response, 'VERIFIED') == 0 || strcmp($response, 'UNVERIFIED') == 0) && isset($data['payment_status'])) {
 
@@ -214,13 +219,20 @@ class PayPalHandler extends PaymentHandler {
             }
 
             curl_close($curl);
-        }
-
-        return array(
+        } else
+            return $this->httpError(500);
+        
+        $payment_data = ArrayData::array_to_object(array(
             "OrderID" => $order_id,
+            "PaymentID" => $payment_id,
             "Status" => $status,
             "GatewayData" => $data
-        );
+        ));
+        
+        $this->setPaymentData($payment_data);
+        
+        $this->extend('onAfterCallback');
+        
+        return array();
     }
-
 }

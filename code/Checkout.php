@@ -75,6 +75,7 @@ class Checkout extends ViewableData {
      */
     private static $checkout_data = array(
         "OrderNumber",
+        "PaymentNo",
         "Status",
         "FirstName",
         "Surname",
@@ -95,7 +96,8 @@ class Checkout extends ViewableData {
         "DiscountAmount",
         "TaxRate",
         "PostageType",
-        "PostageCost"
+        "PostageCost",
+        "PostageTax"
     );
 
     /**

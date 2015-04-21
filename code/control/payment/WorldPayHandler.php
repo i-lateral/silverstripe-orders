@@ -2,11 +2,12 @@
 
 class WorldPayHandler extends PaymentHandler {
 
-    public function index() {
+    public function index($request) {
         // Setup payment gateway form
-        $data = $this->order_data;
-        $order = ArrayData::create($data);
+        $order = $this->getOrderData();
         $cart = ShoppingCart::get();
+        
+        $this->extend('onBeforeIndex');
         
         // Setup the gateway URL
         if(Director::isDev())
@@ -42,7 +43,7 @@ class WorldPayHandler extends PaymentHandler {
             HiddenField::create('address1', null, $order->Address1),
             HiddenField::create('address2', null, $order->Address2),
             HiddenField::create('town', null, $order->City),
-            HiddenField::create('region', null, $order->State),
+            HiddenField::create('region', null, $order->Country),
             HiddenField::create('postcode', null, $order->PostCode),
             HiddenField::create('country', null, $order->Country),
             HiddenField::create('email', null, $order->Email),
@@ -66,7 +67,7 @@ class WorldPayHandler extends PaymentHandler {
             $desc_string .= $order->DeliveryAddress1 . ', ';
             $desc_string .= ($order->DeliveryAddress2) ? $order->DeliveryAddress2 . ', ' : '';
             $desc_string .= $order->DeliveryCity . ', ';
-            $desc_string .= ($order->DeliveryState) ? $order->DeliveryState . ', ' : '';
+            $desc_string .= ($order->DeliveryCountry) ? $order->DeliveryCountry . ', ' : '';
             $desc_string .= $order->DeliveryPostCode . ', ';
             $desc_string .= $order->DeliveryCountry;
         }
@@ -87,25 +88,34 @@ class WorldPayHandler extends PaymentHandler {
             ->addExtraClass('forms')
             ->setFormMethod('POST')
             ->setFormAction($gateway_url);
-
-        $this->extend('updateForm',$form);
         
-        $this->parent_controller->setOrder($order);
-        $this->parent_controller->setPaymentForm($form);
-
-        return array(
+        $this->customise(array(
             "Title"     => _t('Checkout.Summary',"Summary"),
-            "MetaTitle" => _t('Checkout.Summary',"Summary")
-        );
+            "MetaTitle" => _t('Checkout.Summary',"Summary"),
+            "Form"      => $form,
+            "Order"     => $order
+        ));
+        
+        $this->extend("onAfterIndex");
+        
+        return $this->renderWith(array(
+            "Worldpay",
+            "Payment",
+            "Checkout",
+            "Page"
+        ));
     }
 
     /**
      * Retrieve and process order data from the request
      */
-    public function callback() {
+    public function callback($request) {
         $data = $this->request->postVars();
-        $order_id = null;
-        $status = 'error';
+        $status = "error";
+        $order_id = 0;
+        $payment_id = 0;
+        
+        $this->extend('onBeforeCallback');
 
         $success_url = Controller::join_links(
             Director::absoluteBaseURL(),
@@ -141,14 +151,23 @@ class WorldPayHandler extends PaymentHandler {
             } else {
                 $status = 'failed';
             }
-        }
-
-        return array(
+        } else
+            return $this->httpError(500);
+        
+        $payment_data = ArrayData::array_to_object(array(
             "OrderID" => $order_id,
+            "PaymentID" => $payment_id,
             "Status" => $status,
-            "GatewayData" => $data,
-            "Template" => $this->renderWith(array("PaymentWorldPay"), $vars),
-        );
+            "GatewayData" => $data
+        ));
+        
+        $this
+            ->setPaymentData($payment_data)
+            ->customise($vars);
+        
+        $this->extend('onAfterCallback');
+        
+        return $this->renderWith(array("Worldpay_callback"));
     }
 
 }

@@ -6,22 +6,21 @@
  *
  */
 abstract class PaymentHandler extends Controller {
-
+    
+    private static $allowed_actions = array(
+        "index",
+        "callback"
+    );
+    
     /**
-     * The owner of this controller
-     *
-     * @var Controller
-     */
-    protected $parent_controller;
-
-    public function getParentController() {
-        return $this->parent_controller;
-    }
-
-    public function setParentController($parent) {
-        $this->parent_controller = $parent;
-        return $this;
-    }
+	 * Set up the "restful" URLs
+	 *
+	 * @config
+	 * @var array
+	 */
+	private static $url_handlers = array(
+		'$Action/$ID' => 'handleAction',
+	);
     
     /**
      * The current payment gateway we are using
@@ -40,24 +39,73 @@ abstract class PaymentHandler extends Controller {
     }
 
     /**
-     * The current order data we are dealing with
+     * An object of the current order data we are dealing with, this can
+     * be ArrayData, or a DataObject.
      *
-     * @var Order
+     * @var Object
      */
     protected $order_data;
 
     public function getOrderData() {
-        return $this->order_date;
+        return $this->order_data;
     }
 
     public function setOrderData($data) {
         $this->order_data = $data;
         return $this;
     }
+    
+    
+    /**
+     * An object of the current payment data. This can be tapped into
+     * via extensions to find out what the gateway returned and then
+     * used to update orders.
+     * 
+     * The standard format is to return an object with the folowing
+     * paramaters set:
+     * 
+     *   -  OrderID (ID of the order just completed)
+     *   -  PaymentID (The ID of the payment at the gateway)
+     *   -  Status (status of the payment)
+     *   -  GatewayData (the raw data from the payment gateway)
+     *
+     * @var Object
+     */
+    protected $payment_data;
 
-    public function getPaymentInfo() {
-        return $this->payment_gateway->PaymentInfo;
+    public function getPaymentData() {
+        return $this->payment_data;
     }
+
+    public function setPaymentData($data) {
+        $this->payment_data = $data;
+        return $this;
+    }
+    
+    public function handleRequest(SS_HTTPRequest $request, DataModel $model) {
+		if(!$request) user_error("Controller::handleRequest() not passed a request!", E_USER_ERROR);
+		
+		$this->urlParams = $request->allParams();
+		$this->request = $request;
+		$this->response = new SS_HTTPResponse();
+		$this->setDataModel($model);
+		
+		// If we had a redirection or something, halt processing.
+		if($this->response->isFinished()) {
+			return $this->response;
+		}
+        
+        // Find our action or set to index if not found
+        $action = $this->request->param("Action");
+        if(!$action) $action = "index";
+
+		$this->response->setBody($this->$action($request));
+
+		ContentNegotiator::process($this->response);
+		HTTP::add_cache_headers($this->response);
+
+		return $this->response;
+	}
 
     /**
      * The index action is called by the payment controller before order
@@ -65,8 +113,10 @@ abstract class PaymentHandler extends Controller {
      *
      * This action should return a rendered response that will then be
      * directly reterned by the payment controller.
+     * 
+     * @param $request Current request object
      */
-    abstract public function index();
+    abstract public function index($request);
 
 
     /**
@@ -75,6 +125,8 @@ abstract class PaymentHandler extends Controller {
      * This action is called directly from the payment controller and
      * should return either a rendered template or a response (such as a
      * redirect).
+     * 
+     * @param $request Current request object
      */
-    abstract public function callback();
+    abstract public function callback($request);
 }
