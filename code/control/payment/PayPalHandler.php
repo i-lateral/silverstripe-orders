@@ -156,34 +156,24 @@ class PayPalHandler extends PaymentHandler {
         if(isset($data) && isset($data['custom']) && isset($data['payment_status'])) {
             $order_id = $data['custom'];
             $paypal_request = 'cmd=_notify-validate';
+            $final_response = "";
             
             // If the transaction ID is set, keep it
             if(array_key_exists("txn_id", $data)) $payment_id = $data["txn_id"];
+            
+            $listener = new IpnListener();
+            
+            if(Director::isDev()) $listener->use_sandbox = true;
 
-            foreach($data as $key => $value) {
-                $paypal_request .= '&' . $key . '=' . urlencode(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
+            try {
+                $verified = $listener->processIpn($data);
+            } catch (Exception $e) {
+                error_log("Exception caught: " . $e->getMessage());
+                return $this->httpError(500);
             }
 
-            if(Director::isDev())
-                $paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
-            else
-                $paypal_url = "https://www.paypal.com/cgi-bin/webscr";
-
-            $curl = curl_init($paypal_url);
-
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $paypal_request);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_HEADER, false);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-
-            $response = curl_exec($curl);
-
-            if(!$response) return $this->httpError(500);
-
-            if((strcmp($response, 'VERIFIED') == 0 || strcmp($response, 'UNVERIFIED') == 0) && isset($data['payment_status'])) {
-
+            if ($verified) {
+                // IPN response was "VERIFIED"
                 switch($data['payment_status']) {
                     case 'Canceled_Reversal':
                         $status = "canceled";
@@ -216,11 +206,13 @@ class PayPalHandler extends PaymentHandler {
                         $status = "canceled";
                         break;
                 }
+            } else {
+                return $this->httpError(500);
             }
-
-            curl_close($curl);
-        } else
+            
+        } else {
             return $this->httpError(500);
+        }
         
         $payment_data = ArrayData::array_to_object(array(
             "OrderID" => $order_id,
@@ -233,6 +225,6 @@ class PayPalHandler extends PaymentHandler {
         
         $this->extend('onAfterCallback');
         
-        return array();
+        return $this->httpError(200);
     }
 }
