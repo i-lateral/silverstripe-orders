@@ -3,11 +3,12 @@
 class WorldPayHandler extends PaymentHandler {
 
     public function index($request) {
+        
+        $this->extend('onBeforeIndex');
+        
         // Setup payment gateway form
         $order = $this->getOrderData();
         $cart = ShoppingCart::get();
-        
-        $this->extend('onBeforeIndex');
         
         // Setup the gateway URL
         if(Director::isDev())
@@ -110,6 +111,9 @@ class WorldPayHandler extends PaymentHandler {
      * Retrieve and process order data from the request
      */
     public function callback($request) {
+        
+        $this->extend('onBeforeCallback');
+        
         $data = $this->request->postVars();
         $status = "error";
         $order_id = 0;

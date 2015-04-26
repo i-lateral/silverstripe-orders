@@ -3,11 +3,12 @@
 class PayPalHandler extends PaymentHandler {
 
     public function index($request) {
+        
+        $this->extend('onBeforeIndex');
+        
         $site = SiteConfig::current_site_config();
         $order = $this->getOrderData();
         $cart = ShoppingCart::get();
-        
-        $this->extend('onBeforeIndex');
 
         // Setup the paypal gateway URL
         if(Director::isDev())
@@ -138,6 +139,9 @@ class PayPalHandler extends PaymentHandler {
      * Process the callback data from the payment provider
      */
     public function callback($request) {
+        
+        $this->extend('onBeforeCallback');
+        
         $data = $this->request->postVars();
         $status = "error";
         $order_id = 0;
