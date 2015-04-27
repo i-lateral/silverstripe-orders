@@ -158,6 +158,9 @@ class Payment_Controller extends Controller {
 
         // Create an order number
         $data["OrderNumber"] = substr(chunk_split(Checkout::getRandomNumber(), 4, '-'), 0, -1);
+        
+        // Setup holder for Payment ID
+        $data["PaymentID"] = 0;
 
         // Set status
         $data['Status'] = 'incomplete';
