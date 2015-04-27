@@ -76,6 +76,7 @@ class Checkout extends ViewableData {
     private static $checkout_data = array(
         "OrderNumber",
         "PaymentNo",
+        "PaymentID",
         "Status",
         "FirstName",
         "Surname",
