@@ -30,7 +30,7 @@ class PostagePaymentForm extends Form {
                 HeaderField::create("PostageHeader", _t('Checkout.Postage',"Postage")),
                 OptionsetField::create(
                     "PostageID",
-                    _t('Checkout.PostageSelection', 'Please select your prefered postage'),
+                    _t('Checkout.PostageSelection', 'Please select your preferred postage'),
                     $postage_array
                 )->setValue($postage_id)
             )->setName("PostageFields")
