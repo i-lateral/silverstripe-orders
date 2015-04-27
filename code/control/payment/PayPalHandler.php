@@ -128,7 +128,7 @@ class PayPalHandler extends PaymentHandler {
         $this->extend('onAfterIndex');
         
         return $this->renderWith(array(
-            "Payment_PayPal",
+            "PayPal",
             "Payment",
             "Checkout",
             "Page"
