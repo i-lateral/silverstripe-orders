@@ -19,7 +19,7 @@ de:
     Company: Firma
     Confirm: Bestätigen
     ConfirmPay: 'Bestätigen und zahlen'
-    ContinueAsGuest: 'Continue as a Guest'
+    ContinueAsGuest: 'Weiter als Gast'
     Country: Land
     DeliverThisAddress: 'An dieser Adresse liefern'
     DeliveryDetails: Lieferanschrift
@@ -32,7 +32,7 @@ de:
     DiscountNotValid: 'ungultigen Rabatt-Code'
     DiscountNotValidText: 'Diese Rabatt-Code ist ungültig'
     DiscountPercentText: 'Ein Gutschein zu EUR{amount} wird auf Ihrer nächste Bestellung angerechnet'
-    DontHaveAccount: 'Don''t have an account?'
+    DontHaveAccount: 'Sie haben noch kein Konto?'
     Edit: bearbeiten
     EditAddress: 'Adresse bearbeiten'
     Email: E-Mail

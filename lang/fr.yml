@@ -19,7 +19,7 @@ fr:
     Company: 'Nom de société'
     Confirm: Confirmer
     ConfirmPay: 'Confirmation et paiement'
-    ContinueAsGuest: 'Continue as a Guest'
+    ContinueAsGuest: 'Continuer en tant qu'invité'
     Country: Pays
     DeliverThisAddress: 'Expédier à cette adresse'
     DeliveryDetails: 'Informations de livraison'
@@ -32,7 +32,7 @@ fr:
     DiscountNotValid: 'Code promo invalide'
     DiscountNotValidText: 'Ce code promo est invalide'
     DiscountPercentText: 'Un bon d'achat de EUR {amount} s'applique à votre commande'
-    DontHaveAccount: 'Don''t have an account?'
+    DontHaveAccount: 'Vous n''avez pas de compte?'
     Edit: Edit
     EditAddress: 'Modifier cette adresse'
     Email: E-mail
