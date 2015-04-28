@@ -146,8 +146,6 @@ class PayPalHandler extends PaymentHandler {
         $status = "error";
         $order_id = 0;
         $payment_id = 0;
-        
-        $this->extend('onBeforeCallback');
 
         $error_url = Controller::join_links(
             Director::absoluteBaseURL(),

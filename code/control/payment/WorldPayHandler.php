@@ -118,8 +118,6 @@ class WorldPayHandler extends PaymentHandler {
         $status = "error";
         $order_id = 0;
         $payment_id = 0;
-        
-        $this->extend('onBeforeCallback');
 
         $success_url = Controller::join_links(
             Director::absoluteBaseURL(),
