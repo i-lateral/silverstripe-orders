@@ -623,8 +623,18 @@ class Order extends DataObject implements PermissionProvider {
      * @return Boolean
      */
     public function canDelete($member = null) {
-        $extended = $this->extend('canDelete', $member);
+        $extended = $this->extend('canEdit', $member);
         if($extended && $extended !== null) return $extended;
+
+        if($member instanceof Member)
+            $memberID = $member->ID;
+        else if(is_numeric($member))
+            $memberID = $member;
+        else
+            $memberID = Member::currentUserID();
+
+        if($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_DELETE_ORDERS")))
+            return true;
 
         return false;
     }

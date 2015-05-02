@@ -84,12 +84,11 @@ class Estimate extends Order {
         );
         
         // Set the record ID
-        $map_extension
-            ->setMapFields(array(
-                "FirstName",
-                "Surname",
-                "Email"
-            ));
+        $map_extension->setMapFields(array(
+            "FirstName",
+            "Surname",
+            "Email"
+        ));
         
         $tab_main->addExtraClass("order-admin-items");
         $tab_customer->addExtraClass("order-admin-customer");

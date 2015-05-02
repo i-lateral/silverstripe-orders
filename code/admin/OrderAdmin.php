@@ -70,15 +70,16 @@ class OrderAdmin extends ModelAdmin {
     public function getEditForm($id = null, $fields = null) {
         $form = parent::getEditForm($id, $fields);
         $fields = $form->Fields();
+        
+        // Bulk manager
+        $manager = new GridFieldBulkManager();
+        $manager->removeBulkAction("bulkEdit");
+        $manager->removeBulkAction("unLink");
 
         if($this->modelClass == 'Order') {
             $gridField = $fields->fieldByName('Order');
             $config = $gridField->getConfig();
             
-            // Bulk manager
-            $manager = new GridFieldBulkManager();
-            $manager->removeBulkAction("bulkEdit");
-            $manager->removeBulkAction("unLink");
             $manager->removeBulkAction("delete");
 
             $manager->addBulkAction(
@@ -105,12 +106,33 @@ class OrderAdmin extends ModelAdmin {
                 'OrdersFieldBulkActions'
             );
 
-
             // Add dispatch button
             $config
                 ->removeComponentsByType('GridFieldDetailForm')
                 ->addComponent($manager)
 				->addComponent(new OrderGridFieldDetailForm());
+
+            // Update list of items for subsite (if used)
+            if(class_exists('Subsite')) {
+                $list = $gridField
+                    ->getList()
+                    ->filter(array(
+                        'SubsiteID' => Subsite::currentSubsiteID()
+                    ));
+
+                $gridField->setList($list);
+            }
+        }
+        
+        if($this->modelClass == 'Estimate') {
+            $gridField = $fields->fieldByName('Estimate');
+            $config = $gridField->getConfig();
+
+            // Add dispatch button
+            $config
+                ->removeComponentsByType('GridFieldDetailForm')
+                ->addComponent($manager)
+				->addComponent(new EstimateGridFieldDetailForm());
 
             // Update list of items for subsite (if used)
             if(class_exists('Subsite')) {
