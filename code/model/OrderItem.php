@@ -107,6 +107,21 @@ class OrderItem extends DataObject {
         $return->setValue($html);
         return $return;
     }
+        
+    /**
+     * Match this item to another object in the Database, by the
+     * provided details.
+     * 
+     * @param $relation_name = The class name of the related dataobject
+     * @param $relation_col = The column name of the related object
+     * @param $match_col = The column we use to match the two objects
+     * @return DataObject
+     */
+    public function Match($relation_name = "Product", $relation_col = "StockID", $match_col = "StockID") {
+        return $relation_name::get()
+            ->filter($relation_col, $this->owner->$match_col)
+            ->first();
+    }
     
     public function getCMSFields() {
         $fields = parent::getCMSFields();
