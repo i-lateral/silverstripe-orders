@@ -60,6 +60,14 @@ class EstimateGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRe
 		);
 		
 		$form->sessionMessage($message, 'good');
-		return Controller::curr()->redirect("admin/orders");
+        
+        $url = Controller::join_links(
+            BASE_URL,
+            "admin",
+            "orders",
+            "order"
+        );
+        
+		return Controller::curr()->redirect($url);
 	}
 }

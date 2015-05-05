@@ -13,8 +13,8 @@ class OrderAdmin extends ModelAdmin {
     private static $menu_priority = 4;
 
     private static $managed_models = array(
-        'Estimate' => array("title" => "Estimates"),
-        'Order' => array("title" => "Orders")
+        'Order' => array("title" => "Orders"),
+        'Estimate' => array("title" => "Estimates")
     );
 
     private static $model_importers = array();
@@ -79,8 +79,6 @@ class OrderAdmin extends ModelAdmin {
         if($this->modelClass == 'Order') {
             $gridField = $fields->fieldByName('Order');
             $config = $gridField->getConfig();
-            
-            $manager->removeBulkAction("delete");
 
             $manager->addBulkAction(
                 'cancelled',
