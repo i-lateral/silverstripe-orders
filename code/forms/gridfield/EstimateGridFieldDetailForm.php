@@ -58,16 +58,18 @@ class EstimateGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRe
 			$this->record->singular_name(),
 			'"'.Convert::raw2xml($this->record->Title).'"'
 		);
-		
-		$form->sessionMessage($message, 'good');
         
-        $url = Controller::join_links(
-            BASE_URL,
-            "admin",
-            "orders",
-            "order"
-        );
+        $toplevelController = $this->getToplevelController();
+		if($toplevelController && $toplevelController instanceof LeftAndMain) {
+			$backForm = $toplevelController->getEditForm();
+			$backForm->sessionMessage($message, 'good', false);
+		} else {
+			$form->sessionMessage($message, 'good', false);
+		}
         
-		return Controller::curr()->redirect($url);
+        $toplevelController = $this->getToplevelController();
+		$toplevelController->getRequest()->addHeader('X-Pjax', 'Content');
+
+		return $toplevelController->redirect($this->getBacklink(), 302);
 	}
 }
