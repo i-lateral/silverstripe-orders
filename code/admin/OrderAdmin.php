@@ -70,12 +70,15 @@ class OrderAdmin extends ModelAdmin {
     public function getEditForm($id = null, $fields = null) {
         $form = parent::getEditForm($id, $fields);
         $fields = $form->Fields();
+        $config = null;
         
         // Bulk manager
         $manager = new GridFieldBulkManager();
         $manager->removeBulkAction("bulkEdit");
         $manager->removeBulkAction("unLink");
 
+
+        // Manage orders
         if($this->modelClass == 'Order') {
             $gridField = $fields->fieldByName('Order');
             $config = $gridField->getConfig();
@@ -104,11 +107,23 @@ class OrderAdmin extends ModelAdmin {
                 'OrdersFieldBulkActions'
             );
 
-            // Add dispatch button
-            $config
-                ->removeComponentsByType('GridFieldDetailForm')
-                ->addComponent($manager)
-				->addComponent(new OrderGridFieldDetailForm());
+            // Update list of items for subsite (if used)
+            if(class_exists('Subsite')) {
+                $list = $gridField
+                    ->getList()
+                    ->filter(array(
+                        'SubsiteID' => Subsite::currentSubsiteID()
+                    ));
+
+                $gridField->setList($list);
+            }
+        }
+        
+        
+        // Manage Estimates
+        if($this->modelClass == 'Estimate') {
+            $gridField = $fields->fieldByName('Estimate');
+            $config = $gridField->getConfig();
 
             // Update list of items for subsite (if used)
             if(class_exists('Subsite')) {
@@ -122,26 +137,12 @@ class OrderAdmin extends ModelAdmin {
             }
         }
         
-        if($this->modelClass == 'Estimate') {
-            $gridField = $fields->fieldByName('Estimate');
-            $config = $gridField->getConfig();
-
-            // Add dispatch button
+        // Set our default detailform and bulk manager
+        if($config) {
             $config
                 ->removeComponentsByType('GridFieldDetailForm')
                 ->addComponent($manager)
-				->addComponent(new EstimateGridFieldDetailForm());
-
-            // Update list of items for subsite (if used)
-            if(class_exists('Subsite')) {
-                $list = $gridField
-                    ->getList()
-                    ->filter(array(
-                        'SubsiteID' => Subsite::currentSubsiteID()
-                    ));
-
-                $gridField->setList($list);
-            }
+				->addComponent(new OrdersGridFieldDetailForm());
         }
 
         $this->extend("updateEditForm", $form);
