@@ -139,7 +139,7 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
             // status button
             if($record->ID && !$record->canEdit() && $record->canChangeStatus()) {
                 $actions
-                    ->push(FormAction::create('doChangeStatus', _t('Orders.ChangeStatus', 'Change Status'))
+                    ->push(FormAction::create('doChangeStatus', _t('Orders.Save', 'Save'))
                     ->setUseButtonTag(true)
                     ->addExtraClass('ss-ui-action-constructive')
                     ->setAttribute('data-icon', 'accept'));
