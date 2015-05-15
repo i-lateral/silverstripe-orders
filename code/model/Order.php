@@ -116,7 +116,10 @@ class Order extends DataObject implements PermissionProvider {
         
         // Payment Gateway Info
         "PaymentNo"         => "Varchar(255)",
-        "GatewayData"       => "Text"
+        "GatewayData"       => "Text",
+        
+        // Misc Data
+        "AccessKey"         => "Varchar(20)",
     );
 
     private static $has_one = array(
@@ -500,6 +503,31 @@ class Order extends DataObject implements PermissionProvider {
 
         return $guidText;
     }
+    
+    protected function generate_random_string($length = 20) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        return $randomString;
+    }
+    
+    protected function validAccessKey() {
+        $existing = Order::get()
+            ->filter("AccessKey", $this->AccessKey)
+            ->first();
+		
+		return !($existing);
+    }
+    
+    protected function validOrderNumber() {
+        $existing = Order::get()
+            ->filterAny("OrderNumber", $this->OrderNumber)
+            ->first();
+		
+		return !($existing);
+    }
 
     /**
      * API Callback before this object is removed from to the DB
@@ -514,6 +542,22 @@ class Order extends DataObject implements PermissionProvider {
         parent::onBeforeDelete();
     }
     
+    /**
+     * API Callback after this object is written to the DB
+     *
+     */
+    public function onBeforeWrite() {
+        parent::onBeforeWrite();
+        
+        // Ensure that this object has a non-conflicting Access Key
+        if(!$this->AccessKey) {
+            $this->AccessKey = $this->generate_random_string();
+            
+            while(!$this->validAccessKey()) {
+                $this->AccessKey = $this->generate_random_string();
+            }
+        }
+    }
     
     /**
      * API Callback after this object is written to the DB
@@ -521,10 +565,15 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function onAfterWrite() {
         parent::onAfterWrite();
+		
         
         // Check if an order number has been generated, if not, add it and save again
         if(!$this->OrderNumber) {
             $this->OrderNumber = $this->generate_order_number();
+            
+            while(!$this->validOrderNumber()) {
+                $this->OrderNumber = $this->generate_order_number();
+            }
             $this->write();
         }
 

@@ -51,6 +51,8 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
 	}
 
 	public function ItemEditForm() {
+        Requirements::javascript("orders/javascript/entwine.orders.js");
+        
 		$form = parent::ItemEditForm();
         $fields = $form->Fields();
         $actions = $form->Actions();
@@ -59,6 +61,26 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
         
         // Deal with Estimate objects
         if($record->ClassName == "Estimate") {
+            if($record->ID && $record->AccessKey) {
+                $frontend_url = Controller::join_links(
+                    Director::absoluteBaseUrl(),
+                    "OrdersFront",
+                    "quote",
+                    $record->ID,
+                    $record->AccessKey
+                );
+                
+                $html = '<a href="' . $frontend_url . '" ';
+                $html .= 'target="_blank" ';
+                $html .= 'class="action ss-ui-button ui-button ui-corner-all open-external" ';
+                $html .= '>' . _t('Orders.ViewQuote', 'View Quote') . '</a>';
+                
+                $actions->insertAfter(
+                    LiteralField::create('openQuote', $html),
+                    "action_doSave"
+                );
+            }
+            
             if($record->ID && $record->canEdit()) {
                 $actions->insertAfter(
                     FormAction::create(
@@ -72,6 +94,26 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
         
         // Deal with Order objects
         if($record->ClassName == "Order") {
+            if($record->ID && $record->AccessKey) {
+                $frontend_url = Controller::join_links(
+                    Director::absoluteBaseUrl(),
+                    "OrdersFront",
+                    "invoice",
+                    $record->ID,
+                    $record->AccessKey
+                );
+                
+                $html = '<a href="' . $frontend_url . '" ';
+                $html .= 'target="_blank" ';
+                $html .= 'class="action ss-ui-button ui-button ui-corner-all open-external" ';
+                $html .= '>' . _t('Orders.ViewInvoice', 'View Invoice') . '</a>';
+                
+                $actions->insertAfter(
+                    LiteralField::create('openQuote', $html),
+                    "action_doSave"
+                );
+            }
+            
             // Set our status field as a dropdown (has to be here to
             // ignore canedit)
             // Allow users to change status (as long as they have permission)
