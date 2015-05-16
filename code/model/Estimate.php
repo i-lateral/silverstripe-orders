@@ -84,21 +84,6 @@ class Estimate extends Order {
                 // Main Tab Fields
                 $tab_customer = new Tab(
                     'Customer',
-                    
-                    // Sidebar
-                    CustomerSidebar::create(
-                        // Items field
-                        new GridField(
-                            "ExistingCustomers",
-                            "",
-                            $existing_customer::get(),
-                            $config = GridFieldConfig_Base::create()
-                                ->addComponents(
-                                    $map_extension = new GridFieldMapExistingAction()
-                                )
-                        )
-                    )->setTitle("Use Existing Customer"),
-                    
                     TextField::create("Company"),
                     TextField::create("FirstName"),
                     TextField::create("Surname"),
@@ -113,12 +98,31 @@ class Estimate extends Order {
             )
         );
         
-        // Set the record ID
-        $map_extension->setMapFields(array(
-            "FirstName",
-            "Surname",
-            "Email"
-        ));
+        if($this->canEdit()) {
+            // Sidebar
+            $tab_customer->insertBefore(
+                CustomerSidebar::create(
+                    // Items field
+                    new GridField(
+                        "ExistingCustomers",
+                        "",
+                        $existing_customer::get(),
+                        $config = GridFieldConfig_Base::create()
+                            ->addComponents(
+                                $map_extension = new GridFieldMapExistingAction()
+                            )
+                    )
+                )->setTitle("Use Existing Customer"),
+                "Company"
+            );
+        
+            // Set the record ID
+            $map_extension->setMapFields(array(
+                "FirstName",
+                "Surname",
+                "Email"
+            ));
+        }
         
         $tab_main->addExtraClass("order-admin-items");
         $tab_customer->addExtraClass("order-admin-customer");

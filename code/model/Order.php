@@ -252,21 +252,6 @@ class Order extends DataObject implements PermissionProvider {
                 // Main Tab Fields
                 $tab_customer = new Tab(
                     'Customer',
-                    
-                    // Sidebar
-                    CustomerSidebar::create(
-                        // Items field
-                        new GridField(
-                            "ExistingCustomers",
-                            "",
-                            $existing_customer::get(),
-                            $config = GridFieldConfig_Base::create()
-                                ->addComponents(
-                                    $map_extension = new GridFieldMapExistingAction()
-                                )
-                        )
-                    )->setTitle("Use Existing Customer"),
-                    
                     HeaderField::create(
                         "BillingDetailsHeader",
                         _t("Orders.BillingDetails", "Customer Details")
@@ -297,12 +282,32 @@ class Order extends DataObject implements PermissionProvider {
             )
         );
         
-        // Set the record ID
-        $map_extension->setMapFields(array(
-            "FirstName",
-            "Surname",
-            "Email"
-        ));
+        
+        // Add Sidebar is editable
+        if($this->canEdit()) {
+            $tab_customer->insertBefore(
+                CustomerSidebar::create(
+                    // Items field
+                    new GridField(
+                        "ExistingCustomers",
+                        "",
+                        $existing_customer::get(),
+                        $config = GridFieldConfig_Base::create()
+                            ->addComponents(
+                                $map_extension = new GridFieldMapExistingAction()
+                            )
+                    )
+                )->setTitle("Use Existing Customer"),
+                "BillingDetailsHeader"
+            );
+            
+            // Set the record ID
+            $map_extension->setMapFields(array(
+                "FirstName",
+                "Surname",
+                "Email"
+            ));
+        }
         
         $tab_main->addExtraClass("order-admin-items");
         $tab_customer->addExtraClass("order-admin-customer");
