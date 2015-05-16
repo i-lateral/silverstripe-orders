@@ -528,6 +528,33 @@ class Order extends DataObject implements PermissionProvider {
 		
 		return !($existing);
     }
+    
+    /**
+	 * Create a duplicate of this order/estimate as well as duplicating
+     * associated items
+	 *
+	 * @param $doWrite Perform a write() operation before returning the object.  If this is true, it will create the
+	 *                 duplicate in the database.
+	 * @return DataObject A duplicate of this node. The exact type will be the type of this node.
+	 */
+	public function duplicate($doWrite = true) {
+        $clone = parent::duplicate($doWrite);
+        
+        // Set up items
+        if($doWrite) {
+            foreach($this->Items() as $item) {
+                $item_class = $item->class;
+                $clone_item = new $item_class($item->toMap(), false, $this->model);
+                $clone_item->ID = 0;
+                $clone_item->ParentID = $clone->ID;
+                $clone_item->write();
+            }
+		}
+        
+		$clone->invokeWithExtensions('onAfterDuplicate', $this, $doWrite);
+		
+		return $clone;
+	}
 
     /**
      * API Callback before this object is removed from to the DB

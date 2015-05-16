@@ -59,6 +59,15 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
         $record = $this->record;
         $member = Member::currentUser();
         
+        $can_view = $this->record->canView();
+		$can_edit = $this->record->canEdit();
+		$can_change_status = $this->record->canChangeStatus();
+		$can_delete = $this->record->canDelete();
+		$can_create = $this->record->canCreate();
+        
+        // First remove the delete button
+        $actions->removeByName("action_doDelete");
+        
         // Deal with Estimate objects
         if($record->ClassName == "Estimate") {
             if($record->ID && $record->AccessKey) {
@@ -81,7 +90,7 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
                 );
             }
             
-            if($record->ID && $record->canEdit()) {
+            if($record->ID && $can_edit) {
                 $actions->insertAfter(
                     FormAction::create(
                         'doConvert',
@@ -94,30 +103,10 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
         
         // Deal with Order objects
         if($record->ClassName == "Order") {
-            if($record->ID && $record->AccessKey) {
-                $frontend_url = Controller::join_links(
-                    Director::absoluteBaseUrl(),
-                    "OrdersFront",
-                    "invoice",
-                    $record->ID,
-                    $record->AccessKey
-                );
-                
-                $html = '<a href="' . $frontend_url . '" ';
-                $html .= 'target="_blank" ';
-                $html .= 'class="action ss-ui-button ui-button ui-corner-all open-external" ';
-                $html .= '>' . _t('Orders.ViewInvoice', 'View Invoice') . '</a>';
-                
-                $actions->insertAfter(
-                    LiteralField::create('openQuote', $html),
-                    "action_doSave"
-                );
-            }
-            
             // Set our status field as a dropdown (has to be here to
             // ignore canedit)
             // Allow users to change status (as long as they have permission)
-            if($record->canEdit() || $record->canChangeStatus()) {
+            if($can_edit || $can_change_status) {
                 $status_field = DropdownField::create(
                     'Status',
                     null,
@@ -179,13 +168,58 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
             
             // Is user cannot edit, but can change status, add change
             // status button
-            if($record->ID && !$record->canEdit() && $record->canChangeStatus()) {
+            if($record->ID && !$can_edit && $can_change_status) {
                 $actions
                     ->push(FormAction::create('doChangeStatus', _t('Orders.Save', 'Save'))
                     ->setUseButtonTag(true)
                     ->addExtraClass('ss-ui-action-constructive')
                     ->setAttribute('data-icon', 'accept'));
             }
+            
+            if($record->ID && $record->AccessKey) {
+                $frontend_url = Controller::join_links(
+                    Director::absoluteBaseUrl(),
+                    "OrdersFront",
+                    "invoice",
+                    $record->ID,
+                    $record->AccessKey
+                );
+                
+                $html = '<a href="' . $frontend_url . '" ';
+                $html .= 'target="_blank" ';
+                $html .= 'class="action ss-ui-button ui-button ui-corner-all open-external" ';
+                $html .= '>' . _t('Orders.ViewInvoice', 'View Invoice') . '</a>';
+                
+                $link_field = LiteralField::create('openQuote', $html);
+                
+                if($actions->find("Name","action_doSave"))
+                    $actions->insertAfter($link_field, "action_doSave");
+                
+                if($actions->find("Name","action_doChangeStatus"))
+                    $actions->insertAfter($link_field, "action_doChangeStatus");
+            }
+        }
+        
+        // Add a duplicate button, either after the save button or
+        // the change status "save" button.
+        if($record->ID) {
+            $duplicate_button = FormAction::create(
+                'doDuplicate',
+                _t('Orders.Duplicate', 'Duplicate')
+            )->setUseButtonTag(true);
+            
+            if($actions->find("Name","action_doSave"))
+                $actions->insertAfter($duplicate_button, "action_doSave");
+            
+            if($actions->find("Name","action_doChangeStatus"))
+                $actions->insertAfter($duplicate_button, "action_doChangeStatus");
+        }
+        
+        // Finally, if allowed, re-add the delete button (so it is last)
+        if($record->ID && $can_delete) {
+            $actions->push(FormAction::create('doDelete', _t('GridFieldDetailForm.Delete', 'Delete'))
+                ->setUseButtonTag(true)
+                ->addExtraClass('ss-ui-action-destructive action-delete'));
         }
         
         // Set our custom template
@@ -276,8 +310,41 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
 		}
 	}
 
+	public function doDuplicate($data, $form)	{
+		$record = $this->record;
 
-	public function doConvert($data, $form)	{
+		if($record && !$record->canEdit())
+			return Security::permissionFailure($this);
+
+		$form->saveInto($record);
+        
+		$record->write();
+        
+        $new_record = $record->duplicate();
+        
+		$this->gridField->getList()->add($new_record);
+
+		$message = sprintf(
+			_t('Orders.Duplicated', 'Duplicated %s %s'),
+			$this->record->singular_name(),
+			'"'.Convert::raw2xml($this->record->Title).'"'
+		);
+        
+        $toplevelController = $this->getToplevelController();
+		if($toplevelController && $toplevelController instanceof LeftAndMain) {
+			$backForm = $toplevelController->getEditForm();
+			$backForm->sessionMessage($message, 'good', false);
+		} else {
+			$form->sessionMessage($message, 'good', false);
+		}
+        
+        $toplevelController = $this->getToplevelController();
+		$toplevelController->getRequest()->addHeader('X-Pjax', 'Content');
+
+		return $toplevelController->redirect($this->getBacklink(), 302);
+	}
+    
+    public function doConvert($data, $form)	{
 		$record = $this->record;
 
 		if($record && !$record->canEdit())
