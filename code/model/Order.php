@@ -71,6 +71,15 @@ class Order extends DataObject implements PermissionProvider {
      * @config
      */
     private static $default_status = "incomplete";
+    
+    
+    /**
+     * This is the class that can be auto mapped to an order/estimate.
+     * This is used to generate the gridfield under the customer details
+     * tab.
+     * 
+     */
+    private static $existing_customer_class = "Member";
 
     private static $db = array(
         'Status'            => "Varchar",
@@ -107,7 +116,10 @@ class Order extends DataObject implements PermissionProvider {
         
         // Payment Gateway Info
         "PaymentNo"         => "Varchar(255)",
-        "GatewayData"       => "Text"
+        "GatewayData"       => "Text",
+        
+        // Misc Data
+        "AccessKey"         => "Varchar(20)",
     );
 
     private static $has_one = array(
@@ -155,110 +167,152 @@ class Order extends DataObject implements PermissionProvider {
     private static $default_sort = "Created DESC";
 
     public function getCMSFields() {
-        $fields = parent::getCMSFields();
-        
         $member = Member::currentUser();
+        $existing_customer = $this->config()->existing_customer_class;
         
-        $fields->removeByName("GatewayData");
-        $fields->removeByName("CustomerID");
-        $fields->removeByName("Items");
+        // Manually inject HTML for totals as Silverstripe refuses to
+        // render Currency.Nice any other way.
+        $subtotal_html = '<div id="SubTotal" class="field readonly">';
+        $subtotal_html .= '<label class="left" for="Form_ItemEditForm_SubTotal">';
+        $subtotal_html .= _t("Orders.SubTotal", "Sub Total");
+        $subtotal_html .= '</label>';
+        $subtotal_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_SubTotal" class="readonly">';
+		$subtotal_html .= $this->SubTotal->Nice();
+        $subtotal_html .= '</span></div></div>';
         
-        // Add created date
-        $fields->addFieldToTab(
-            "Root.Main",
-            ReadonlyField::create("Created"),
-            "Company"
-        );
+        $postage_html = '<div id="Postage" class="field readonly">';
+        $postage_html .= '<label class="left" for="Form_ItemEditForm_Postage">';
+        $postage_html .= _t("Orders.Postage", "Postage");
+        $postage_html .= '</label>';
+        $postage_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Postage" class="readonly">';
+		$postage_html .= $this->Postage->Nice();
+        $postage_html .= '</span></div></div>';
         
-        // Change country fields to country dropdowns
-        $fields->replaceField(
-            "Country",
-            CountryDropdownField::create("Country")
-        );
+        $tax_html = '<div id="TaxTotal" class="field readonly">';
+        $tax_html .= '<label class="left" for="Form_ItemEditForm_TaxTotal">';
+        $tax_html .= _t("Orders.Tax", "Tax");
+        $tax_html .= '</label>';
+        $tax_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_TaxTotal" class="readonly">';
+		$tax_html .= $this->TaxTotal->Nice();
+        $tax_html .= '</span></div></div>';
         
-        $fields->replaceField(
-            "DeliveryCountry",
-            CountryDropdownField::create("DeliveryCountry")
-        );
+        $total_html = '<div id="Total" class="field readonly">';
+        $total_html .= '<label class="left" for="Form_ItemEditForm_Total">';
+        $total_html .= _t("Orders.Total", "Total");
+        $total_html .= '</label>';
+        $total_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Total" class="readonly">';
+		$total_html .= $this->Total->Nice();
+        $total_html .= '</span></div></div>';
         
-        $fields->addFieldToTab(
-            "Root.Main",
-            ReadonlyField::create("Created"),
-            "Company"
-        );
-        
-        // Setup order items
-        $fields->removeByName("Items");
-        
-        $config = GridFieldConfig::create()
-            ->addComponents(
-                new GridFieldButtonRow('before'),
-                new GridFieldTitleHeader(),
-                new GridFieldEditableColumns(),
-                new GridFieldDeleteAction(),
-                new GridFieldAddOrderItem()
-            );
-            
-        $fields->addFieldToTab(
-            "Root.Items",
-            OrderSidebar::create(
-                ReadonlyField::create("SubTotal")
-                    ->setValue($this->SubTotal),
+        $fields = new FieldList(
+            $tab_root = new TabSet(
+                "Root",
                 
-                ReadonlyField::create("Postage")
-                    ->setValue($this->Postage),
+                // Main Tab Fields
+                $tab_main = new Tab(
+                    'Main',
                     
-                ReadonlyField::create("Tax")
-                    ->setValue($this->TaxTotal),
+                    // Items field
+                    new OrderItemGridField(
+                        "Items",
+                        "",
+                        $this->Items(),
+                        $config = GridFieldConfig::create()
+                            ->addComponents(
+                                new GridFieldButtonRow('before'),
+                                new GridFieldTitleHeader(),
+                                new GridFieldEditableColumns(),
+                                new GridFieldDeleteAction(),
+                                new GridFieldAddOrderItem()
+                            )
+                    ),
                     
-                ReadonlyField::create("Total")
-                    ->setValue($this->Total)
-            )->setTitle("Order Totals")
-        );
-        
-        // Add gridfield
-        $fields->addFieldToTab(
-            "Root.Items",
-            new OrderItemGridField(
-                "Items",
-                "",
-                $this->Items(),
-                $config
+                    // Postage
+                    new HeaderField(
+                        "PostageDetailsHeader",
+                        _t("Orders.PostageDetails", "Postage Details")
+                    ),
+                    TextField::create("PostageType"),
+                    TextField::create("PostageCost"),
+                    TextField::create("PostageTax"),
+                    
+                    // Sidebar
+                    OrderSidebar::create(
+                        TextField::create('Status'),
+                        ReadonlyField::create("QuoteNumber", "#")
+                            ->setValue($this->ID),
+                        ReadonlyField::create("Created"),
+                        LiteralField::create("SubTotal", $subtotal_html),
+                        LiteralField::create("Postage", $postage_html),
+                        LiteralField::create("TaxTotal", $tax_html),
+                        LiteralField::create("Total", $total_html)
+                    )->setTitle("Details")
+                ),
+                
+                // Main Tab Fields
+                $tab_customer = new Tab(
+                    'Customer',
+                    HeaderField::create(
+                        "BillingDetailsHeader",
+                        _t("Orders.BillingDetails", "Customer Details")
+                    ),
+                    TextField::create("Company"),
+                    TextField::create("FirstName"),
+                    TextField::create("Surname"),
+                    TextField::create("Address1"),
+                    TextField::create("Address2"),
+                    TextField::create("City"),
+                    TextField::create("PostCode"),
+                    CountryDropdownField::create("Country"),
+                    TextField::create("Email"),
+                    TextField::create("PhoneNumber"),
+                    
+                    HeaderField::create(
+                        "DeliveryDetailsHeader",
+                        _t("Orders.DeliveryDetails", "Delivery Details")
+                    ),
+                    TextField::create("DeliveryFirstnames"),
+                    TextField::create("DeliverySurname"),
+                    TextField::create("DeliveryAddress1"),
+                    TextField::create("DeliveryAddress2"),
+                    TextField::create("DeliveryCity"),
+                    TextField::create("DeliveryPostCode"),
+                    CountryDropdownField::create("DeliveryCountry")
+                )
             )
         );
         
-        // Add headings
-        $fields->addFieldToTab(
-            "Root.Main",
-            new HeaderField(
-                "BillingDetailsHeader",
-                _t("Orders.BillingDetails", "Billing Details")
-            ),
-            "Company"
-        );
         
-        $fields->addFieldToTab(
-            "Root.Main",
-            new HeaderField(
-                "DeliveryDetailsHeader",
-                _t("Orders.DeliveryDetails", "Delivery Details")
-            ),
-            "DeliveryFirstnames"
-        );
+        // Add Sidebar is editable
+        if($this->canEdit()) {
+            $tab_customer->insertBefore(
+                CustomerSidebar::create(
+                    // Items field
+                    new GridField(
+                        "ExistingCustomers",
+                        "",
+                        $existing_customer::get(),
+                        $config = GridFieldConfig_Base::create()
+                            ->addComponents(
+                                $map_extension = new GridFieldMapExistingAction()
+                            )
+                    )
+                )->setTitle("Use Existing Customer"),
+                "BillingDetailsHeader"
+            );
+            
+            // Set the record ID
+            $map_extension->setMapFields(array(
+                "FirstName",
+                "Surname",
+                "Email"
+            ));
+        }
         
-        $fields->addFieldToTab(
-            "Root.Main",
-            new HeaderField(
-                "PostageDetailsHeader",
-                _t("Orders.PostageDetails", "Postage Details")
-            ),
-            "PostageType"
-        );
+        $tab_main->addExtraClass("order-admin-items");
+        $tab_customer->addExtraClass("order-admin-customer");
 
         $this->extend("updateCMSFields", $fields);
-        
-        $root_field = $fields->fieldByName('Root.Items');
-        $root_field->addExtraClass("order-admin-items");
 
         return $fields;
     }
@@ -333,6 +387,7 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function getSubTotal() {
         $return = new Currency();
+        $return->setName("SubTotal");
         $total = 0;
 
         // Calculate total from items in the list
@@ -340,9 +395,10 @@ class Order extends DataObject implements PermissionProvider {
             $total += ($item->Price) ? $item->Price * $item->Quantity : 0;
         }
         
-        $this->extend("updateSubTotal", $total);
-
         $return->setValue($total);
+        
+        $this->extend("updateSubTotal", $return);
+
         return $return;
     }
 
@@ -353,11 +409,12 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function getPostage() {
         $return = new Currency();
+        $return->setName("Postage");
         $total = $this->PostageCost;
         
         $return->setValue($total);
         
-        $this->extend("updatePostageCost", $return);
+        $this->extend("updatePostage", $return);
         
         return $return;
     }
@@ -369,6 +426,7 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function getTaxTotal() {
         $return = new Currency();
+        $return->setName("TaxTotal");
         $total = 0;
         $items = $this->Items();
         
@@ -396,6 +454,7 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function getTotal() {
         $return = new Currency();
+        $return->setName("Total");
         $total = (($this->getSubTotal()->RAW() + $this->getPostage()->RAW()) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
         
         $return->setValue($total);
@@ -449,6 +508,58 @@ class Order extends DataObject implements PermissionProvider {
 
         return $guidText;
     }
+    
+    protected function generate_random_string($length = 20) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        return $randomString;
+    }
+    
+    protected function validAccessKey() {
+        $existing = Order::get()
+            ->filter("AccessKey", $this->AccessKey)
+            ->first();
+		
+		return !($existing);
+    }
+    
+    protected function validOrderNumber() {
+        $existing = Order::get()
+            ->filterAny("OrderNumber", $this->OrderNumber)
+            ->first();
+		
+		return !($existing);
+    }
+    
+    /**
+	 * Create a duplicate of this order/estimate as well as duplicating
+     * associated items
+	 *
+	 * @param $doWrite Perform a write() operation before returning the object.  If this is true, it will create the
+	 *                 duplicate in the database.
+	 * @return DataObject A duplicate of this node. The exact type will be the type of this node.
+	 */
+	public function duplicate($doWrite = true) {
+        $clone = parent::duplicate($doWrite);
+        
+        // Set up items
+        if($doWrite) {
+            foreach($this->Items() as $item) {
+                $item_class = $item->class;
+                $clone_item = new $item_class($item->toMap(), false, $this->model);
+                $clone_item->ID = 0;
+                $clone_item->ParentID = $clone->ID;
+                $clone_item->write();
+            }
+		}
+        
+		$clone->invokeWithExtensions('onAfterDuplicate', $this, $doWrite);
+		
+		return $clone;
+	}
 
     /**
      * API Callback before this object is removed from to the DB
@@ -462,21 +573,23 @@ class Order extends DataObject implements PermissionProvider {
 
         parent::onBeforeDelete();
     }
-
-
+    
     /**
-     * API Callback before this object is written to the DB
+     * API Callback after this object is written to the DB
      *
      */
     public function onBeforeWrite() {
         parent::onBeforeWrite();
-
-        // Check if an order number has been generated, if not, add it and save again
-        if(!$this->OrderNumber) {
-            $this->OrderNumber = $this->generate_order_number();
+        
+        // Ensure that this object has a non-conflicting Access Key
+        if(!$this->AccessKey) {
+            $this->AccessKey = $this->generate_random_string();
+            
+            while(!$this->validAccessKey()) {
+                $this->AccessKey = $this->generate_random_string();
+            }
         }
     }
-    
     
     /**
      * API Callback after this object is written to the DB
@@ -484,6 +597,17 @@ class Order extends DataObject implements PermissionProvider {
      */
     public function onAfterWrite() {
         parent::onAfterWrite();
+		
+        
+        // Check if an order number has been generated, if not, add it and save again
+        if(!$this->OrderNumber) {
+            $this->OrderNumber = $this->generate_order_number();
+            
+            while(!$this->validOrderNumber()) {
+                $this->OrderNumber = $this->generate_order_number();
+            }
+            $this->write();
+        }
 
         // Deal with sending the status emails
         if($this->isChanged('Status')) {
@@ -494,19 +618,6 @@ class Order extends DataObject implements PermissionProvider {
             foreach($notifications as $notification) {
                 $notification->sendNotification($this);
             }
-        }
-    }
-
-
-    /**
-     * API Callback after this object is removed from to the DB
-     *
-     */
-    public function onAfterDelete() {
-        parent::onAfterDelete();
-
-        foreach ($this->Items() as $item) {
-            $item->delete();
         }
     }
 
@@ -635,8 +746,18 @@ class Order extends DataObject implements PermissionProvider {
      * @return Boolean
      */
     public function canDelete($member = null) {
-        $extended = $this->extend('canDelete', $member);
+        $extended = $this->extend('canEdit', $member);
         if($extended && $extended !== null) return $extended;
+
+        if($member instanceof Member)
+            $memberID = $member->ID;
+        else if(is_numeric($member))
+            $memberID = $member;
+        else
+            $memberID = Member::currentUserID();
+
+        if($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_DELETE_ORDERS")))
+            return true;
 
         return false;
     }

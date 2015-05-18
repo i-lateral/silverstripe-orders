@@ -135,67 +135,91 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	 **/
 	public function handleAction(GridField $gridField, $actionName, $arguments, $data) {
 		if($actionName == "add") {
+            
+            // Get our submitted fields and object class
 			$dbField = $this->getDataObjectField();
-
 			$objClass = $gridField->getModelClass();
             $source_class = $this->getSourceClass();
+            $id = null;
             
-			$obj = new $objClass();
-			if($obj->hasField($dbField)) {
-				if($obj->canCreate()) {
-                    $string = $data['gridfieldaddbydbfield'][$obj->ClassName][$dbField];
+            $obj = new $objClass();
+            
+            // Is this a valid field
+            if(!$obj->hasField($dbField))
+                throw new UnexpectedValueException("Invalid field (" . $dbField . ") on  " . $obj->ClassName . ".");
+            
+            // Generate the filter we need to use
+            $string = $data['gridfieldaddbydbfield'][$obj->ClassName][$dbField];
+            $filter = array();
+            
+            foreach($this->getFilterFields() as $filter_field) {
+                $filter[$filter_field] = $string;
+            }
+
                 
-                    // First we see if the source class has a matched filter
-                    $filter = array();
+            // First check if we already have an object or if we need to
+            // create one
+            $existing_obj = $gridField
+                ->getList()
+                ->filter($filter)
+                ->first();
+            
+            if($existing_obj) $obj = $existing_obj;
+        
+            if($obj->ID && $obj->canEdit()) {
+                // An existing record and can edit, update quantity
+                $curr_qty = ($obj->Quantity) ? $obj->Quantity : 0;
+                
+                $obj->setCastedField(
+                    "Quantity",
+                     $curr_qty + 1
+                );
+                
+                $id = $gridField->getList()->add($obj);
+            }
+            
+            if(!$obj->ID && $obj->canCreate()) {
+                // If an new record and we can create
+                $source_item = $source_class::get()
+                    ->filter($filter)
+                    ->first();
                     
-                    foreach($this->getFilterFields() as $filter_field) {
-                        $filter[$filter_field] = $string;
+                if($source_item) {
+                    foreach($this->getSourceFields() as $obj_field => $source_field) {
+                        $obj->setCastedField(
+                            $obj_field,
+                            $source_item->$source_field
+                        );
                     }
-                    
-                    $source_item = $source_class::get()
-                        ->filter($filter)
-                        ->first();
-                        
-                    if($source_item) {
-                        foreach($this->getSourceFields() as $obj_field => $source_field) {
-                            $obj->setCastedField(
-                                $obj_field,
-                                $source_item->$source_field
-                            );
-                        }
-                    } else
-                        $obj->setCastedField($this->getCreateField(), $string);
-                    
-                    $obj->setCastedField("Quantity", 1);
-                    
-					$id = $gridField->getList()->add($obj);
-					if(!$id) {
-						$gridField->setError(_t(
-							"GridFieldAddOrderItem.AddFail", 
-							"Unable to save {class} to the database.", 
-							"Unable to add the DataObject.",
-							array(
-								"class" => get_class($obj)
-							)), 
-							"error"
-						);
-					}
-				} else {
-					return Security::permissionFailure(
-						Controller::curr(),
-						_t(
-							"GridFieldAddOrderItem.PermissionFail",
-							"You don't have permission to create a {class}.",
-							"Unable to add the DataObject.",
-							array(
-								"class" => get_class($obj)
-							)
-						)
-					);
-				}
-			} else {
-				throw new UnexpectedValueException("Invalid field (" . $dbField . ") on  " . $obj->ClassName . ".");
-			}
+                } else
+                    $obj->setCastedField($this->getCreateField(), $string);
+                
+                $obj->setCastedField("Quantity", 1);
+                
+                $id = $gridField->getList()->add($obj);
+                
+            }
+            
+            if(!$id) {
+                $gridField->setError(_t(
+                    "GridFieldAddOrderItem.AddFail", 
+                    "Unable to save {class} to the database.", 
+                    "Unable to add the DataObject.",
+                    array(
+                        "class" => get_class($obj)
+                    )), 
+                    "error"
+                );
+            }
+            
+            // Finally, issue a redirect to update totals
+            $controller = Controller::curr();
+    
+            $controller
+                ->getRequest()
+                ->addHeader('X-Pjax', 'Content');
+            
+            return $controller->redirect($gridField->getForm()->controller->Link());
 		}
 	}
 

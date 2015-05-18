@@ -13,7 +13,8 @@ class OrderAdmin extends ModelAdmin {
     private static $menu_priority = 4;
 
     private static $managed_models = array(
-        'Order'
+        'Order' => array("title" => "Orders"),
+        'Estimate' => array("title" => "Estimates")
     );
 
     private static $model_importers = array();
@@ -69,16 +70,18 @@ class OrderAdmin extends ModelAdmin {
     public function getEditForm($id = null, $fields = null) {
         $form = parent::getEditForm($id, $fields);
         $fields = $form->Fields();
+        $config = null;
+        
+        // Bulk manager
+        $manager = new GridFieldBulkManager();
+        $manager->removeBulkAction("bulkEdit");
+        $manager->removeBulkAction("unLink");
 
+
+        // Manage orders
         if($this->modelClass == 'Order') {
             $gridField = $fields->fieldByName('Order');
             $config = $gridField->getConfig();
-            
-            // Bulk manager
-            $manager = new GridFieldBulkManager();
-            $manager->removeBulkAction("bulkEdit");
-            $manager->removeBulkAction("unLink");
-            $manager->removeBulkAction("delete");
 
             $manager->addBulkAction(
                 'cancelled',
@@ -104,12 +107,23 @@ class OrderAdmin extends ModelAdmin {
                 'OrdersFieldBulkActions'
             );
 
+            // Update list of items for subsite (if used)
+            if(class_exists('Subsite')) {
+                $list = $gridField
+                    ->getList()
+                    ->filter(array(
+                        'SubsiteID' => Subsite::currentSubsiteID()
+                    ));
 
-            // Add dispatch button
-            $config
-                ->removeComponentsByType('GridFieldDetailForm')
-                ->addComponent($manager)
-				->addComponent(new OrderGridFieldDetailForm());
+                $gridField->setList($list);
+            }
+        }
+        
+        
+        // Manage Estimates
+        if($this->modelClass == 'Estimate') {
+            $gridField = $fields->fieldByName('Estimate');
+            $config = $gridField->getConfig();
 
             // Update list of items for subsite (if used)
             if(class_exists('Subsite')) {
@@ -121,6 +135,14 @@ class OrderAdmin extends ModelAdmin {
 
                 $gridField->setList($list);
             }
+        }
+        
+        // Set our default detailform and bulk manager
+        if($config) {
+            $config
+                ->removeComponentsByType('GridFieldDetailForm')
+                ->addComponent($manager)
+				->addComponent(new OrdersGridFieldDetailForm());
         }
 
         $this->extend("updateEditForm", $form);
