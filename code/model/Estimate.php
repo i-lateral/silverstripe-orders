@@ -4,7 +4,9 @@ class Estimate extends Order {
     
     private static $summary_fields = array(
         "ID"        => "#",
-        "Status"    => "Status",
+        'Company'   => 'Company',
+        'FirstName' => 'First Name',
+        'Surname'   => 'Surname',
         "Total"     => "Total",
         "Created"   => "Created"
     );
