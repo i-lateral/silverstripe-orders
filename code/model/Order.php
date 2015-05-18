@@ -566,12 +566,14 @@ class Order extends DataObject implements PermissionProvider {
      *
      */
     public function onBeforeDelete() {
+        parent::onBeforeDelete();
+        
         // Delete all items attached to this order
         foreach($this->Items() as $item) {
             $item->delete();
         }
-
-        parent::onBeforeDelete();
+        
+        $this->extend("onBeforeDelete");
     }
     
     /**
@@ -589,6 +591,8 @@ class Order extends DataObject implements PermissionProvider {
                 $this->AccessKey = $this->generate_random_string();
             }
         }
+        
+        $this->extend("onBeforeWrite");
     }
     
     /**
@@ -619,6 +623,8 @@ class Order extends DataObject implements PermissionProvider {
                 $notification->sendNotification($this);
             }
         }
+        
+        $this->extend("onAfterWrite");
     }
 
     public function providePermissions() {
