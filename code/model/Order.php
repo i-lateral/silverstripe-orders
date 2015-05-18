@@ -212,18 +212,6 @@ class Order extends DataObject implements PermissionProvider {
                 $tab_main = new Tab(
                     'Main',
                     
-                    // Sidebar
-                    OrderSidebar::create(
-                        TextField::create('Status'),
-                        ReadonlyField::create("QuoteNumber", "#")
-                            ->setValue($this->ID),
-                        ReadonlyField::create("Created"),
-                        LiteralField::create("SubTotal", $subtotal_html),
-                        LiteralField::create("Postage", $postage_html),
-                        LiteralField::create("TaxTotal", $tax_html),
-                        LiteralField::create("Total", $total_html)
-                    )->setTitle("Details"),
-                    
                     // Items field
                     new OrderItemGridField(
                         "Items",
@@ -246,7 +234,19 @@ class Order extends DataObject implements PermissionProvider {
                     ),
                     TextField::create("PostageType"),
                     TextField::create("PostageCost"),
-                    TextField::create("PostageTax")
+                    TextField::create("PostageTax"),
+                    
+                    // Sidebar
+                    OrderSidebar::create(
+                        TextField::create('Status'),
+                        ReadonlyField::create("QuoteNumber", "#")
+                            ->setValue($this->ID),
+                        ReadonlyField::create("Created"),
+                        LiteralField::create("SubTotal", $subtotal_html),
+                        LiteralField::create("Postage", $postage_html),
+                        LiteralField::create("TaxTotal", $tax_html),
+                        LiteralField::create("Total", $total_html)
+                    )->setTitle("Details")
                 ),
                 
                 // Main Tab Fields

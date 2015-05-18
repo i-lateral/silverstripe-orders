@@ -55,16 +55,6 @@ class Estimate extends Order {
                 $tab_main = new Tab(
                     'Main',
                     
-                    // Sidebar
-                    OrderSidebar::create(
-                        ReadonlyField::create("QuoteNumber", "#")
-                            ->setValue($this->ID),
-                        LiteralField::create("SubTotal", $subtotal_html),
-                        LiteralField::create("Postage", $postage_html),
-                        LiteralField::create("TaxTotal", $tax_html),
-                        LiteralField::create("Total", $total_html)
-                    )->setTitle("Details"),
-                    
                     // Items field
                     new OrderItemGridField(
                         "Items",
@@ -78,7 +68,26 @@ class Estimate extends Order {
                                 new GridFieldDeleteAction(),
                                 new GridFieldAddOrderItem()
                             )
-                    )
+                    ),
+                    
+                    // Postage
+                    new HeaderField(
+                        "PostageDetailsHeader",
+                        _t("Orders.PostageDetails", "Postage Details")
+                    ),
+                    TextField::create("PostageType"),
+                    TextField::create("PostageCost"),
+                    TextField::create("PostageTax"),
+                    
+                    // Sidebar
+                    OrderSidebar::create(
+                        ReadonlyField::create("QuoteNumber", "#")
+                            ->setValue($this->ID),
+                        LiteralField::create("SubTotal", $subtotal_html),
+                        LiteralField::create("Postage", $postage_html),
+                        LiteralField::create("TaxTotal", $tax_html),
+                        LiteralField::create("Total", $total_html)
+                    )->setTitle("Details")
                 ),
                 
                 // Main Tab Fields
