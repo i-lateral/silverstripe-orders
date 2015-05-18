@@ -149,4 +149,17 @@ class OrderAdmin extends ModelAdmin {
 
         return $form;
     }
+    
+    public function getList() {
+		$list = parent::getList();
+        
+        // Ensure that we only show Order objects in the order tab
+		if ($this->modelClass == "Order")
+			$list = $list
+                ->addFilter(array("ClassName" => "Order"));
+                
+        $this->extend("updateList", $list);
+
+		return $list;
+	}
 }
