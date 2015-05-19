@@ -23,7 +23,12 @@ class PostagePaymentForm extends Form {
                 $postage_array[$area->ID] = $area->Title . " (" . $area_currency->Nice() . ")";
             }
 
-            $postage_id = (Session::get('Checkout.PostageID')) ? Session::get('Checkout.PostageID') : 0;
+            if(Session::get('Checkout.PostageID'))
+                $postage_id = Session::get('Checkout.PostageID');
+            elseif($postage_areas->exists())
+                $postage_id = $postage_areas->first()->ID;
+            else
+                $postage_id = 0;
 
             // Setup postage fields
             $postage_field = CompositeField::create(
