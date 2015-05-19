@@ -152,10 +152,10 @@ class Order extends DataObject implements PermissionProvider {
 
     private static $summary_fields = array(
         "OrderNumber"   => "#",
+        "Status"        => "Status",
         "FirstName"     => "First Name(s)",
         "Surname"       => "Surname",
         "Email"         => "Email",
-        "Status"        => "Status",
         "Total"         => "Total",
         "Created"       => "Created"
     );
