@@ -33,7 +33,6 @@ $SessionMessage
 
                 <% if $PostageForm %>
                     <div class="checkout-cart-postage">
-                        <h2><%t Checkout.EstimateShipping "Estimate Shipping" %></h2>
                         $PostageForm
                     </div>
                 <% else %>

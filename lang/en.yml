@@ -36,6 +36,7 @@ en:
     Edit: Edit
     EditAddress: 'Edit Address'
     Email: Email
+    EmptiedCart: 'Shopping cart emptied'
     EnterDifferentAddress: 'Enter a different address'
     EnterDiscountCode: 'Enter a discount code'
     Error: 'There was an error'
@@ -63,6 +64,7 @@ en:
     RedirectingToStore: 'We are now redirecting you, if you are not redirected automatically then click the link below.'
     Register: Register
     Remove: Remove
+    RemovedItem: 'Removed ''{title}'' from your cart'
     Save: Save
     SaveAddress: 'Save this address for later'
     Search: Search
@@ -82,6 +84,7 @@ en:
     Total: Total
     Update: Update
     UpdateCart: 'Update Cart'
+    UpdatedShoppingCart: 'Shopping cart updated'
     UseBillingSavedAddress: 'Use a saved billing address'
     UseThisAddress: 'Use this address'
     ViewCart: 'View Cart'
@@ -109,7 +112,7 @@ en:
   NumericField:
     VALIDATION: '''{value}'' is not a number, only numbers can be accepted for this field'
   PayPal:
-    PLURALNAME: 'Pay Pal'
+    PLURALNAME: 'Pay Pals'
     SINGULARNAME: 'Pay Pal'
   PaymentMethod:
     PLURALNAME: 'Payment Methods'
@@ -118,5 +121,5 @@ en:
     PLURALNAME: 'Postage Areas'
     SINGULARNAME: 'Postage Area'
   WorldPay:
-    PLURALNAME: 'World Pay'
+    PLURALNAME: 'World Paies'
     SINGULARNAME: 'World Pay'

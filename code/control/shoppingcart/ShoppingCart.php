@@ -646,87 +646,59 @@ class ShoppingCart extends Controller {
     public function PostageForm() {
         if(!Checkout::config()->simple_checkout) {
             $available_postage = Session::get("Checkout.AvailablePostage");
+            
+            // Setup form
+            $form = Form::create(
+                $this,
+                'PostageForm',
+                $fields = new FieldList(
+                    CountryDropdownField::create(
+                        'Country',
+                        _t('Checkout.Country','Country')
+                    ),
+                    TextField::create(
+                        "ZipCode",
+                        _t('Checkout.ZipCode',"Zip/Postal Code")
+                    )
+                ),
+                $actions = new FieldList(
+                    FormAction::create(
+                        "doSetPostage",
+                        _t('Checkout.Search',"Search")
+                    )->addExtraClass('btn')
+                    ->addExtraClass('btn btn-green')
+                ),
+                $required = RequiredFields::create(array(
+                    "Country",
+                    "ZipCode"
+                ))
+            )->addExtraClass('forms')
+            ->addExtraClass('forms-inline')
+            ->setLegend(_t("Checkout.EstimateShipping", "Estimate Shipping"));
 
-            // Setup default postage fields
-            $country_select = CompositeField::create(
-                CountryDropdownField::create('Country',_t('Checkout.Country','Country')),
-                TextField::create("ZipCode",_t('Checkout.ZipCode',"Zip/Postal Code"))
-            )->addExtraClass("size1of2")
-            ->addExtraClass("unit")
-            ->addExtraClass("unit-50");
 
             // If we have stipulated a search, then see if we have any results
             // otherwise load empty fieldsets
-            if($available_postage) {
-                $search_text = _t('Checkout.Update',"Update");
-
+            if($available_postage && $available_postage->exists()) {
                 // Loop through all postage areas and generate a new list
                 $postage_array = array();
+                
                 foreach($available_postage as $area) {
                     $area_currency = new Currency("Cost");
                     $area_currency->setValue($area->Cost);
                     $postage_array[$area->ID] = $area->Title . " (" . $area_currency->Nice() . ")";
                 }
 
-                $postage_select = CompositeField::create(
-                    OptionsetField::create(
-                        "PostageID",
-                        _t('Checkout.SelectPostage',"Select Postage"),
-                        $postage_array
-                    )
-                )->addExtraClass("size1of2")
-                ->addExtraClass("unit")
-                ->addExtraClass("unit-50");
+                $fields->add(OptionsetField::create(
+                    "PostageID",
+                    _t('Checkout.SelectPostage',"Select Postage"),
+                    $postage_array
+                ));
 
-                $confirm_action = CompositeField::create(
-                    FormAction::create("doSavePostage", _t('Checkout.Confirm',"Confirm"))
-                        ->addExtraClass('btn')
-                        ->addExtraClass('btn-green')
-                )->addExtraClass("size1of2")
-                ->addExtraClass("unit")
-                ->addExtraClass("unit-50");
-            } else {
-                $search_text = _t('Checkout.Search',"Search");
-                $postage_select = CompositeField::create()
-                    ->addExtraClass("size1of2")
-                    ->addExtraClass("unit")
-                    ->addExtraClass("unit-50");
-                $confirm_action = CompositeField::create()
-                    ->addExtraClass("size1of2")
-                    ->addExtraClass("unit")
-                    ->addExtraClass("unit-50");
+                $actions
+                    ->dataFieldByName("action_doSetPostage")
+                    ->setTitle(_t('Checkout.Update',"Update"));
             }
-
-            // Set search field
-            $search_action = CompositeField::create(
-                FormAction::create("doGetPostage", $search_text)
-                    ->addExtraClass('btn')
-            )->addExtraClass("size1of2")
-            ->addExtraClass("unit")
-            ->addExtraClass("unit-50");
-
-
-            // Setup fields and actions
-            $fields = new FieldList(
-                CompositeField::create($country_select,$postage_select)
-                    ->addExtraClass("line")
-                    ->addExtraClass("units-row")
-            );
-
-            $actions = new FieldList(
-                CompositeField::create($search_action,$confirm_action)
-                    ->addExtraClass("line")
-                    ->addExtraClass("units-row")
-            );
-
-            $required = RequiredFields::create(array(
-                "Country",
-                "ZipCode"
-            ));
-
-            $form = Form::create($this, 'PostageForm', $fields, $actions, $required)
-                ->addExtraClass('forms')
-                ->addExtraClass('forms-inline');
 
             // Check if the form has been re-posted and load data
             $data = Session::get("Form.{$form->FormName()}.data");
@@ -796,34 +768,43 @@ class ShoppingCart extends Controller {
     }
 
     /**
-     * Search and find applicable postage rates based on submitted data
+     * Method that deals with get postage details and setting the
+     * postage
      *
      * @param $data
      * @param $form
      */
-    public function doGetPostage($data, $form) {
+    public function doSetPostage($data, $form) {
         $country = $data["Country"];
         $code = $data["ZipCode"];
 
         $this->setAvailablePostage($country, $code);
+        
+        $postage = Session::get("Checkout.AvailablePostage");
+
+        // Check that postage is set, if not, see if we can set a default
+        if(array_key_exists("PostageID", $data) && $data["PostageID"]) {
+            
+            // First is the current postage ID in the list of postage
+            // areas
+            if($postage && $postage->exists() && $postage->find("ID", $data["PostageID"]))
+                $id = $data["PostageID"];
+            else
+                $id = $postage->first()->ID;
+                
+            $data["PostageID"] = $id;
+            Session::set("Checkout.PostageID", $id);
+        } else {
+            // Finally set the default postage
+            if($postage && $postage->exists()) {
+                $data["PostageID"] = $postage->first()->ID;
+                Session::set("Checkout.PostageID", $postage->first()->ID);
+            }
+        }
 
         // Set the form pre-populate data before redirecting
         Session::set("Form.{$form->FormName()}.data", $data);
-
-        $url = Controller::join_links($this->Link(),"#{$form->FormName()}");
-
-        return $this->redirect($url);
-    }
-
-    /**
-     * Save applicable postage data to session
-     *
-     * @param $data
-     * @param $form
-     */
-    public function doSavePostage($data, $form) {
-        Session::set("Checkout.PostageID", $data["PostageID"]);
-
+        
         $url = Controller::join_links($this->Link(),"#{$form->FormName()}");
 
         return $this->redirect($url);
