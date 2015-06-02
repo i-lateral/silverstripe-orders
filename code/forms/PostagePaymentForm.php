@@ -30,14 +30,25 @@ class PostagePaymentForm extends Form {
             else
                 $postage_id = 0;
 
-            // Setup postage fields
-            $postage_field = CompositeField::create(
-                HeaderField::create("PostageHeader", _t('Checkout.Postage',"Postage")),
-                OptionsetField::create(
+            if(count($postage_array)) {
+                $select_postage_field = OptionsetField::create(
                     "PostageID",
                     _t('Checkout.PostageSelection', 'Please select your preferred postage'),
                     $postage_array
-                )->setValue($postage_id)
+                )->setValue($postage_id);
+            } else {
+                $select_postage_field = ReadonlyField::create(
+                    "NoPostage",
+                    "",
+                    _t('Checkout.NoPostageSelection', 'Unfortunatly we cannot deliever to your address')
+                )->addExtraClass("label")
+                ->addExtraClass("label-red");
+            }
+
+            // Setup postage fields
+            $postage_field = CompositeField::create(
+                HeaderField::create("PostageHeader", _t('Checkout.Postage',"Postage")),
+                $select_postage_field
             )->setName("PostageFields")
             ->addExtraClass("unit")
             ->addExtraClass("size1of2")
