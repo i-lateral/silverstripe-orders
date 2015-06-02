@@ -230,14 +230,29 @@ class ShoppingCart extends Controller {
      */
     public function remove() {
         $key = $this->request->param('ID');
+        $title = "";
 
         if(!empty($key)) {
             foreach($this->items as $item) {
-                if($item->Key == $key)
+                if($item->Key == $key) {
+                    $title = $item->Title;
                     $this->items->remove($item);
+                }
             }
 
             $this->save();
+            
+            if($title) {
+                $this->setSessionMessage(
+                    "bad",
+                    _t(
+                        "Checkout.RemovedItem",
+                        "Removed '{title}' from your cart",
+                        "Message to tell user they removed an item",
+                        array("title" => $title)
+                    )
+                );
+            }
         }
 
         return $this->redirectBack();
@@ -251,6 +266,11 @@ class ShoppingCart extends Controller {
         $this->extend("onBeforeEmpty");
         $this->removeAll();
         $this->save();
+                
+        $this->setSessionMessage(
+            "bad",
+            _t("Checkout.EmptiedCart", "Shopping cart emptied")
+        );
 
         return $this->redirectBack();
     }
@@ -356,13 +376,30 @@ class ShoppingCart extends Controller {
             ->find("Key", $item_key);
         
         if($item) {
-            $item->Quantity = $quantity;
+            try {
+                $item->Quantity = $quantity;
             
-            $this->extend("onBeforeUpdate", $item);
-            
-            $this->save();
-            
-            return true;
+                $this->extend("onBeforeUpdate", $item);
+                
+                $this->save();
+                
+                $this->setSessionMessage(
+                    "success",
+                    _t("Checkout.UpdatedShoppingCart", "Shopping cart updated")
+                );
+                
+                return true;
+            } catch(ValidationException $e) {
+                $this->setSessionMessage(
+                    "bad",
+                    $e->getMessage()
+                );
+            } catch(Exception $e) {
+                $this->setSessionMessage(
+                    "bad",
+                    $e->getMessage()
+                );
+            }
         }
 
         return false;

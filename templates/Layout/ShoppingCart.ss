@@ -1,5 +1,7 @@
 <% require css('checkout/css/checkout.css') %>
 
+$SessionMessage
+
 <div class="content-container typography checkout-cart">
     <h1><%t Checkout.CartName 'Shopping Cart' %></h1>
 
