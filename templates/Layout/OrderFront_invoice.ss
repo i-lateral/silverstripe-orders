@@ -3,7 +3,7 @@
         <div class="unit-66">
             &nbsp;
         </div>
-        <div class="unit-33">
+        <div class="unit-33 unit-push-right">
             $SiteConfig.OrdersHeader
         </div>
     </div>
@@ -32,12 +32,12 @@
                 <table class="width-100">
                     <tbody>
                         <tr>
-                            <td class="bold"><%t Orders.InvoiceNumber "Invoice Number" %></td>
+                            <td class="bold"><%t Orders.RefNo "Ref No." %></td>
                             <td>$OrderNumber</td>
                         </tr>
                         <tr>
                             <td class="bold"><%t Orders.Date "Date" %></td>
-                            <td>$Created.Nice</td>
+                            <td>$Created.Format('d/m/Y')</td>
                         </tr>
                         <tr>
                             <td class="bold"><%t Orders.Status "Status" %></td>
@@ -73,10 +73,12 @@
                 <% end_loop %>
             </tbody>
         </table>
-        
+        <hr />
         <div class="units-row">
-            <div class="unit-66">&nbsp;</div>
             <div class="unit-33">
+				$Up.SiteConfig.InvoiceFooter
+			</div>
+            <div class="unit-33 unit-push-right">
                 <table class="width-100">
                     <tbody>
                         <tr>
@@ -115,10 +117,5 @@
             </div>
         </div>
 
-        <hr/>
-
-        <div class="units-row">
-            $SiteConfig.InvoiceFooter
-        </div>
     <% end_with %>
 </div>

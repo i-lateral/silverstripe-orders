@@ -3,7 +3,7 @@
         <div class="unit-66">
             &nbsp;
         </div>
-        <div class="unit-33">
+        <div class="unit-33 unit-push-right">
             $SiteConfig.OrdersHeader
         </div>
     </div>
@@ -30,12 +30,12 @@
                 <table class="width-100">
                     <tbody>
                         <tr>
-                            <td class="bold"><%t Orders.QuoteNo "Quote Number" %></td>
+                            <td class="bold"><%t Orders.RefNo "Ref No." %></td>
                             <td>$ID</td>
                         </tr>
                         <tr>
                             <td class="bold"><%t Commerce.Date "Date" %></td>
-                            <td>$Created.Nice</td>
+                            <td>$Created.Format('dd/MM/yyyy')</td>
                         </tr>
                     </tbody>
                 </table>
@@ -71,8 +71,10 @@
         <hr/>
 
         <div class="units-row">
-            <div class="unit-66">&nbsp;</div>
             <div class="unit-33">
+				$Up.SiteConfig.QuoteFooter				
+			</div>
+            <div class="unit-33 unit-push-right">
                 <table class="width-100">
                     <tbody>
                         <tr>
@@ -111,10 +113,5 @@
             </div>
         </div>
 
-        <hr/>
-
-        <div class="units-row">
-            $SiteConfig.QuoteFooter
-        </div>
     <% end_with %>
 </div>
