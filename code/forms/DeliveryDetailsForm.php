@@ -14,6 +14,7 @@ class DeliveryDetailsForm extends Form {
                 _t('Checkout.PersonalDetails','Personal Details'),
                 3
             ),
+            TextField::create('DeliveryCompany',_t('Checkout.Company','Company')),
             TextField::create('DeliveryFirstnames',_t('Checkout.FirstName','First Name(s)') . '*'),
             TextField::create('DeliverySurname',_t('Checkout.Surname','Surname') . '*')
         )->setName("PersonalFields")
@@ -97,6 +98,7 @@ class DeliveryDetailsForm extends Form {
         // If the user ticked "save address" then add to their account
         if(array_key_exists('SaveAddress',$data) && $data['SaveAddress']) {
             $address = MemberAddress::create();
+            $address->Company = $data['DeliveryCompany'];
             $address->FirstName = $data['DeliveryFirstnames'];
             $address->Surname = $data['DeliverySurname'];
             $address->Address1 = $data['DeliveryAddress1'];

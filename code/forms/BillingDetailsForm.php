@@ -114,6 +114,7 @@ class BillingDetailsForm extends Form {
     public function doContinue($data) {
         // Set delivery details based billing details
         $delivery_data = array();
+        $delivery_data['DeliveryCompany'] 	 = $data['Company'];
         $delivery_data['DeliveryFirstnames'] = $data['FirstName'];
         $delivery_data['DeliverySurname']    = $data['Surname'];
         $delivery_data['DeliveryAddress1']   = $data['Address1'];
@@ -180,6 +181,7 @@ class BillingDetailsForm extends Form {
             $member->write();
             
             $address = MemberAddress::create();
+            $address->Company = $data['Company'];
             $address->FirstName = $data['FirstName'];
             $address->Surname = $data['Surname'];
             $address->Address1 = $data['Address1'];

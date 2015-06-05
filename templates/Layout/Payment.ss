@@ -41,9 +41,11 @@
             <div class="unit-50 unit size1of2">
                 <h2><%t Checkout.BillingDetails "Billing Details" %></h2>
                 <p>
+                    <% if $Company %>
+						<strong><%t Checkout.Company "Company" %>:</strong> $Company<br/>
+					<% end_if %>
                     <strong><%t Checkout.Name "Name" %>:</strong> $FirstName $Surname<br/>
                     <strong><%t Checkout.Email "Email" %>:</strong> $Email<br/>
-                    <% if $Company %><strong><%t Checkout.Company "Company" %>:</strong> $Company<br/><% end_if %>
                     <% if $PhoneNumber %><strong><%t Checkout.Phone "Phone Number" %>:</strong> $PhoneNumber<br/><% end_if %>
                     <strong><%t Checkout.Address "Address" %>:</strong><br/>
                     $Address1<br/>
@@ -57,6 +59,9 @@
             <div class="unit-50 unit size1of2">
                 <h2><%t Checkout.DeliveryDetails "Delivery Details" %></h2>
                 <p>
+                    <% if $DeliveryCompany %>
+						<strong><%t Checkout.Company "Company" %>:</strong> $DeliveryCompany<br/>
+					<% end_if %>
                     <strong><%t Checkout.Name "Name" %>:</strong> $DeliveryFirstnames $DeliverySurname<br/>
                     <strong><%t Checkout.Address "Address" %></strong><br/>
                     $DeliveryAddress1<br/>

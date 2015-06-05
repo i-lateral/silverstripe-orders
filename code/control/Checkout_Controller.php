@@ -201,13 +201,14 @@ class Checkout_Controller extends Controller {
             $data["Country"]    = $address->Country;
             $data["Email"]      = $member->Email;
             $data["PhoneNumber"]= $member->PhoneNumber;
-            $data["Company"]    = $member->Company;
+            $data["Company"]    = $address->Company;
 
             Session::set("Checkout.BillingDetailsForm.data", $data);
             $action = "delivery";
         }
 
         if($otherid == "delivery") {
+            $data['DeliveryCompany']  = $address->Company;
             $data['DeliveryFirstnames']  = $address->FirstName;
             $data['DeliverySurname']    = $address->Surname;
             $data['DeliveryAddress1']   = $address->Address1;

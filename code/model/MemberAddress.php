@@ -10,6 +10,7 @@
 class MemberAddress extends DataObject {
 
     public static $db = array(
+        'Company'        	=> 'Varchar',
         'FirstName'         => 'Varchar',
         'Surname'           => 'Varchar',
         'Address1'          => 'Varchar',
