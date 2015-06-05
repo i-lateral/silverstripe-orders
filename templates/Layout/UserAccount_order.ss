@@ -16,6 +16,11 @@
 
                 <p class="unit-50">
                     <strong><%t Orders.DeliveryDetails "Delivery Details" %></strong><br/>
+                    <% if $DeliveryCompany %>
+						<strong><%t Orders.Company "Company" %>:</strong> $DeliveryCompany <br/>
+					<% end_if %>
+                    <strong><%t Orders.Firstnames "First names" %>:</strong> $DeliveryFirstnames <br/>
+                    <strong><%t Orders.Surname "Surname" %>:</strong> $DeliverySurname <br/>
                     <strong><%t Orders.Address1 "Address Line 1" %>:</strong> $DeliveryAddress1 <br/>
                     <strong><%t Orders.Address2 "Address Line 2" %>:</strong> $DeliveryAddress1 <br/>
                     <strong><%t Orders.City "City" %>:</strong> $DeliveryCity <br/>

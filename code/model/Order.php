@@ -98,6 +98,7 @@ class Order extends DataObject implements PermissionProvider {
         'PhoneNumber'       => 'Varchar',
         
         // Delivery Details
+        'DeliveryCompany'	=> 'Varchar',
         'DeliveryFirstnames'=> 'Varchar',
         'DeliverySurname'   => 'Varchar',
         'DeliveryAddress1'  => 'Varchar',
@@ -271,6 +272,7 @@ class Order extends DataObject implements PermissionProvider {
                         "DeliveryDetailsHeader",
                         _t("Orders.DeliveryDetails", "Delivery Details")
                     ),
+                    TextField::create("DeliveryCompany"),
                     TextField::create("DeliveryFirstnames"),
                     TextField::create("DeliverySurname"),
                     TextField::create("DeliveryAddress1"),
