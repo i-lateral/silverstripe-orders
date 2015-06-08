@@ -78,8 +78,19 @@ class Order extends DataObject implements PermissionProvider {
      * This is used to generate the gridfield under the customer details
      * tab.
      * 
+     * @config
      */
     private static $existing_customer_class = "Member";
+    
+    /**
+     * The list of fields that will show in the existing customer
+     * gridfield.
+     * 
+     * If not set, will default to summary_fields
+     * 
+     * @config
+     */
+    private static $existing_customer_fields;
 
     private static $db = array(
         'Status'            => "Varchar",
@@ -306,6 +317,18 @@ class Order extends DataObject implements PermissionProvider {
                 )->setTitle("Use Existing Customer"),
                 "BillingDetailsHeader"
             );
+            
+            if(is_array($this->config()->existing_customer_fields)) {
+                $columns = $config->getComponentByType("GridFieldDataColumns");
+                
+                if($columns) {
+                    $columns
+                        ->setDisplayFields($this
+                            ->config()
+                            ->existing_customer_fields
+                        );
+                }
+            }
             
             // Set the record ID
             $map_extension->setMapFields(array(
