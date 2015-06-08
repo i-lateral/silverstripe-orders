@@ -1,6 +1,20 @@
 en:
   OrderAdmin:
     MENUTITLE: Orders
+  BackLink_Button_ss:
+    Back: Back
+  Commerce:
+    Date: Date
+  Estimate:
+    PLURALNAME: Estimates
+    SINGULARNAME: Estimate
+  GridFieldAddOrderItem:
+    Add: Add
+    AddFail: 'Unable to save {class} to the database.'
+  GridFieldDetailForm:
+    Delete: Delete
+  LeftAndMain:
+    PreviewButton: Preview
   Order:
     PLURALNAME: Orders
     SINGULARNAME: Order
@@ -14,26 +28,32 @@ en:
     AddToCart: 'Add to cart'
     Address1: 'Address Line 1'
     Address2: 'Address Line 2'
-    BillingDetails: 'Billing Details'
-    ChangeStatus: 'Change Status'
+    BillingDetails: 'Customer Details'
     City: City
+    ConvertToOrder: 'Convert To Order'
+    ConvertedToOrder: 'Converted %s %s'
     Country: Country
+    CustomSubjectDescription: 'Overwrite the default subject created in the notification email'
     CustomerDetails: 'Customer Details'
     CustomerEmailFooter: 'Many thanks'
     Date: Date
     DeliveryDetails: 'Delivery Details'
     Details: Details
+    Discount: Discount
+    Duplicate: Duplicate
+    Duplicated: 'Duplicated %s %s'
     Email: Email
     FailedNotice: 'Unfortunately we could not process your order. Please contact us to complete your order.'
     FirstNames: 'First Name(s)'
+    GrandTotal: 'Grand Total'
+    InvoiceNumber: 'Invoice Number'
+    InvoiceTitle: Invoice
     Item: Item
     Items: Items
-    ItemsOrdered: 'Items Ordered'
     Name: Name
     NoOrders: 'There are currently no orders'
     NotFound: 'Order not found'
     Order: Order
-    OrderDispatchedTo: 'The order is to be dispatched to'
     OrderHistory: 'Order history'
     OrderItemReportDescription: 'View all individual products ordered through this site'
     OrderItems: 'Items ordered'
@@ -48,9 +68,14 @@ en:
     Postage: Postage
     PostageDetails: 'Postage Details'
     Price: Price
+    QTY: Qty
     Qty: Qty
-    Quantity: Quantity
+    QuoteInvoiceHeader: 'Quote and Invoice Header'
+    QuoteNo: 'Quote Number'
+    QuoteTitle: Quote
     Reorder: Reorder
+    SKU: SKU
+    Save: Save
     Status: Status
     StatusChanged: 'Status Changed {name} {link}'
     SubTotal: 'Sub Total'
@@ -58,6 +83,11 @@ en:
     Tax: Tax
     ThankYou: 'Thank you for ordering from {title}'
     Total: Total
+    TotalTax: 'Total Tax'
+    UnitPrice: 'Unit Price'
+    VendorEmailDescription: 'Only needed when notification sent to vendor (or both)'
+    ViewInvoice: 'View Invoice'
+    ViewQuote: 'View Quote'
   Users:
     NotVerified: 'You have not verified your email address'
     Send: 'Send now'

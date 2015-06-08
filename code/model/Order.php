@@ -266,8 +266,12 @@ class Order extends DataObject implements PermissionProvider {
                     TextField::create("PostCode"),
                     CountryDropdownField::create("Country"),
                     TextField::create("Email"),
-                    TextField::create("PhoneNumber"),
-                    
+                    TextField::create("PhoneNumber")
+                ),
+                
+                // Delivery Tab
+                $tab_delivery = new Tab(
+                    'Delivery',
                     HeaderField::create(
                         "DeliveryDetailsHeader",
                         _t("Orders.DeliveryDetails", "Delivery Details")
