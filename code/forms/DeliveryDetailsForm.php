@@ -14,9 +14,10 @@ class DeliveryDetailsForm extends Form {
                 _t('Checkout.PersonalDetails','Personal Details'),
                 3
             ),
-            TextField::create('DeliveryCompany',_t('Checkout.Company','Company')),
-            TextField::create('DeliveryFirstnames',_t('Checkout.FirstName','First Name(s)') . '*'),
-            TextField::create('DeliverySurname',_t('Checkout.Surname','Surname') . '*')
+            TextField::create('DeliveryCompany',_t('Checkout.Company','Company'))
+                ->setRightTitle(_t("Checkout.Optional", "Optional")),
+            TextField::create('DeliveryFirstnames',_t('Checkout.FirstName','First Name(s)')),
+            TextField::create('DeliverySurname',_t('Checkout.Surname','Surname'))
         )->setName("PersonalFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')
@@ -28,10 +29,11 @@ class DeliveryDetailsForm extends Form {
                 _t('Checkout.Address','Address'),
                 3
             ),
-            TextField::create('DeliveryAddress1',_t('Checkout.Address1','Address Line 1') . '*'),
-            TextField::create('DeliveryAddress2',_t('Checkout.Address2','Address Line 2')),
-            TextField::create('DeliveryCity',_t('Checkout.City','City') . '*'),
-            TextField::create('DeliveryPostCode',_t('Checkout.PostCode','Post Code') . '*'),
+            TextField::create('DeliveryAddress1',_t('Checkout.Address1','Address Line 1')),
+            TextField::create('DeliveryAddress2',_t('Checkout.Address2','Address Line 2'))
+                ->setRightTitle(_t("Checkout.Optional", "Optional")),
+            TextField::create('DeliveryCity',_t('Checkout.City','City')),
+            TextField::create('DeliveryPostCode',_t('Checkout.PostCode','Post Code')),
             CountryDropdownField::create(
                 'DeliveryCountry',
                 _t('Checkout.Country','Country')

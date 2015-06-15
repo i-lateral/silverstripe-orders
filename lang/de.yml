@@ -44,6 +44,7 @@ de:
     Name: Name
     NoPaymentMethods: 'You cannot pay at this time, if you feel there has been an error please contact us.'
     NoSavedAddresses: 'You have no saved addresses.'
+    Optional: Fakultativ
     Or: Oder
     Order: 'Der Status ihres Auftrages'
     OrderProblem: 'There was a problem with your order'

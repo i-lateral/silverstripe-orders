@@ -17,7 +17,6 @@ en:
     CartTotal: Total
     City: City
     Company: Company
-    Confirm: Confirm
     ConfirmPay: 'Confirm and Pay'
     ContinueAsGuest: 'Continue as a Guest'
     Country: Country
@@ -44,7 +43,9 @@ en:
     FirstName: 'First Name(s)'
     Name: Name
     NoPaymentMethods: 'You cannot pay at this time, if you feel there has been an error please contact us.'
+    NoPostageSelection: 'Unfortunatly we cannot deliever to your address'
     NoSavedAddresses: 'You have no saved addresses.'
+    Optional: Optional
     Or: Or
     Order: Order
     OrderProblem: 'There was a problem with your order'

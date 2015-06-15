@@ -13,11 +13,12 @@ class BillingDetailsForm extends Form {
                 _t('Checkout.PersonalDetails','Personal Details'),
                 3
             ),
-            TextField::create('FirstName',_t('Checkout.FirstName','First Name(s)') . '*'),
-            TextField::create('Surname',_t('Checkout.Surname','Surname') . '*'),
-            TextField::create("Company",_t('Checkout.Company',"Company")),
-            EmailField::create('Email',_t('Checkout.Email','Email') . '*'),
-            TextField::create('PhoneNumber',_t('Checkout.Phone','Phone Number') . "*")
+            TextField::create('FirstName',_t('Checkout.FirstName','First Name(s)')),
+            TextField::create('Surname',_t('Checkout.Surname','Surname')),
+            TextField::create("Company",_t('Checkout.Company',"Company"))
+                ->setRightTitle(_t("Checkout.Optional", "Optional")),
+            EmailField::create('Email',_t('Checkout.Email','Email')),
+            TextField::create('PhoneNumber',_t('Checkout.Phone','Phone Number'))
         )->setName("PersonalFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')
@@ -29,13 +30,14 @@ class BillingDetailsForm extends Form {
                 _t('Checkout.Address','Address'),
                 3
             ),
-            TextField::create('Address1',_t('Checkout.Address1','Address Line 1') . '*'),
-            TextField::create('Address2',_t('Checkout.Address2','Address Line 2')),
-            TextField::create('City',_t('Checkout.City','City') . '*'),
-            TextField::create('PostCode',_t('Checkout.PostCode','Post Code') . '*'),
+            TextField::create('Address1',_t('Checkout.Address1','Address Line 1')),
+            TextField::create('Address2',_t('Checkout.Address2','Address Line 2'))
+                ->setRightTitle(_t("Checkout.Optional", "Optional")),
+            TextField::create('City',_t('Checkout.City','City')),
+            TextField::create('PostCode',_t('Checkout.PostCode','Post Code')),
             CountryDropdownField::create(
                 'Country',
-                _t('Checkout.Country','Country') . '*',
+                _t('Checkout.Country','Country'),
                 null,
                 'GB'
             )
