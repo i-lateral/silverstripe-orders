@@ -58,7 +58,7 @@ class WorldPayHandler extends PaymentHandler {
             $desc_string .= $item->Title . ' x ' . $item->Quantity . ', ';
         }
         
-        if(!Checkout::config()->simple_checkout) {
+        if(!Checkout::config()->simple_checkout && !$cart->isCollection()) {
             // Add postage type to description
             $desc_string .= _t("Checkout.Postage", "Postage") . ': ' . $order->PostageType . '; ';
             

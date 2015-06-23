@@ -153,7 +153,7 @@ class Payment_Controller extends Controller {
 
         // If we are using a complex checkout and do not have correct
         // details redirect 
-        if(!Checkout::config()->simple_checkout && (!$postage || !$billing_data || !$delivery_data))
+        if(!Checkout::config()->simple_checkout && !$cart->isCollection() && (!$postage || !$billing_data || !$delivery_data))
             return $this->redirect(Checkout_Controller::create()->Link());
 
         // Create an order number
@@ -169,9 +169,12 @@ class Payment_Controller extends Controller {
         if(!Checkout::config()->simple_checkout) {
             $data = array_merge($data, $billing_data, $delivery_data);
             
-            $data['PostageType'] = $postage->Title;
-            $data['PostageCost'] = $postage->Cost;
-            $data['PostageTax'] = ($postage->Tax) ? ($postage->Cost / 100) * $postage->Tax : 0;
+            if(!$cart->isCollection()) {
+                $data['PostageType'] = $postage->Title;
+                $data['PostageCost'] = $postage->Cost;
+                $data['PostageTax'] = ($postage->Tax) ? ($postage->Cost / 100) * $postage->Tax : 0;
+            }
+            
             $data['DiscountAmount'] = $cart->DiscountAmount;
             
             foreach(Checkout::config()->checkout_data as $key) {

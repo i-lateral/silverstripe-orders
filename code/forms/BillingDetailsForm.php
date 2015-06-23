@@ -79,17 +79,30 @@ class BillingDetailsForm extends Form {
             LiteralField::create(
                 'BackButton',
                 '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back','Back') . '</a>'
-            ),
-
-            FormAction::create('doSetDelivery', _t('Checkout.SetDeliveryAddress','Deliver to another address'))
-                ->addExtraClass('btn')
-                ->addExtraClass('checkout-action-next'),
-
-            FormAction::create('doContinue', _t('Checkout.DeliverThisAddress','Deliver to this address'))
-                ->addExtraClass('btn')
-                ->addExtraClass('checkout-action-next')
-                ->addExtraClass('btn-green')
+            )
         );
+        
+        if(ShoppingCart::get()->isCollection()) {
+            $actions->add(
+                FormAction::create('doSetDelivery', _t('Checkout.UseTheseDetails','Use these details'))
+                    ->addExtraClass('btn')
+                    ->addExtraClass('btn-green')
+                    ->addExtraClass('checkout-action-next')
+            );
+        } else {
+            $actions->add(
+                FormAction::create('doSetDelivery', _t('Checkout.SetDeliveryAddress','Deliver to another address'))
+                    ->addExtraClass('btn')
+                    ->addExtraClass('checkout-action-next')
+            );
+            
+            $actions->add(
+                FormAction::create('doContinue', _t('Checkout.DeliverThisAddress','Deliver to this address'))
+                    ->addExtraClass('btn')
+                    ->addExtraClass('checkout-action-next')
+                    ->addExtraClass('btn-green')
+            );
+        }
 
         $validator = new RequiredFields(
             'FirstName',

@@ -31,13 +31,33 @@ $SessionMessage
                     <hr/>
                 <% end_if %>
 
-                <% if $PostageForm %>
-                    <div class="checkout-cart-postage">
-                        $PostageForm
-                    </div>
-                <% else %>
-                    <br/>
-                <% end_if %>
+                <div class="units-row line">
+                    <% if Checkout.ClickAndCollect %>
+                        <div class="unit-50 size10f2 checkout-cart-clickandcollect">
+                            <h3>
+                                <%t Checkout.RecieveGoods "How would you like to recieve your goods?" %>
+                            </h3>
+                            
+                            <div class="checkout-delivery-buttons">
+                                <a class="btn <% if not isCollection %>btn-active<% end_if %> width-100" href="{$Link(setdeliverytype)}/deliver">
+                                    <%t Checkout.Delivered "Delivered" %>
+                                </a>
+                                <br/>
+                                <a class="btn <% if isCollection %>btn-active<% end_if %> width-100" href="{$Link(setdeliverytype)}/collect">
+                                    <%t Checkout.CollectInstore "Collect Instore" %>
+                                </a>
+                            </div>
+                        </div>
+                    <% end_if %>
+                    
+                    <% if $PostageForm && not $isCollection %>
+                        <div class="unit-50 size10f2 checkout-cart-postage">
+                            $PostageForm
+                        </div>
+                    <% else %>
+                        <br/>
+                    <% end_if %>
+                </div>
             </div>
 
             <div class="unit-33 unit size1of3">

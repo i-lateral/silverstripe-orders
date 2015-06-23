@@ -58,18 +58,22 @@
 
             <div class="unit-50 unit size1of2">
                 <h2><%t Checkout.DeliveryDetails "Delivery Details" %></h2>
-                <p>
-                    <% if $DeliveryCompany %>
-						<strong><%t Checkout.Company "Company" %>:</strong> $DeliveryCompany<br/>
-					<% end_if %>
-                    <strong><%t Checkout.Name "Name" %>:</strong> $DeliveryFirstnames $DeliverySurname<br/>
-                    <strong><%t Checkout.Address "Address" %></strong><br/>
-                    $DeliveryAddress1<br/>
-                    <% if $DeliveryAddress2 %>$DeliveryAddress2<br/><% end_if %>
-                    $DeliveryCity<br/>
-                    <strong><%t Checkout.PostCode "Post Code" %>:</strong> $DeliveryPostCode<br/>
-                    <strong><%t Checkout.Country "Country" %>:</strong> $DeliveryCountry
-                </p>
+                <% if $Top.ShoppingCart.isCollection %>
+                    <p><%t Checkout.ItemsReservedInstore "Your items will be held instore until you collect them" %></p>
+                <% else %>
+                    <p>
+                        <% if $DeliveryCompany %>
+                            <strong><%t Checkout.Company "Company" %>:</strong> $DeliveryCompany<br/>
+                        <% end_if %>
+                        <strong><%t Checkout.Name "Name" %>:</strong> $DeliveryFirstnames $DeliverySurname<br/>
+                        <strong><%t Checkout.Address "Address" %></strong><br/>
+                        $DeliveryAddress1<br/>
+                        <% if $DeliveryAddress2 %>$DeliveryAddress2<br/><% end_if %>
+                        $DeliveryCity<br/>
+                        <strong><%t Checkout.PostCode "Post Code" %>:</strong> $DeliveryPostCode<br/>
+                        <strong><%t Checkout.Country "Country" %>:</strong> $DeliveryCountry
+                    </p>
+                <% end_if %>
             </div>
         </div>
     <% end_with %>

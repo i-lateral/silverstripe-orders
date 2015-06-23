@@ -8,7 +8,7 @@ class PostagePaymentForm extends Form {
     
     public function __construct($controller, $name = "PostagePaymentForm") {
         
-        if(!Checkout::config()->simple_checkout) {
+        if(!Checkout::config()->simple_checkout && !ShoppingCart::get()->isCollection()) {
             // Get delivery data and postage areas from session
             $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
             $country = $delivery_data['DeliveryCountry'];
@@ -50,6 +50,18 @@ class PostagePaymentForm extends Form {
                 HeaderField::create("PostageHeader", _t('Checkout.Postage',"Postage")),
                 $select_postage_field
             )->setName("PostageFields")
+            ->addExtraClass("unit")
+            ->addExtraClass("size1of2")
+            ->addExtraClass("unit-50");
+        } elseif(ShoppingCart::get()->isCollection()) {
+            $postage_field = CompositeField::create(
+                HeaderField::create("PostageHeader", _t('Checkout.CollectionOnly',"Collection Only")),
+                ReadonlyField::create(
+                    "CollectionText",
+                    "",
+                    _t("Checkout.ItemsReservedInstore", "Your items will be held instore until you collect them")
+                )
+            )->setName("CollectionFields")
             ->addExtraClass("unit")
             ->addExtraClass("size1of2")
             ->addExtraClass("unit-50");

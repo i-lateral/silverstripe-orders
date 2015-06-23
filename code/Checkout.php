@@ -49,6 +49,14 @@ class Checkout extends ViewableData {
     private static $guest_checkout = true;
     
     /**
+     * Allow users skip the 
+     * 
+     * @var Boolean
+     * @config
+     */
+    private static $click_and_collect = false;
+    
+    /**
      * Currency symbol used by default
      * 
      * @var string
@@ -111,6 +119,16 @@ class Checkout extends ViewableData {
      */
     public function GuestCheckout() {
         return $this->config()->guest_checkout;
+    }
+    
+    /**
+     * Return guest click and collect status in a way that can be seen
+     * by templates
+     * 
+     * @return Boolean
+     */
+    public function ClickAndCollect() {
+        return $this->config()->click_and_collect;
     }
     
     /**

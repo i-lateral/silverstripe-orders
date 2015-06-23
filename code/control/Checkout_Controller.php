@@ -136,8 +136,12 @@ class Checkout_Controller extends Controller {
      * @var array
      */
     public function delivery() {
-        // If we are using simmple checkout, skip
+        // If we are using simple checkout, skip
         if(Checkout::config()->simple_checkout)
+            return $this->redirect($this->Link('finish'));
+            
+        // If customer is collecting, skip
+        if(ShoppingCart::get()->isCollection())
             return $this->redirect($this->Link('finish'));
         
         // Check permissions for guest checkout

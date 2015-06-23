@@ -40,6 +40,7 @@ class ShoppingCart extends Controller {
         "clear",
         "update",
         "usediscount",
+        "setdeliverytype",
         "CartForm",
         "PostageForm",
         "DiscountForm"
@@ -153,6 +154,22 @@ class ShoppingCart extends Controller {
         Session::set("Checkout.AvailablePostage", $postage_areas);
 
         return $this;
+    }
+    
+    /**
+     * Are we collecting the current cart? If click and collect is
+     * disabled then this returns false, otherwise checks if the user
+     * has set this via a session.
+     * 
+     * @return Boolean
+     */
+    public function isCollection() {
+        if(Checkout::config()->click_and_collect) {
+            $type = Session::get("Checkout.Delivery");
+            
+            return ($type == "collect") ? true : false;
+        } else
+            return false;
     }
 
     /**
@@ -314,6 +331,27 @@ class ShoppingCart extends Controller {
                 'Checkout',
                 'Page'
             ));
+    }
+    
+    
+    /**
+     * Set the current session to click and collect (meaning no shipping)
+     * 
+     * @return Redirect
+     */
+    public function setdeliverytype() {
+        $this->extend("onBeforeSetDeliveryType");
+
+        $type = $this->request->param("ID");
+        
+        if($type && in_array($type, array("deliver", "collect"))) {
+            Session::set("Checkout.Delivery", $type);
+            Session::clear("Checkout.PostageID");
+        }
+        
+        $this->extend("onAfterSetDeliveryType");
+        
+        $this->redirectBack();
     }
 
     /**

@@ -90,7 +90,7 @@ class PayPalHandler extends PaymentHandler {
             $i++;
         }
         
-        if(!Checkout::config()->simple_checkout) {
+        if(!Checkout::config()->simple_checkout && !$cart->isCollection()) {
             // Add shipping as an extra product
             $fields->add(HiddenField::create('item_name_' . $i, null, $order->PostageType));
             $fields->add(HiddenField::create('amount_' . $i, null, number_format($cart->PostageCost, 2)));
