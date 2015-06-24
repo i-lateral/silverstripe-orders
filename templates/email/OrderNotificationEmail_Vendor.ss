@@ -87,14 +87,18 @@
 
     <h2><%t Orders.DeliveryDetails 'Delivery Details' %></h2>
     
-    <p>
-        {$FirstName} {$Surname}<br/>
-        {$DeliveryAddress1},<br/>
-        <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
-        {$DeliveryCity},<br/>
-        {$DeliveryPostCode},<br/>
-        {$DeliveryCountryFull}
-    </p>
+    <% if $Action == "collect" %>
+        <p><%t Orders.ItemsToBeCollected "The items are to be collected" %></p>
+    <% else %>
+        <p>
+            {$FirstName} {$Surname}<br/>
+            {$DeliveryAddress1},<br/>
+            <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
+            {$DeliveryCity},<br/>
+            {$DeliveryPostCode},<br/>
+            {$DeliveryCountryFull}
+        </p>
+    <% end_if %>
 <% end_with %>
 
 <% include OrderEmailFooter %>

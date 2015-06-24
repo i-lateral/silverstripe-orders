@@ -44,7 +44,20 @@ class Order extends DataObject implements PermissionProvider {
         "paid" => "Paid",
         "processing" => "Processing",
         "dispatched" => "Dispatched",
+        "collected" => "Collected",
         "refunded" => "Refunded"
+    );
+    
+    /**
+     * Actions on an order are to determine what will happen on
+     * completion (the defaults are post or collect).
+     * 
+     * @var array
+     * @config
+     */
+    private static $actions = array(
+        "post" => "Post",
+        "collect" => "Collect"
     );
     
     /**
@@ -72,6 +85,15 @@ class Order extends DataObject implements PermissionProvider {
      */
     private static $default_status = "incomplete";
     
+    /**
+     * Set the default action on our order. If we were using this module
+     * for a more POS type solution, we would probably change this to
+     * collect.
+     * 
+     * @var string
+     * @config
+     */
+    private static $default_action = "post";
     
     /**
      * This is the class that can be auto mapped to an order/estimate.
@@ -118,13 +140,16 @@ class Order extends DataObject implements PermissionProvider {
         'DeliveryPostCode'  => 'Varchar',
         'DeliveryCountry'   => 'Varchar',
         
-        // Discount provided
+        // Discount Provided
         "DiscountAmount"    => "Currency",
         
+        // Completion Action
+        "Action"            => "Varchar",
+        
         // Postage
-        'PostageType'       => 'Varchar',
-        'PostageCost'       => 'Currency',
-        'PostageTax'        => 'Currency',
+        "PostageType"       => "Varchar",
+        "PostageCost"       => "Currency",
+        "PostageTax"        => "Currency",
         
         // Payment Gateway Info
         "PaymentNo"         => "Varchar(255)",
@@ -165,6 +190,7 @@ class Order extends DataObject implements PermissionProvider {
     private static $summary_fields = array(
         "OrderNumber"   => "#",
         "Status"        => "Status",
+        "Action"        => "Action",
         "FirstName"     => "First Name(s)",
         "Surname"       => "Surname",
         "Email"         => "Email",
@@ -177,6 +203,12 @@ class Order extends DataObject implements PermissionProvider {
     );
 
     private static $default_sort = "Created DESC";
+    
+    public function populateDefaults() {
+        parent::populateDefaults();
+        $this->Status = $this->config()->default_status;
+        $this->Action = $this->config()->default_action;
+    }
 
     public function getCMSFields() {
         $member = Member::currentUser();
@@ -251,6 +283,11 @@ class Order extends DataObject implements PermissionProvider {
                     // Sidebar
                     OrderSidebar::create(
                         TextField::create('Status'),
+                        DropdownField::create(
+                            'Action',
+                            null,
+                            $this->config()->actions
+                        ),
                         ReadonlyField::create("QuoteNumber", "#")
                             ->setValue($this->ID),
                         ReadonlyField::create("Created"),

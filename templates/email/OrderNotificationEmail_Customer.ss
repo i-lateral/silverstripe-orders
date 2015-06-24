@@ -80,14 +80,18 @@
 
         <h2><%t Orders.DeliveryDetails 'Delivery Details' %></h2>
         
-        <p>
-            {$BillingFirstnames} {$BillingSurname}<br/>
-            {$DeliveryAddress1},<br/>
-            <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
-            {$DeliveryCity},<br/>
-            {$DeliveryPostCode},<br/>
-            {$DeliveryCountryFull}
-        </p>
+        <% if $Action == "collect" %>
+            <p><%t Orders.AwaitingCollect "The items are awaiting collection" %></p>
+        <% else %>
+            <p>
+                {$BillingFirstnames} {$BillingSurname}<br/>
+                {$DeliveryAddress1},<br/>
+                <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
+                {$DeliveryCity},<br/>
+                {$DeliveryPostCode},<br/>
+                {$DeliveryCountryFull}
+            </p>
+        <% end_if %>
         
         <hr/>
 
