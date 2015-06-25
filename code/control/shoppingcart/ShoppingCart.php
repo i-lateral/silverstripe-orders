@@ -414,30 +414,11 @@ class ShoppingCart extends Controller {
             ->find("Key", $item_key);
         
         if($item) {
-            try {
-                $item->Quantity = $quantity;
+            $item->Quantity = $quantity;
             
-                $this->extend("onBeforeUpdate", $item);
-                
-                $this->save();
-                
-                $this->setSessionMessage(
-                    "success",
-                    _t("Checkout.UpdatedShoppingCart", "Shopping cart updated")
-                );
-                
-                return true;
-            } catch(ValidationException $e) {
-                $this->setSessionMessage(
-                    "bad",
-                    $e->getMessage()
-                );
-            } catch(Exception $e) {
-                $this->setSessionMessage(
-                    "bad",
-                    $e->getMessage()
-                );
-            }
+            $this->extend("onBeforeUpdate", $item);
+            
+            $this->save();
         }
 
         return false;
@@ -766,10 +747,33 @@ class ShoppingCart extends Controller {
                 $sliced_key = explode("_", $key);
                 if($sliced_key[0] == "Quantity") {
                     if(isset($cart_item) && ($cart_item->Key == $sliced_key[1])) {
-                        if($value > 0) {
-                            $this->update($cart_item->Key, $value);
-                        } else
-                            $this->remove($cart_item->Key);
+                        try {
+                            if($value > 0) {
+                                $this->update($cart_item->Key, $value);
+                                
+                                $this->setSessionMessage(
+                                    "success",
+                                    _t("Checkout.UpdatedShoppingCart", "Shopping cart updated")
+                                );
+                            } else {
+                                $this->remove($cart_item->Key);
+                                
+                                $this->setSessionMessage(
+                                    "success",
+                                    _t("Checkout.EmptiedShoppingCart", "Shopping cart emptied")
+                                );
+                            }
+                        } catch(ValidationException $e) {
+                            $this->setSessionMessage(
+                                "bad",
+                                $e->getMessage()
+                            );
+                        } catch(Exception $e) {
+                            $this->setSessionMessage(
+                                "bad",
+                                $e->getMessage()
+                            );
+                        }
                     }
                 }
             }
