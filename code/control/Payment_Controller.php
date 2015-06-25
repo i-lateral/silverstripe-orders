@@ -155,6 +155,9 @@ class Payment_Controller extends Controller {
         // details redirect 
         if(!Checkout::config()->simple_checkout && !$cart->isCollection() && (!$postage || !$billing_data || !$delivery_data))
             return $this->redirect(Checkout_Controller::create()->Link());
+            
+        if($cart->isCollection() && (!$billing_data))
+            return $this->redirect(Checkout_Controller::create()->Link());
 
         // Create an order number
         $data["OrderNumber"] = substr(chunk_split(Checkout::getRandomNumber(), 4, '-'), 0, -1);
@@ -167,7 +170,8 @@ class Payment_Controller extends Controller {
 
         // Assign billing, delivery and postage data
         if(!Checkout::config()->simple_checkout) {
-            $data = array_merge($data, $billing_data, $delivery_data);
+            $data = array_merge($data, $billing_data);
+            $data = (is_array($delivery_data)) ? array_merge($data, $delivery_data) : $data;
             
             if(!$cart->isCollection()) {
                 $data['PostageType'] = $postage->Title;
