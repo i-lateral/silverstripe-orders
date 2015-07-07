@@ -181,7 +181,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             if(!$obj->ID && $obj->canCreate()) {
                 // If an new record and we can create
                 $source_item = $source_class::get()
-                    ->filter($filter)
+                    ->filterAny($filter)
                     ->first();
                     
                 if($source_item) {
