@@ -161,7 +161,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             // create one
             $existing_obj = $gridField
                 ->getList()
-                ->filter($filter)
+                ->filterAny($filter)
                 ->first();
             
             if($existing_obj) $obj = $existing_obj;
