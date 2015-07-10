@@ -65,20 +65,22 @@ class PayPalHandler extends PaymentHandler {
             HiddenField::create('zip', null, $order->PostCode),
             HiddenField::create('country', null, $order->Country),
             HiddenField::create('email', null, $order->Email),
-            
-            // Shipping Details
-            HiddenField::create('shipping_addressee_name', null, $order->DeliveryFirstnames . " " . $order->DeliverySurname),
-            HiddenField::create('shipping_address1', null, $order->DeliveryAddress1),
-            HiddenField::create('shipping_address2', null, $order->DeliveryAddress2),
-            HiddenField::create('shipping_city', null, $order->DeliveryCity),
-            HiddenField::create('shipping_zip', null, $order->DeliveryPostCode),
-            HiddenField::create('shipping_country', null, $order->DeliveryCountry),
 
             // Notification details
             HiddenField::create('return', null, $success_url),
             HiddenField::create('notify_url', null, $callback_url),
             HiddenField::create('cancel_return', null, $error_url)
         );
+        
+        if(!Checkout::config()->simple_checkout && !$cart->isCollection()) {
+            // Shipping Details
+            $fields->add(HiddenField::create('shipping_addressee_name', null, $order->DeliveryFirstnames . " " . $order->DeliverySurname));
+            $fields->add(HiddenField::create('shipping_address1', null, $order->DeliveryAddress1));
+            $fields->add(HiddenField::create('shipping_address2', null, $order->DeliveryAddress2));
+            $fields->add(HiddenField::create('shipping_city', null, $order->DeliveryCity));
+            $fields->add(HiddenField::create('shipping_zip', null, $order->DeliveryPostCode));
+            $fields->add(HiddenField::create('shipping_country', null, $order->DeliveryCountry));
+        }
 
         $i = 1;
 
