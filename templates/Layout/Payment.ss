@@ -52,7 +52,7 @@
                     <% if $Address2 %>$Address2<br/><% end_if %>
                     $City<br/>
                     <strong><%t Checkout.PostCode "Post Code" %>:</strong> $PostCode<br/>
-                    <strong><%t Checkout.Country "Country" %>:</strong> $Country
+                    <strong><%t Checkout.Country "Country" %>:</strong> <% if $CountryFull %>$CountryFull<% else %>$Country<% end_if %>
                 </p>
             </div>
 
@@ -71,7 +71,7 @@
                         <% if $DeliveryAddress2 %>$DeliveryAddress2<br/><% end_if %>
                         $DeliveryCity<br/>
                         <strong><%t Checkout.PostCode "Post Code" %>:</strong> $DeliveryPostCode<br/>
-                        <strong><%t Checkout.Country "Country" %>:</strong> $DeliveryCountry
+                        <strong><%t Checkout.Country "Country" %>:</strong> <% if $DeliveryCountryFull %>$DeliveryCountryFull<% else %>$DeliveryCountry<% end_if %>
                     </p>
                 <% end_if %>
             </div>

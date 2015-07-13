@@ -172,6 +172,7 @@ class Payment_Controller extends Controller {
         if(!Checkout::config()->simple_checkout) {
             $data = array_merge($data, $billing_data);
             $data = (is_array($delivery_data)) ? array_merge($data, $delivery_data) : $data;
+            $checkout_data = Checkout::config()->checkout_data;
             
             if(!$cart->isCollection()) {
                 $data['PostageType'] = $postage->Title;
@@ -181,7 +182,16 @@ class Payment_Controller extends Controller {
             
             $data['DiscountAmount'] = $cart->DiscountAmount;
             
-            foreach(Checkout::config()->checkout_data as $key) {
+            // Add full country names if needed
+            if(in_array("CountryFull",$checkout_data)) {
+                $data['CountryFull'] = Checkout::country_name_from_code($data["Country"]);
+            }
+            
+            if(in_array("DeliveryCountryFull",$checkout_data) && array_key_exists("DeliveryCountry", $data)) {
+                $data['DeliveryCountryFull'] = Checkout::country_name_from_code($data["DeliveryCountry"]);
+            }
+            
+            foreach($checkout_data as $key) {
                 if(array_key_exists($key,$data))
                     $payment_data[$key] = $data[$key];
             }

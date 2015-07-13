@@ -94,6 +94,7 @@ class Checkout extends ViewableData {
         "City",
         "PostCode",
         "Country",
+        "CountryFull",
         "PhoneNumber",
         "Email",
         "DeliveryCompany",
@@ -104,12 +105,35 @@ class Checkout extends ViewableData {
         "DeliveryCity",
         "DeliveryPostCode",
         "DeliveryCountry",
+        "DeliveryCountryFull",
         "DiscountAmount",
         "TaxRate",
         "PostageType",
         "PostageCost",
         "PostageTax"
     );
+
+
+    /**
+     * Get the full translated country name from a 2 digit country code
+     * EG: GB
+     * 
+     * @param $country_code 2 character code
+     * @return string
+     */
+    public static function country_name_from_code($country_code) {
+        try {
+            $source = Zend_Locale::getTranslationList(
+                'territory',
+                $country_code,
+                2
+            );
+
+            return (array_key_exists($country_code, $source)) ? $source[$country_code] : $country_code;
+        } catch(Exception $e) {
+            return "";
+        }
+    }
 
     /**
      * Return guest checkout status in a way that can be seen by
