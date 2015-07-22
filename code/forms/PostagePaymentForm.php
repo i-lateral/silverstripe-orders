@@ -40,7 +40,7 @@ class PostagePaymentForm extends Form {
                 $select_postage_field = ReadonlyField::create(
                     "NoPostage",
                     "",
-                    _t('Checkout.NoPostageSelection', 'Unfortunately we cannot deliever to your address')
+                    _t('Checkout.NoPostageSelection', 'Unfortunately we cannot deliver to your address')
                 )->addExtraClass("label")
                 ->addExtraClass("label-red");
             }
