@@ -658,6 +658,10 @@ class Order extends DataObject implements PermissionProvider {
             }
         }
         
+        
+        $this->Status = (!$this->Status) ? $this->config()->default_status : $this->Status;
+        $this->Action = (!$this->Action) ? $this->config()->default_action :  $this->Action;
+        
         $this->extend("onBeforeWrite");
     }
     
