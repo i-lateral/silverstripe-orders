@@ -19,6 +19,22 @@ class PostageArea extends DataObject {
     private static $has_one = array(
         "Site"          => "SiteConfig"
     );
+    
+    private static $casting = array(
+        "Total"          => "Currency"
+    );
+
+    /**
+     * Get the total cost including tax
+     * 
+     * @return Decimal
+     */
+    public function Total() {
+        if($this->Cost && $this->Tax)
+            return $this->Cost + (($this->Cost / 100) * $this->Tax);
+        
+        return $this->Cost;            
+    }
 
     public function canView($member = null) {
 		$extended = $this->extendedCan('canView', $member);

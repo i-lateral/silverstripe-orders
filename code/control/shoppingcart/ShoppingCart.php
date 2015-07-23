@@ -149,8 +149,16 @@ class ShoppingCart extends Controller {
      * @return ShoppingCart
      */
     public function setAvailablePostage($country, $code) {
-        // Set postage data and save into a session
-        $postage_areas = Checkout::getPostageAreas($country, $code);
+        
+        $postage_areas = new ShippingCalculator($code, $country);
+        
+        $postage_areas
+            ->setCost($this->SubTotalCost)
+            ->setWeight($this->TotalWeight)
+            ->setItems($this->TotalItems);
+            
+        $postage_areas = $postage_areas->getPostageAreas();
+        
         Session::set("Checkout.AvailablePostage", $postage_areas);
 
         return $this;

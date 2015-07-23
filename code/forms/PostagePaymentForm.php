@@ -13,7 +13,15 @@ class PostagePaymentForm extends Form {
             $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
             $country = $delivery_data['DeliveryCountry'];
             $postcode = $delivery_data['DeliveryPostCode'];
-            $postage_areas = Checkout::getPostageAreas($country, $postcode);
+            $cart = ShoppingCart::get();
+            
+            $postage_areas = new ShippingCalculator($postcode, $country);
+            $postage_areas
+                ->setCost($cart->SubTotalCost)
+                ->setWeight($cart->TotalWeight)
+                ->setItems($cart->TotalItems);
+                
+            $postage_areas = $postage_areas->getPostageAreas();
 
             // Loop through all postage areas and generate a new list
             $postage_array = array();
