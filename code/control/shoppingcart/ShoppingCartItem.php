@@ -95,6 +95,7 @@ class ShoppingCartItem extends ViewableData {
      * 
      * - Title the title of this customisation (EG colour).
      * - Value the value of this customisation (eg red). 
+     * - Price adjust the price by this much (eg 10.00 or -5.00). 
      * 
      * @var array
      */
@@ -106,11 +107,12 @@ class ShoppingCartItem extends ViewableData {
         "TotalDiscount" => "Currency",
         "SubTotal" => "Currency",
         "Tax" => "Currency",
-        "TotalTax" => "Currency"
+        "TotalTax" => "Currency",
+        "TotalPrice" => "Currency",
     );
     
     /**
-     * Find the cost of all items in the cart, without any tax.
+     * Find the cost of all items in this line, without any tax.
      *
      * @return Currency
      */
@@ -162,6 +164,17 @@ class ShoppingCartItem extends ViewableData {
      */
     public function getSubTotal() {
         return $this->Price * $this->Quantity;
+    }
+    
+    
+    /**
+     * Generate the total price, accounting for price, quantity, discount
+     * and tax
+     *
+     * @return Currency
+     */
+    public function getTotalPrice() {
+        return $this->SubTotal + $this->TotalTax - $this->Discount;
     }
     
     
