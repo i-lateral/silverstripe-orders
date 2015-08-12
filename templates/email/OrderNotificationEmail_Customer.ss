@@ -50,7 +50,7 @@
                         <td style="text-align: right;">$PostageCost.Nice</td>
                     </tr>
                     
-                    <% if $TaxAmount %>
+                    <% if $TaxTotal %>
                     <tr>
                         <td colspan="3" style="text-align: right;">
                             <strong><%t Orders.SubTotal "Sub Total" %></strong>
@@ -62,7 +62,7 @@
                         <td colspan="2" style="text-align: right;">
                             <strong><%t Orders.Tax "Tax" %></strong>
                         </td>
-                        <td style="text-align: right;">$TaxAmount.Nice</td>
+                        <td style="text-align: right;">$TaxTotal.Nice</td>
                     </tr>
                     <% end_if %>
                     
