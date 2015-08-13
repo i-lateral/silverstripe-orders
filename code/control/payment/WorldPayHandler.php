@@ -145,6 +145,7 @@ class WorldPayHandler extends PaymentHandler {
             $this->payment_gateway->ResponsePassword == $data["callbackPW"]
         ) {
             $order_id = $data['cartId'];
+            $payment_id = $data['transId'];
             $status = $data['transStatus'];
 
             if($data['transStatus'] == 'Y') {
@@ -158,6 +159,7 @@ class WorldPayHandler extends PaymentHandler {
         
         $payment_data = ArrayData::array_to_object(array(
             "OrderID" => $order_id,
+            "PaymentProvider" => "WorldPay",
             "PaymentID" => $payment_id,
             "Status" => $status,
             "GatewayData" => $data

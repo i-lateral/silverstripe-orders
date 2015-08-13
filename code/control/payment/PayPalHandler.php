@@ -220,6 +220,7 @@ class PayPalHandler extends PaymentHandler {
         
         $payment_data = ArrayData::array_to_object(array(
             "OrderID" => $order_id,
+            "PaymentProvider" => "PayPal",
             "PaymentID" => $payment_id,
             "Status" => $status,
             "GatewayData" => $data
