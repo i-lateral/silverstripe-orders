@@ -296,7 +296,7 @@ class Order extends DataObject implements PermissionProvider {
                         LiteralField::create("TaxTotal", $tax_html),
                         LiteralField::create("Total", $total_html),
                         TextField::create('PaymentProvider'),
-                        TextField::create('PaymentID')
+                        TextField::create('PaymentNo')
                     )->setTitle("Details")
                 ),
                 
