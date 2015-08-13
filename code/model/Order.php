@@ -152,8 +152,8 @@ class Order extends DataObject implements PermissionProvider {
         "PostageTax"        => "Currency",
         
         // Payment Gateway Info
+        "PaymentProvider"   => "Varchar",
         "PaymentNo"         => "Varchar(255)",
-        "GatewayData"       => "Text",
         
         // Misc Data
         "AccessKey"         => "Varchar(20)",
@@ -294,7 +294,9 @@ class Order extends DataObject implements PermissionProvider {
                         LiteralField::create("SubTotal", $subtotal_html),
                         LiteralField::create("Postage", $postage_html),
                         LiteralField::create("TaxTotal", $tax_html),
-                        LiteralField::create("Total", $total_html)
+                        LiteralField::create("Total", $total_html),
+                        TextField::create('PaymentProvider'),
+                        TextField::create('PaymentID')
                     )->setTitle("Details")
                 ),
                 
