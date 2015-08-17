@@ -245,23 +245,26 @@ class Payment_Controller extends Controller {
             $return = $this->error_data();
         else
             $return = $this->success_data();
+            
+        $this->customise($return);
+        
+        // Extend our completion process, to allow for custom completion
+        // templates
+        $this->extend("onBeforeComplete");
 
         // Clear our session data
         if(isset($_SESSION)) {
             ShoppingCart::get()->clear();
-            unset($_SESSION['Checkout.Order']);
             unset($_SESSION['Checkout.PostageID']);
             unset($_SESSION['Checkout.PaymentMethod']);
         }
 
-        return $this
-            ->customise($return)
-            ->renderWith(array(
-                "Payment_complete_" . $this->payment_handler,
-                "Payment_complete",
-                "Checkout",
-                "Page"
-            ));
+        return $this->renderWith(array(
+            "Payment_complete_" . $this->payment_handler,
+            "Payment_complete",
+            "Checkout",
+            "Page"
+        ));
     }
 
     /*
