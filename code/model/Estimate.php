@@ -126,6 +126,18 @@ class Estimate extends Order {
                 )->setTitle("Use Existing Customer"),
                 "Company"
             );
+            
+            if(is_array($this->config()->existing_customer_fields)) {
+                $columns = $config->getComponentByType("GridFieldDataColumns");
+                
+                if($columns) {
+                    $columns
+                        ->setDisplayFields($this
+                            ->config()
+                            ->existing_customer_fields
+                        );
+                }
+            }
         
             // Set the record ID
             $map_extension->setMapFields(array(
