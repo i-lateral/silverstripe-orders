@@ -65,3 +65,11 @@
     .order-admin-customer .field .middleColumn {
         margin-left: 145px;
     }
+    
+.cms .ss-gridfield .add-existing-autocompleter button#action_gridfield_orderitemadd {
+    height: 32px;
+    margin-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}

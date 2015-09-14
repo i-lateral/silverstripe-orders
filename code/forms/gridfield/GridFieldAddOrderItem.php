@@ -10,7 +10,7 @@
  * @author ilateral <info@ilateral.co.uk>
  * @author Michael Strong <github@michaelstrong.co.uk>
 **/
-class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLProvider {
+class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLProvider, GridField_URLHandler {
 
 	/**
 	 * HTML Fragment to render the field.
@@ -20,13 +20,17 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 	protected $targetFragment;
 
 
-
 	/**
 	 * Default field to create the dataobject by should be Title.
 	 *
 	 * @var string
 	 **/
 	protected $dataObjectField = "Title";
+    
+    /**
+	 * @var string SSViewer template to render the results presentation
+	 */
+	protected $results_format = '$Title';
     
     /**
 	 * Default field to create the dataobject from.
@@ -63,6 +67,27 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
     
     public function setFilterFields($fields) {
         $this->filter_fields = $fields;
+        return $this;
+    }
+    
+    /**
+	 * Fields that we use to filter items for our autocomplete
+	 *
+	 * @var array
+	 **/
+	protected $autocomplete_fields = array(
+        "Title",
+        "StockID"
+    );
+
+
+    public function getAutocompleteFields() {
+        return $this->autocomplete_fields;
+    }
+    
+    
+    public function setAutocompleteFields($fields) {
+        $this->autocomplete_fields = $fields;
         return $this;
     }
     
@@ -106,10 +131,38 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
         $this->source_fields = $fields;
         return $this;
     }
+    
+    /**
+     * Number of results to appear in autocomplete
+     * 
+	 * @var int
+	 */
+	protected $results_limit = 20;
+    
+    public function getResultsLimit() {
+        return $this->results_limit;
+    }
+    
+    
+    public function setResultsLimit($fields) {
+        $this->results_limit = $fields;
+        return $this;
+    }
 
 	public function __construct($targetFragment = 'before', $dataObjectField = "Title") {
 		$this->targetFragment = $targetFragment;
 		$this->dataObjectField = (string) $dataObjectField;
+	}
+    
+    /**
+	 *
+	 * @param GridField $gridField
+	 * @return array
+	 */
+	public function getURLHandlers($gridField) {
+		return array(
+			'search' => 'doSearch',
+		);
 	}
 
 
@@ -140,7 +193,13 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 			$dbField = $this->getDataObjectField();
 			$objClass = $gridField->getModelClass();
             $source_class = $this->getSourceClass();
-            $id = null;
+            $filter = array();
+            
+            // Has the user used autocomplete
+            if(isset($data['relationID']) && $data['relationID'])
+                $id = $data['relationID'];
+            else
+                $id = null;
             
             $obj = new $objClass();
             
@@ -148,15 +207,23 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             if(!$obj->hasField($dbField))
                 throw new UnexpectedValueException("Invalid field (" . $dbField . ") on  " . $obj->ClassName . ".");
             
-            // Generate the filter we need to use
-            $string = $data['gridfieldaddbydbfield'][$obj->ClassName][$dbField];
-            $filter = array();
-            
-            foreach($this->getFilterFields() as $filter_field) {
-                $filter[$filter_field] = $string;
-            }
-
+            // If we have an ID try and get an existing object then
+            // check if we have a copy in items
+            if($id) {
+                $source_item = $source_class::get()->byID($id);
                 
+                foreach($this->getFilterFields() as $filter_field) {
+                    $filter[$filter_field] = $source_item->$filter_field;
+                }
+            } else {
+                // Generate the filter we need to use
+                $string = $data['gridfieldaddbydbfield'];
+                
+                foreach($this->getFilterFields() as $filter_field) {
+                    $filter[$filter_field] = $string;
+                }
+            }
+            
             // First check if we already have an object or if we need to
             // create one
             $existing_obj = $gridField
@@ -179,10 +246,13 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             }
             
             if(!$obj->ID && $obj->canCreate()) {
-                // If an new record and we can create
-                $source_item = $source_class::get()
-                    ->filterAny($filter)
-                    ->first();
+                // If source item not set, try and get one or get a 
+                // an existing record
+                if(!$source_item) {
+                    $source_item = $source_class::get()
+                        ->filterAny($filter)
+                        ->first();
+                }
                     
                 if($source_item) {
                     foreach($this->getSourceFields() as $obj_field => $source_field) {
@@ -238,9 +308,8 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 		if(!$obj->canCreate()) return "";
 
 		$dbField = $this->getDataObjectField();
-        
 
-		$textField = TextField::create("gridfieldaddbydbfield[" . $obj->ClassName . "][" . Convert::raw2htmlatt($dbField) . "]")
+		$textField = TextField::create("gridfieldaddbydbfield")
             ->setAttribute(
                 "placeholder",
                 _t(
@@ -251,11 +320,21 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
                         "Title" => $this->getCreateField()
                     )
                 )
-            )->addExtraClass("no-change-track");
+            )->addExtraClass("relation-search no-change-track")
+            ->setAttribute('data-search-url', Controller::join_links($gridField->Link('search')));
+
+        $findAction = new GridField_FormAction(
+            $gridField,
+            'gridfield_relationfind',
+			_t('GridField.Find', "Find"),
+            'find',
+            'find'
+        );
+		$findAction->setAttribute('data-icon', 'relationfind');
 
 		$addAction = new GridField_FormAction(
             $gridField, 
-			'add',
+			'gridfield_orderitemadd',
 			_t("GridFieldAddOrderItem.Add","Add"), 
 			'add', 
 			'add'
@@ -267,11 +346,60 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
 		$forTemplate->Fields = new ArrayList();
 
 		$forTemplate->Fields->push($textField);
+		$forTemplate->Fields->push($findAction);
 		$forTemplate->Fields->push($addAction);
 
 		return array(
 			$this->targetFragment => $forTemplate->renderWith("GridFieldAddOrderItem")
 		);
+	}
+    
+    /**
+	 * Returns a json array of a search results that can be used by for
+     * example Jquery.ui.autosuggestion
+	 *
+	 * @param GridField $gridField
+	 * @param SS_HTTPRequest $request
+	 */
+	public function doSearch($gridField, $request) {
+		$product_class = $this->getSourceClass();
+        $params = array();
+		
+        // Do we have filter fields setup?
+		if($this->getAutocompleteFields())
+            $search_fields = $this->getAutocompleteFields();
+        else
+			$search_fields = $this->scaffoldSearchFields($product_class);
+		
+        if(!$search_fields) {
+			throw new LogicException(
+				sprintf('GridFieldAddExistingAutocompleter: No searchable fields could be found for class "%s"',
+				$product_class)
+            );
+		}
+        
+		foreach($search_fields as $search_field) {
+			$name = (strpos($search_field, ':') !== FALSE) ? $search_field : "$search_field:StartsWith";
+			$params[$name] = $request->getVar('gridfieldaddbydbfield');
+		}
+        
+		$results = DataList::create($product_class)
+			->filterAny($params)
+			->sort(strtok($search_fields[0], ':'), 'ASC')
+			->limit($this->getResultsLimit());
+
+		$json = array();
+        
+		$originalSourceFileComments = Config::inst()->get('SSViewer', 'source_file_comments');
+		Config::inst()->update('SSViewer', 'source_file_comments', false);
+		
+        foreach($results as $result) {
+			$json[$result->ID] = html_entity_decode(SSViewer::fromString($this->results_format)->process($result));
+		}
+		
+        Config::inst()->update('SSViewer', 'source_file_comments', $originalSourceFileComments);
+		
+        return Convert::array2json($json);
 	}
 
 
