@@ -35,7 +35,7 @@
                         </tr>
                         <tr>
                             <td class="bold"><%t Commerce.Date "Date" %></td>
-                            <td>$Created.Format('dd/MM/yyyy')</td>
+                            <td>$Created.Format('d/m/Y')</td>
                         </tr>
                     </tbody>
                 </table>
