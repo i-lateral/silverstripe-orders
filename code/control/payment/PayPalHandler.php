@@ -172,7 +172,7 @@ class PayPalHandler extends PaymentHandler {
             if(Director::isDev()) $listener->use_sandbox = true;
 
             try {
-                $verified = $listener->processIpn($data);
+                $verified = $listener->processIpn();
             } catch (Exception $e) {
                 error_log("Exception caught: " . $e->getMessage());
                 return $this->httpError(500);
@@ -213,10 +213,12 @@ class PayPalHandler extends PaymentHandler {
                         break;
                 }
             } else {
+                error_log("Invalid payment status");
                 return $this->httpError(500);
             }
             
         } else {
+            error_log("No payment details set");
             return $this->httpError(500);
         }
         
