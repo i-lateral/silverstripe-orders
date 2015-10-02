@@ -17,7 +17,8 @@
     "require": {
         "silverstripe/framework": ">=3.1",
         "i-lateral/silverstripe-sessionmessenger": "1.0.*",
-        "silverstripe-australia/gridfieldextensions": "*"
+        "silverstripe-australia/gridfieldextensions": "*",
+        "wadeshuler/php-paypal-ipn": "*"
     },
     "suggest": {
         "silverstripe/cms": "Add full content management support to your site",

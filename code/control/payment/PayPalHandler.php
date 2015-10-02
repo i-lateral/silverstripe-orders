@@ -1,5 +1,7 @@
 <?php
 
+use wadeshuler\paypalipn\IpnListener;
+
 class PayPalHandler extends PaymentHandler {
 
     public function index($request) {
