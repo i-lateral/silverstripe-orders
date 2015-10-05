@@ -285,11 +285,11 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             // Finally, issue a redirect to update totals
             $controller = Controller::curr();
     
-            $controller
-                ->getRequest()
-                ->addHeader('X-Pjax', 'Content');
+            $response = $controller->response;
+            $response->addHeader('X-Pjax', 'Content');
+            $response->addHeader('X-Reload', true);
             
-            return $controller->redirect($gridField->getForm()->controller->Link());
+            return $controller->redirect($gridField->getForm()->controller->Link(), 302);
 		}
 	}
 
