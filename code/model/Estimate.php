@@ -25,6 +25,14 @@ class Estimate extends Order {
 		$subtotal_html .= $this->SubTotal->Nice();
         $subtotal_html .= '</span></div></div>';
         
+        $discount_html = '<div id="Discount" class="field readonly">';
+        $discount_html .= '<label class="left" for="Form_ItemEditForm_Discount">';
+        $discount_html .= _t("Orders.Discount", "Discount");
+        $discount_html .= '</label>';
+        $discount_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Discount" class="readonly">';
+		$discount_html .= $this->dbObject("DiscountAmount")->Nice();
+        $discount_html .= '</span></div></div>';
+
         $postage_html = '<div id="Postage" class="field readonly">';
         $postage_html .= '<label class="left" for="Form_ItemEditForm_Postage">';
         $postage_html .= _t("Orders.Postage", "Postage");
@@ -81,11 +89,20 @@ class Estimate extends Order {
                     TextField::create("PostageCost"),
                     TextField::create("PostageTax"),
                     
+                    // Discount
+                    new HeaderField(
+                        "DiscountDetailsHeader",
+                        _t("Orders.DiscountDetails", "Discount")
+                    ),
+                    TextField::create("Discount"),
+                    TextField::create("DiscountAmount"),
+                    
                     // Sidebar
                     OrderSidebar::create(
                         ReadonlyField::create("QuoteNumber", "#")
                             ->setValue($this->ID),
                         LiteralField::create("SubTotal", $subtotal_html),
+                        LiteralField::create("Discount", $discount_html),
                         LiteralField::create("Postage", $postage_html),
                         LiteralField::create("TaxTotal", $tax_html),
                         LiteralField::create("Total", $total_html)
