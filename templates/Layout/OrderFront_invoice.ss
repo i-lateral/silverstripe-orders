@@ -88,6 +88,18 @@
                             <td class="text-right">$SubTotal.Nice</td>
                         </tr>
 
+                        <% if $DiscountAmount.RAW > 0 %>
+                            <tr>
+                                <td class="text-right bold">
+                                    <%t Orders.Discount "Discount" %>
+                                    <% if $Discount %>($Discount)<% end_if %>
+                                </td>
+                                <td class="text-right">
+                                    $DiscountAmount.Nice
+                                </td>
+                            </tr>
+                        <% end_if %>
+                        
                         <tr>
                             <td class="text-right bold">
                                 <%t Orders.Postage "Postage" %>
