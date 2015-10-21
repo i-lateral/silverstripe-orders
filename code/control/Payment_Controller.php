@@ -180,7 +180,10 @@ class Payment_Controller extends Controller {
                 $data['PostageTax'] = ($postage->Tax) ? ($postage->Cost / 100) * $postage->Tax : 0;
             }
             
-            $data['DiscountAmount'] = $cart->DiscountAmount;
+            if($cart->getDiscount()) {
+                $data['Discount'] = $cart->getDiscount()->Title;
+                $data['DiscountAmount'] = $cart->DiscountAmount;
+            }
             
             // Add full country names if needed
             if(in_array("CountryFull",$checkout_data)) {
