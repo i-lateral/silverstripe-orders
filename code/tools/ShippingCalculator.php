@@ -157,6 +157,8 @@ class ShippingCalculator extends Object {
     public function getPostageAreas() {
         $return = ArrayList::create();
         $config = SiteConfig::current_site_config();
+        $cart = ShoppingCart::get();
+        $discount = $cart->getDiscount();
         $filter_zipcode = strtolower(substr($this->zipcode, 0, 2));
         
         if($this->include_wildcards) {
@@ -171,9 +173,20 @@ class ShippingCalculator extends Object {
             );
         }
         
+        // Find any postage areas that match our filter
         $postage_areas = $config
             ->PostageAreas()
             ->filter($filter);
+            
+        // Check if any discounts are set with free postage
+        // This is a little hacky at the moment, need to find a nicer
+        // way to add free shipping.
+        if($discount && $discount->Type == "Free Shipping" && ((strpos($discount->Country, $this->country_code) !== false) || $discount->Country == "*")) {
+            Debug::show("matched discount");
+            
+            $postage = Checkout::CreateFreePostageObject();
+            $return->add($postage);
+        }
         
         // Make sure we don't effect any associations
         foreach($postage_areas as $item) {
@@ -191,7 +204,7 @@ class ShippingCalculator extends Object {
         
         // If exactly matched, remove any wildcards
         foreach($return as $location) {
-            if($exact_country && $location->Country == "*")
+            if($exact_country && $location->Country == "*" && $location->ID != -1)
                 $return->remove($location);
         }
         

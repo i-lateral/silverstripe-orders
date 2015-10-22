@@ -66,7 +66,7 @@ class ShoppingCart extends Controller {
     /**
      * Track a discount object placed against this cart
      *
-     * @var ArrayList
+     * @var Discount
      */
     protected $discount;
     

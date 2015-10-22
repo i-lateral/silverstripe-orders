@@ -4,9 +4,10 @@ class Discount extends DataObject {
 
     private static $db = array(
         "Title"     => "Varchar",
-        "Type"      => "Enum('Fixed,Percentage','Percentage')",
+        "Type"      => "Enum('Fixed,Percentage,Free Shipping','Percentage')",
         "Code"      => "Varchar(299)",
         "Amount"    => "Decimal",
+        "Country"   => "Varchar(255)",
         "Expires"   => "Date"
     );
 

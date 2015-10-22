@@ -113,7 +113,25 @@ class Checkout extends ViewableData {
         "PostageCost",
         "PostageTax"
     );
-
+    
+    /**
+     * Generate a free postage object we can use in our code.
+     * 
+     * @todo This is a little hacky, ideally we need to find a cleaner
+     * way of dealing with postage options that doesn't involve unsaved
+     * database objects.
+     * 
+     * @return PostageArea
+     */
+    public static function CreateFreePostageObject() {
+        $postage = new PostageArea();
+        $postage->ID = -1;
+        $postage->Title = _t("Checkout.FreeShipping","Free Shipping");
+        $postage->Country = "*";
+        $postage->ZipCode = "*";
+        
+        return $postage;
+    }
 
     /**
      * Get the full translated country name from a 2 digit country code

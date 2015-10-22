@@ -149,8 +149,14 @@ class Payment_Controller extends Controller {
         // Get billing and delivery details and merge into an array
         $billing_data = Session::get("Checkout.BillingDetailsForm.data");
         $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
-        $postage = PostageArea::get()->byID(Session::get('Checkout.PostageID'));
-
+        
+        // If we have applied free shipping, set that up, else get 
+        if(Session::get('Checkout.PostageID') == -1) {
+            $postage = Checkout::CreateFreePostageObject();
+        } else {
+            $postage = PostageArea::get()->byID(Session::get('Checkout.PostageID'));
+        }
+        
         // If we are using a complex checkout and do not have correct
         // details redirect 
         if(!Checkout::config()->simple_checkout && !$cart->isCollection() && (!$postage || !$billing_data || !$delivery_data))
