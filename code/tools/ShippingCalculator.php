@@ -182,8 +182,6 @@ class ShippingCalculator extends Object {
         // This is a little hacky at the moment, need to find a nicer
         // way to add free shipping.
         if($discount && $discount->Type == "Free Shipping" && ((strpos($discount->Country, $this->country_code) !== false) || $discount->Country == "*")) {
-            Debug::show("matched discount");
-            
             $postage = Checkout::CreateFreePostageObject();
             $return->add($postage);
         }
