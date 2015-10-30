@@ -36,7 +36,7 @@
                 <tfoot>
                     <tr><td colspan="2">&nbsp;</td></tr>
                     
-                    <% if $DiscountAmount.RAW > 0 %><tr>
+                    <% if $DiscountAmount.RAW > 0 || $Discount %><tr>
                         <td colspan="2" style="text-align: right;">
                             <strong>
                                 <%t Orders.Discount "Discount" %>

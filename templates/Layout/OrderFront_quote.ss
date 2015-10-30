@@ -84,7 +84,7 @@
                             <td class="text-right">$SubTotal.Nice</td>
                         </tr>
 
-                        <% if $DiscountAmount.RAW > 0 %>
+                        <% if $DiscountAmount.RAW > 0 || $Discount %>
                             <tr>
                                 <td class="text-right bold">
                                     <%t Orders.Discount "Discount" %>
