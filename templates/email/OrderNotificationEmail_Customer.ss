@@ -34,7 +34,7 @@
                 <% end_loop %></tbody>
                 
                 <tfoot>
-                    <tr><td colspan="3">&nbsp;</td></tr>
+                    <tr><td colspan="2">&nbsp;</td></tr>
                     
                     <% if $DiscountAmount.RAW > 0 %><tr>
                         <td colspan="2" style="text-align: right;">
@@ -55,7 +55,7 @@
                     
                     <% if $TaxTotal %>
                     <tr>
-                        <td colspan="3" style="text-align: right;">
+                        <td colspan="2" style="text-align: right;">
                             <strong><%t Orders.SubTotal "Sub Total" %></strong>
                         </td>
                         <td style="text-align: right;">$SubTotal.Nice</td>
