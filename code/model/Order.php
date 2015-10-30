@@ -694,6 +694,18 @@ class Order extends DataObject implements PermissionProvider {
             }
         }
         
+        // Is delivery address set, if not, set it here
+        if(!$this->owner->DeliveryAddress1 && !$this->owner->DeliveryPostCode) {
+            $this->owner->DeliveryCompany = $this->owner->Company;
+            $this->owner->DeliveryFirstnames = $this->owner->FirstName;
+            $this->owner->DeliverySurname = $this->owner->Surname;
+            $this->owner->DeliveryAddress1 = $this->owner->Address1;
+            $this->owner->DeliveryAddress2 = $this->owner->Address2;
+            $this->owner->DeliveryCity = $this->owner->City;
+            $this->owner->DeliveryPostCode = $this->owner->PostCode;
+            $this->owner->DeliveryCountry = $this->owner->Country;
+        }
+        
         
         $this->Status = (!$this->Status) ? $this->config()->default_status : $this->Status;
         $this->Action = (!$this->Action) ? $this->config()->default_action :  $this->Action;
