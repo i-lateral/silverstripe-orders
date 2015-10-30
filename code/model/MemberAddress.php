@@ -9,7 +9,7 @@
  */
 class MemberAddress extends DataObject {
 
-    public static $db = array(
+    static $db = array(
         'Company'        	=> 'Varchar',
         'FirstName'         => 'Varchar',
         'Surname'           => 'Varchar',
@@ -18,10 +18,20 @@ class MemberAddress extends DataObject {
         'City'              => 'Varchar',
         'PostCode'          => 'Varchar',
         'Country'           => 'Varchar',
+        'Default'           => 'Boolean'
     );
 
-    public static $has_one = array(
+    static $has_one = array(
         "Owner" => "Member"
+    );
+    
+    static $summary_fields = array(
+        "FirstName",
+        "Surname",
+        "Address1",
+        "City",
+        "PostCode",
+        "Default"
     );
 
     /**

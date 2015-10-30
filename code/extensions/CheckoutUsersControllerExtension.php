@@ -116,7 +116,8 @@ class CheckoutUserAccountControllerExtension extends Extension {
         $personal_fields = CompositeField::create(
             HeaderField::create('PersonalHeader', _t('Checkout.PersonalDetails','Personal Details'), 2),
             TextField::create('FirstName',_t('Checkout.FirstName','First Name(s)') . '*'),
-            TextField::create('Surname',_t('Checkout.Surname','Surname') . '*')
+            TextField::create('Surname',_t('Checkout.Surname','Surname') . '*'),
+            CheckboxField::create('Default',_t('Checkout.DefaultAddress','Default Address?'))
         )->setName("PersonalFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')
