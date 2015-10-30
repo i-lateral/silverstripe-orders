@@ -113,6 +113,25 @@ class Order extends DataObject implements PermissionProvider {
      * @config
      */
     private static $existing_customer_fields;
+    
+    /**
+     * Select the fields that will be copied from the source object to
+     * our order. We add these here so they can be easily altered 
+     * through config.
+     * 
+     * @var array
+     * @config
+     */
+    private static $existing_customer_map = array(
+        "FirstName" => "FirstName",
+        "Surname" => "Surname",
+        "Email" => "Email",
+        "PhoneNumber" => "PhoneNumber",
+        "Address1" => "Address1",
+        "Address2" => "Address2",
+        "City" => "City",
+        "PostCode" => "PostCode"
+    );
 
     private static $db = array(
         'Status'            => "Varchar",
@@ -388,11 +407,8 @@ class Order extends DataObject implements PermissionProvider {
             }
             
             // Set the record ID
-            $map_extension->setMapFields(array(
-                "FirstName",
-                "Surname",
-                "Email"
-            ));
+            $map_extension
+                ->setMapFields($this->config()->existing_customer_map);
         }
         
         $tab_main->addExtraClass("order-admin-items");

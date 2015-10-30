@@ -17,6 +17,23 @@ class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_
         return $this;
     }
     
+    /**
+     * If we want to add this object to our target object as an
+     * association then set the association name below. 
+     * 
+     * @var String
+     */
+    protected $association = "CustomerID";
+    
+    public function getAssociation() {
+        return $this->association;
+    }
+    
+    public function setAssociation($association) {
+        $this->association = $association;
+        return $this;
+    }
+    
     public function augmentColumns($gridField, &$columns) {
         if(!in_array('Actions', $columns)) {
             $columns[] = 'Actions';
@@ -83,8 +100,15 @@ class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_
             $record = $record_class::get()->byID($arguments["RecordID"]);
             
             if($target && $record) {
-                foreach($this->getMapFields() as $field) {
-                    $target->setCastedField($field, $record->$field);
+                foreach($this->getMapFields() as $target_field => $record_field) {
+                    $target->setCastedField($target_field, $record->$record_field);
+                }
+                
+                // If we have an association setup, set it now
+                $association = $this->association;
+                
+                if($association) {
+                    $target->{$association} = $record->ID;
                 }
                 
                 $target->write();
