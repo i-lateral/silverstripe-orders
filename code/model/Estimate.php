@@ -157,11 +157,7 @@ class Estimate extends Order {
             }
         
             // Set the record ID
-            $map_extension->setMapFields(array(
-                "FirstName",
-                "Surname",
-                "Email"
-            ));
+            $map_extension->setMapFields($this->config()->existing_customer_map);
         }
         
         $tab_main->addExtraClass("order-admin-items");
