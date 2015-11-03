@@ -35,6 +35,7 @@
   width: 100%;
   padding-right: 190px;
   position: absolute;
+  min-height: 100%;
   overflow-y: hidden;
   overflow-x: hidden;
   box-sizing: border-box;
