@@ -214,10 +214,13 @@ class CheckoutUserAccountControllerExtension extends Extension {
      *
      */
     public function updateAccountMenu($menu) {
+        $curr_action = $this->owner->request->param("Action");
+        
         $menu->add(new ArrayData(array(
             "ID"    => 11,
             "Title" => _t('Checkout.Addresses','Addresses'),
-            "Link"  => $this->owner->Link("addresses")
+            "Link"  => $this->owner->Link("addresses"),
+            "LinkingMode" => ($curr_action == "addresses") ? "current" : "link"
         )));
     }
     
