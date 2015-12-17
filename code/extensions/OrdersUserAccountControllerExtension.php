@@ -13,6 +13,7 @@ class OrdersUserAccountControllerExtension extends Extension {
      */
     public function history() {
         $member = Member::currentUser();
+        
         $orders = new PaginatedList(
             $member->getHistoricOrders(),
             $this->owner->request
@@ -80,16 +81,20 @@ class OrdersUserAccountControllerExtension extends Extension {
      *
      */
     public function updateAccountMenu($menu) {
+        $curr_action = $this->owner->request->param("Action");
+        
         $menu->add(new ArrayData(array(
             "ID"    => 1,
             "Title" => _t('Orders.OutstandingOrders','Outstanding Orders'),
-            "Link"  => $this->owner->Link("outstanding")
+            "Link"  => $this->owner->Link("outstanding"),
+            "LinkingMode" => ($curr_action == "outstanding") ? "current" : "link"
         )));
 
         $menu->add(new ArrayData(array(
             "ID"    => 2,
             "Title" => _t('Orders.OrderHistory',"Order history"),
-            "Link"  => $this->owner->Link("history")
+            "Link"  => $this->owner->Link("history"),
+            "LinkingMode" => ($curr_action == "history") ? "current" : "link"
         )));
     }
 }
