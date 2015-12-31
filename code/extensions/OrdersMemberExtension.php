@@ -1,6 +1,7 @@
 <?php
 
-class OrdersMemberExtension extends DataExtension {
+class OrdersMemberExtension extends DataExtension
+{
     
     private static $has_many = array(
         "Orders"        => "Order"
@@ -12,12 +13,13 @@ class OrdersMemberExtension extends DataExtension {
      *
      * @return DataList
      */
-    public function getOutstandingOrders() {
+    public function getOutstandingOrders()
+    {
         return $this
             ->owner
             ->Orders()
             ->filter(array(
-                "Status" => array("paid","processing")
+                "Status" => array("paid", "processing")
             ));
     }
 
@@ -27,12 +29,13 @@ class OrdersMemberExtension extends DataExtension {
      *
      * @return DataList
      */
-    public function getHistoricOrders() {
+    public function getHistoricOrders()
+    {
         return $this
             ->owner
             ->Orders()
             ->filter(array(
-                "Status" => array("dispatched","canceled")
+                "Status" => array("dispatched", "canceled")
             ));
     }
 }

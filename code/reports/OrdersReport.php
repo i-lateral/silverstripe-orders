@@ -1,19 +1,22 @@
 <?php
 
 // Only load this if reports are active
-if(class_exists("SS_Report")) {
-    
-    class OrdersReport extends SS_Report {
+if (class_exists("SS_Report")) {
+    class OrdersReport extends SS_Report
+    {
 
-        public function title() {
+        public function title()
+        {
             return _t("Orders.OrdersMade", "Orders made");
         }
 
-        public function description() {
+        public function description()
+        {
             return _t("Orders.OrdersReportDescription", "View reports on all orders made through this site");
         }
 
-        public function columns() {
+        public function columns()
+        {
             return array(
                 'OrderNumber' => '#',
                 'Created' => 'Date',
@@ -32,22 +35,25 @@ if(class_exists("SS_Report")) {
             );
         }
 
-        public function exportColumns() {
+        public function exportColumns()
+        {
             // Loop through all colls and replace BR's with spaces
             $cols = array();
 
-            foreach($this->columns() as $key => $value) {
+            foreach ($this->columns() as $key => $value) {
                 $cols[$key] = str_replace('<br/>', ' ', $value);
             }
 
             return $cols;
         }
 
-        public function sortColumns() {
+        public function sortColumns()
+        {
             return array();
         }
 
-        public function getReportField() {
+        public function getReportField()
+        {
             $gridField = parent::getReportField();
 
             // Edit CSV export button
@@ -57,13 +63,18 @@ if(class_exists("SS_Report")) {
             return $gridField;
         }
 
-        public function sourceRecords($params, $sort, $limit) {
+        public function sourceRecords($params, $sort, $limit)
+        {
             // Check filters
             $where_filter = array();
 
             $where_filter[] = (isset($params['Filter_Year'])) ? "YEAR(\"Created\") = '{$params['Filter_Year']}'" : "YEAR(\"Created\") = '".date('Y')."'";
-            if(!empty($params['Filter_Month'])) $where_filter[] = "Month(\"Created\") = '{$params['Filter_Month']}'";
-            if(!empty($params['Filter_Status'])) $where_filter[] = "Status = '{$params['Filter_Status']}'";
+            if (!empty($params['Filter_Month'])) {
+                $where_filter[] = "Month(\"Created\") = '{$params['Filter_Month']}'";
+            }
+            if (!empty($params['Filter_Status'])) {
+                $where_filter[] = "Status = '{$params['Filter_Status']}'";
+            }
 
             $limit = (isset($params['ResultsLimit']) && $params['ResultsLimit'] != 0) ? $params['ResultsLimit'] : '';
 
@@ -75,11 +86,12 @@ if(class_exists("SS_Report")) {
             return $orders;
         }
 
-        public function parameterFields() {
+        public function parameterFields()
+        {
             $fields = new FieldList();
 
             // Check if any order exist
-            if(Order::get()->exists()) {
+            if (Order::get()->exists()) {
                 $first_order = Order::get()
                     ->sort('Created ASC')
                     ->first();

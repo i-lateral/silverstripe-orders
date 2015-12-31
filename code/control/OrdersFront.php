@@ -6,7 +6,8 @@
  * 
  * @package Orders
  */
-class OrdersFront extends Controller {
+class OrdersFront extends Controller
+{
     
     private static $allowed_actions = array(
         "invoice",
@@ -29,14 +30,15 @@ class OrdersFront extends Controller {
      */
     private static $estimate_class = "Estimate";
 
-    public function invoice() {
+    public function invoice()
+    {
         $object = Order::get()
             ->filter(array(
                 "ClassName" => $this->config()->order_class,
                 "ID" => $this->request->param("ID")
             ))->first();
 
-        if($object && $object->AccessKey && $object->AccessKey == $this->request->param("OtherID")) {
+        if ($object && $object->AccessKey && $object->AccessKey == $this->request->param("OtherID")) {
             return $this
                 ->customise(array(
                     "SiteConfig" => SiteConfig::current_site_config(),
@@ -47,18 +49,20 @@ class OrdersFront extends Controller {
                     "Orders",
                     "Page"
                 ));
-        } else
+        } else {
             return $this->httpError(404);
+        }
     }
     
-    public function quote() {
+    public function quote()
+    {
         $object = Order::get()
             ->filter(array(
                 "ClassName" => $this->config()->estimate_class,
                 "ID" => $this->request->param("ID")
             ))->first();
 
-        if($object && $object->AccessKey && $object->AccessKey == $this->request->param("OtherID")) {            
+        if ($object && $object->AccessKey && $object->AccessKey == $this->request->param("OtherID")) {
             return $this
                 ->customise(array(
                     "SiteConfig" => SiteConfig::current_site_config(),
@@ -69,7 +73,8 @@ class OrdersFront extends Controller {
                     "Orders",
                     "Page"
                 ));
-        } else
+        } else {
             return $this->httpError(404);
+        }
     }
 }

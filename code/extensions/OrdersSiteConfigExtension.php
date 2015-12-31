@@ -1,6 +1,7 @@
 <?php
 
-class OrdersSiteConfigExtension extends DataExtension {
+class OrdersSiteConfigExtension extends DataExtension
+{
     
     private static $db = array(
         "OrdersHeader" => "HTMLText",
@@ -12,8 +13,8 @@ class OrdersSiteConfigExtension extends DataExtension {
         "OrderNotifications" => "OrderNotification"
     );
     
-    public function updateCMSFields(FieldList $fields) {
-        
+    public function updateCMSFields(FieldList $fields)
+    {
         $fields->addFieldToTab(
             "Root.Orders",
             GridField::create(
@@ -39,5 +40,4 @@ class OrdersSiteConfigExtension extends DataExtension {
             HTMLEditorField::create("InvoiceFooter")
         );
     }
-    
 }

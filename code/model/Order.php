@@ -17,7 +17,8 @@
  *
  * @author ilateral (http://www.ilateral.co.uk)
  */
-class Order extends DataObject implements PermissionProvider {
+class Order extends DataObject implements PermissionProvider
+{
     
     /**
      * Add a string to the start of an order number (can be useful for
@@ -150,7 +151,7 @@ class Order extends DataObject implements PermissionProvider {
         'PhoneNumber'       => 'Varchar',
         
         // Delivery Details
-        'DeliveryCompany'	=> 'Varchar',
+        'DeliveryCompany'    => 'Varchar',
         'DeliveryFirstnames'=> 'Varchar',
         'DeliverySurname'   => 'Varchar',
         'DeliveryAddress1'  => 'Varchar',
@@ -224,13 +225,15 @@ class Order extends DataObject implements PermissionProvider {
 
     private static $default_sort = "Created DESC";
     
-    public function populateDefaults() {
+    public function populateDefaults()
+    {
         parent::populateDefaults();
         $this->Status = $this->config()->default_status;
         $this->Action = $this->config()->default_action;
     }
 
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $member = Member::currentUser();
         $existing_customer = $this->config()->existing_customer_class;
         
@@ -241,7 +244,7 @@ class Order extends DataObject implements PermissionProvider {
         $subtotal_html .= _t("Orders.SubTotal", "Sub Total");
         $subtotal_html .= '</label>';
         $subtotal_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_SubTotal" class="readonly">';
-		$subtotal_html .= $this->SubTotal->Nice();
+        $subtotal_html .= $this->SubTotal->Nice();
         $subtotal_html .= '</span></div></div>';
         
         $discount_html = '<div id="Discount" class="field readonly">';
@@ -249,7 +252,7 @@ class Order extends DataObject implements PermissionProvider {
         $discount_html .= _t("Orders.Discount", "Discount");
         $discount_html .= '</label>';
         $discount_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Discount" class="readonly">';
-		$discount_html .= $this->dbObject("DiscountAmount")->Nice();
+        $discount_html .= $this->dbObject("DiscountAmount")->Nice();
         $discount_html .= '</span></div></div>';
         
         $postage_html = '<div id="Postage" class="field readonly">';
@@ -257,7 +260,7 @@ class Order extends DataObject implements PermissionProvider {
         $postage_html .= _t("Orders.Postage", "Postage");
         $postage_html .= '</label>';
         $postage_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Postage" class="readonly">';
-		$postage_html .= $this->Postage->Nice();
+        $postage_html .= $this->Postage->Nice();
         $postage_html .= '</span></div></div>';
         
         $tax_html = '<div id="TaxTotal" class="field readonly">';
@@ -265,7 +268,7 @@ class Order extends DataObject implements PermissionProvider {
         $tax_html .= _t("Orders.Tax", "Tax");
         $tax_html .= '</label>';
         $tax_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_TaxTotal" class="readonly">';
-		$tax_html .= $this->TaxTotal->Nice();
+        $tax_html .= $this->TaxTotal->Nice();
         $tax_html .= '</span></div></div>';
         
         $total_html = '<div id="Total" class="field readonly">';
@@ -273,7 +276,7 @@ class Order extends DataObject implements PermissionProvider {
         $total_html .= _t("Orders.Total", "Total");
         $total_html .= '</label>';
         $total_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Total" class="readonly">';
-		$total_html .= $this->Total->Nice();
+        $total_html .= $this->Total->Nice();
         $total_html .= '</span></div></div>';
         
         $fields = new FieldList(
@@ -377,7 +380,7 @@ class Order extends DataObject implements PermissionProvider {
         
         
         // Add Sidebar is editable
-        if($this->canEdit()) {
+        if ($this->canEdit()) {
             $tab_customer->insertBefore(
                 CustomerSidebar::create(
                     // Items field
@@ -394,10 +397,10 @@ class Order extends DataObject implements PermissionProvider {
                 "BillingDetailsHeader"
             );
             
-            if(is_array($this->config()->existing_customer_fields)) {
+            if (is_array($this->config()->existing_customer_fields)) {
                 $columns = $config->getComponentByType("GridFieldDataColumns");
                 
-                if($columns) {
+                if ($columns) {
                     $columns
                         ->setDisplayFields($this
                             ->config()
@@ -419,7 +422,8 @@ class Order extends DataObject implements PermissionProvider {
         return $fields;
     }
 
-    public function getBillingAddress() {
+    public function getBillingAddress()
+    {
         $address = ($this->Address1) ? $this->Address1 . ",\n" : '';
         $address .= ($this->Address2) ? $this->Address2 . ",\n" : '';
         $address .= ($this->City) ? $this->City . ",\n" : '';
@@ -434,7 +438,8 @@ class Order extends DataObject implements PermissionProvider {
      * 
      * @return String 
      */
-    public function getCountryFull() {
+    public function getCountryFull()
+    {
         try {
             $source = Zend_Locale::getTranslationList(
                 'territory',
@@ -443,12 +448,13 @@ class Order extends DataObject implements PermissionProvider {
             );
 
             return (array_key_exists($this->Country, $source)) ? $source[$this->Country] : $this->Country;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return "";
         }
     }
 
-    public function getDeliveryAddress() {
+    public function getDeliveryAddress()
+    {
         $address = ($this->DeliveryAddress1) ? $this->DeliveryAddress1 . ",\n" : '';
         $address .= ($this->DeliveryAddress2) ? $this->DeliveryAddress2 . ",\n" : '';
         $address .= ($this->DeliveryCity) ? $this->DeliveryCity . ",\n" : '';
@@ -463,7 +469,8 @@ class Order extends DataObject implements PermissionProvider {
      * 
      * @return String 
      */
-    public function getDeliveryCountryFull() {
+    public function getDeliveryCountryFull()
+    {
         try {
             $source = Zend_Locale::getTranslationList(
                 'territory',
@@ -472,14 +479,15 @@ class Order extends DataObject implements PermissionProvider {
             );
 
             return (array_key_exists($this->DeliveryCountry, $source)) ? $source[$this->DeliveryCountry] : $this->DeliveryCountry;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return "";
         }
     }
 
 
-    public function hasDiscount() {
-         return (ceil($this->DiscountAmount)) ? true : false;
+    public function hasDiscount()
+    {
+        return (ceil($this->DiscountAmount)) ? true : false;
     }
 
     /**
@@ -487,13 +495,14 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Decimal
      */
-    public function getSubTotal() {
+    public function getSubTotal()
+    {
         $return = new Currency();
         $return->setName("SubTotal");
         $total = 0;
 
         // Calculate total from items in the list
-        foreach($this->Items() as $item) {
+        foreach ($this->Items() as $item) {
             $total += ($item->Price) ? $item->Price * $item->Quantity : 0;
         }
         
@@ -509,7 +518,8 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Decimal
      */
-    public function getPostage() {
+    public function getPostage()
+    {
         $return = new Currency();
         $return->setName("Postage");
         $total = $this->PostageCost;
@@ -526,21 +536,23 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Decimal
      */
-    public function getTaxTotal() {
+    public function getTaxTotal()
+    {
         $return = new Currency();
         $return->setName("TaxTotal");
         $total = 0;
         $items = $this->Items();
         
         // Calculate total from items in the list
-        foreach($items as $item) {
+        foreach ($items as $item) {
             $tax = (($item->Price - ($this->DiscountAmount / $items->count())) / 100) * $item->TaxRate;
             
             $total += $tax * $item->Quantity;
         }
         
-        if($this->PostageTax)
+        if ($this->PostageTax) {
             $total += $this->PostageTax;
+        }
 
         $return->setValue($total);
         
@@ -554,7 +566,8 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Decimal
      */
-    public function getTotal() {
+    public function getTotal()
+    {
         $return = new Currency();
         $return->setName("Total");
         $total = (($this->getSubTotal()->RAW() + $this->getPostage()->RAW()) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
@@ -571,10 +584,11 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return string
      */
-    public function getItemSummary() {
+    public function getItemSummary()
+    {
         $return = '';
 
-        foreach($this->Items() as $item) {
+        foreach ($this->Items() as $item) {
             $return .= "{$item->Quantity} x {$item->Title};\n";
         }
 
@@ -586,7 +600,8 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return string
      */
-    public function getItemSummaryHTML() {
+    public function getItemSummaryHTML()
+    {
         $html = new HTMLText("ItemSummary");
         
         $html->setValue(nl2br($this->ItemSummary));
@@ -596,13 +611,14 @@ class Order extends DataObject implements PermissionProvider {
         return $html;
     }
 
-    protected function generate_order_number() {
+    protected function generate_order_number()
+    {
         $id = str_pad($this->ID, 8,  "0");
 
         $guidText =
             substr($id, 0, 4) . '-' .
             substr($id, 4, 4) . '-' .
-            rand(1000,9999);
+            rand(1000, 9999);
 
         // Work out if an order prefix string has been set
         $prefix = $this->config()->order_prefix;
@@ -611,7 +627,8 @@ class Order extends DataObject implements PermissionProvider {
         return $guidText;
     }
     
-    protected function generate_random_string($length = 20) {
+    protected function generate_random_string($length = 20)
+    {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = '';
         for ($i = 0; $i < $length; $i++) {
@@ -620,58 +637,62 @@ class Order extends DataObject implements PermissionProvider {
         return $randomString;
     }
     
-    protected function validAccessKey() {
+    protected function validAccessKey()
+    {
         $existing = Order::get()
             ->filter("AccessKey", $this->AccessKey)
             ->first();
-		
-		return !($existing);
+        
+        return !($existing);
     }
     
-    protected function validOrderNumber() {
+    protected function validOrderNumber()
+    {
         $existing = Order::get()
             ->filterAny("OrderNumber", $this->OrderNumber)
             ->first();
-		
-		return !($existing);
+        
+        return !($existing);
     }
     
     /**
-	 * Create a duplicate of this order/estimate as well as duplicating
+     * Create a duplicate of this order/estimate as well as duplicating
      * associated items
-	 *
-	 * @param $doWrite Perform a write() operation before returning the object.  If this is true, it will create the
-	 *                 duplicate in the database.
-	 * @return DataObject A duplicate of this node. The exact type will be the type of this node.
-	 */
-	public function duplicate($doWrite = true) {
+     *
+     * @param $doWrite Perform a write() operation before returning the object.  If this is true, it will create the
+     *                 duplicate in the database.
+     * @return DataObject A duplicate of this node. The exact type will be the type of this node.
+     */
+    public function duplicate($doWrite = true)
+    {
         $clone = parent::duplicate($doWrite);
         
         // Set up items
-        if($doWrite) {
-            foreach($this->Items() as $item) {
+        if ($doWrite) {
+            foreach ($this->Items() as $item) {
                 $item_class = $item->class;
                 $clone_item = new $item_class($item->toMap(), false, $this->model);
                 $clone_item->ID = 0;
                 $clone_item->ParentID = $clone->ID;
                 $clone_item->write();
             }
-		}
+        }
         
-		$clone->invokeWithExtensions('onAfterDuplicate', $this, $doWrite);
-		
-		return $clone;
-	}
+        $clone->invokeWithExtensions('onAfterDuplicate', $this, $doWrite);
+        
+        return $clone;
+    }
 
     /**
      * API Callback before this object is removed from to the DB
      *
      */
-    public function onBeforeDelete() {
+    public function onBeforeDelete()
+    {
         parent::onBeforeDelete();
         
         // Delete all items attached to this order
-        foreach($this->Items() as $item) {
+        foreach ($this->Items() as $item) {
             $item->delete();
         }
         
@@ -682,20 +703,21 @@ class Order extends DataObject implements PermissionProvider {
      * API Callback after this object is written to the DB
      *
      */
-    public function onBeforeWrite() {
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
         
         // Ensure that this object has a non-conflicting Access Key
-        if(!$this->AccessKey) {
+        if (!$this->AccessKey) {
             $this->AccessKey = $this->generate_random_string();
             
-            while(!$this->validAccessKey()) {
+            while (!$this->validAccessKey()) {
                 $this->AccessKey = $this->generate_random_string();
             }
         }
         
         // Is delivery address set, if not, set it here
-        if(!$this->owner->DeliveryAddress1 && !$this->owner->DeliveryPostCode) {
+        if (!$this->owner->DeliveryAddress1 && !$this->owner->DeliveryPostCode) {
             $this->owner->DeliveryCompany = $this->owner->Company;
             $this->owner->DeliveryFirstnames = $this->owner->FirstName;
             $this->owner->DeliverySurname = $this->owner->Surname;
@@ -717,27 +739,28 @@ class Order extends DataObject implements PermissionProvider {
      * API Callback after this object is written to the DB
      *
      */
-    public function onAfterWrite() {
+    public function onAfterWrite()
+    {
         parent::onAfterWrite();
-		
+        
         
         // Check if an order number has been generated, if not, add it and save again
-        if(!$this->OrderNumber) {
+        if (!$this->OrderNumber) {
             $this->OrderNumber = $this->generate_order_number();
             
-            while(!$this->validOrderNumber()) {
+            while (!$this->validOrderNumber()) {
                 $this->OrderNumber = $this->generate_order_number();
             }
             $this->write();
         }
 
         // Deal with sending the status emails
-        if($this->isChanged('Status')) {
+        if ($this->isChanged('Status')) {
             $notifications = OrderNotification::get()
                 ->filter("Status", $this->Status);
                 
             // Loop through available notifications and send
-            foreach($notifications as $notification) {
+            foreach ($notifications as $notification) {
                 $notification->sendNotification($this);
             }
         }
@@ -745,7 +768,8 @@ class Order extends DataObject implements PermissionProvider {
         $this->extend("onAfterWrite");
     }
 
-    public function providePermissions() {
+    public function providePermissions()
+    {
         return array(
             "COMMERCE_VIEW_ORDERS" => array(
                 'name' => 'View any order',
@@ -785,21 +809,26 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Boolean
      */
-    public function canView($member = null) {
+    public function canView($member = null)
+    {
         $extended = $this->extend('canView', $member);
-        if($extended && $extended !== null) return $extended;
+        if ($extended && $extended !== null) {
+            return $extended;
+        }
 
-        if($member instanceof Member)
+        if ($member instanceof Member) {
             $memberID = $member->ID;
-        else if(is_numeric($member))
+        } elseif (is_numeric($member)) {
             $memberID = $member;
-        else
+        } else {
             $memberID = Member::currentUserID();
+        }
 
-        if($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_VIEW_ORDERS")))
+        if ($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_VIEW_ORDERS"))) {
             return true;
-        else if($memberID && $memberID == $this->CustomerID)
+        } elseif ($memberID && $memberID == $this->CustomerID) {
             return true;
+        }
 
         return false;
     }
@@ -809,9 +838,12 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Boolean
      */
-    public function canCreate($member = null) {
+    public function canCreate($member = null)
+    {
         $extended = $this->extend('canCreate', $member);
-        if($extended && $extended !== null) return $extended;
+        if ($extended && $extended !== null) {
+            return $extended;
+        }
 
         return true;
     }
@@ -821,23 +853,28 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Boolean
      */
-    public function canEdit($member = null) {
+    public function canEdit($member = null)
+    {
         $extended = $this->extend('canEdit', $member);
-        if($extended && $extended !== null) return $extended;
+        if ($extended && $extended !== null) {
+            return $extended;
+        }
 
-        if($member instanceof Member)
+        if ($member instanceof Member) {
             $memberID = $member->ID;
-        else if(is_numeric($member))
+        } elseif (is_numeric($member)) {
             $memberID = $member;
-        else
+        } else {
             $memberID = Member::currentUserID();
+        }
 
-        if(
+        if (
             $memberID &&
             Permission::checkMember($memberID, array("ADMIN", "COMMERCE_EDIT_ORDERS")) &&
             in_array($this->Status, $this->config()->editable_statuses)
-        )
+        ) {
             return true;
+        }
 
         return false;
     }
@@ -847,19 +884,24 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Boolean
      */
-    public function canChangeStatus($member = null) {
+    public function canChangeStatus($member = null)
+    {
         $extended = $this->extend('canEdit', $member);
-        if($extended && $extended !== null) return $extended;
+        if ($extended && $extended !== null) {
+            return $extended;
+        }
 
-        if($member instanceof Member)
+        if ($member instanceof Member) {
             $memberID = $member->ID;
-        else if(is_numeric($member))
+        } elseif (is_numeric($member)) {
             $memberID = $member;
-        else
+        } else {
             $memberID = Member::currentUserID();
+        }
 
-        if($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_STATUS_ORDERS")))
+        if ($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_STATUS_ORDERS"))) {
             return true;
+        }
 
         return false;
     }
@@ -869,19 +911,24 @@ class Order extends DataObject implements PermissionProvider {
      *
      * @return Boolean
      */
-    public function canDelete($member = null) {
+    public function canDelete($member = null)
+    {
         $extended = $this->extend('canEdit', $member);
-        if($extended && $extended !== null) return $extended;
+        if ($extended && $extended !== null) {
+            return $extended;
+        }
 
-        if($member instanceof Member)
+        if ($member instanceof Member) {
             $memberID = $member->ID;
-        else if(is_numeric($member))
+        } elseif (is_numeric($member)) {
             $memberID = $member;
-        else
+        } else {
             $memberID = Member::currentUserID();
+        }
 
-        if($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_DELETE_ORDERS")))
+        if ($memberID && Permission::checkMember($memberID, array("ADMIN", "COMMERCE_DELETE_ORDERS"))) {
             return true;
+        }
 
         return false;
     }

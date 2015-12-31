@@ -4,7 +4,8 @@
   *
   * @package Commerce
   */
-class OrderAdmin extends ModelAdmin {
+class OrderAdmin extends ModelAdmin
+{
 
     private static $url_segment = 'orders';
 
@@ -23,8 +24,9 @@ class OrderAdmin extends ModelAdmin {
      * For an order, export all fields by default
      * 
      */
-    public function getExportFields() {
-        if($this->modelClass == 'Order') {
+    public function getExportFields()
+    {
+        if ($this->modelClass == 'Order') {
             $return = array(
                 "OrderNumber"       => "#",
                 "Status"            => "Status",
@@ -62,12 +64,15 @@ class OrderAdmin extends ModelAdmin {
 
         $extend = $this->extend("updateExportFields", $return);
 
-        if($extend && is_array($extend)) $return = $extend;
+        if ($extend && is_array($extend)) {
+            $return = $extend;
+        }
 
-        return $return; 
+        return $return;
     }
 
-    public function getEditForm($id = null, $fields = null) {
+    public function getEditForm($id = null, $fields = null)
+    {
         $form = parent::getEditForm($id, $fields);
         $fields = $form->Fields();
         $config = null;
@@ -79,7 +84,7 @@ class OrderAdmin extends ModelAdmin {
 
 
         // Manage orders
-        if($this->modelClass == 'Order') {
+        if ($this->modelClass == 'Order') {
             $gridField = $fields->fieldByName('Order');
             $config = $gridField->getConfig();
 
@@ -108,7 +113,7 @@ class OrderAdmin extends ModelAdmin {
             );
 
             // Update list of items for subsite (if used)
-            if(class_exists('Subsite')) {
+            if (class_exists('Subsite')) {
                 $list = $gridField
                     ->getList()
                     ->filter(array(
@@ -121,12 +126,12 @@ class OrderAdmin extends ModelAdmin {
         
         
         // Manage Estimates
-        if($this->modelClass == 'Estimate') {
+        if ($this->modelClass == 'Estimate') {
             $gridField = $fields->fieldByName('Estimate');
             $config = $gridField->getConfig();
 
             // Update list of items for subsite (if used)
-            if(class_exists('Subsite')) {
+            if (class_exists('Subsite')) {
                 $list = $gridField
                     ->getList()
                     ->filter(array(
@@ -138,11 +143,11 @@ class OrderAdmin extends ModelAdmin {
         }
         
         // Set our default detailform and bulk manager
-        if($config) {
+        if ($config) {
             $config
                 ->removeComponentsByType('GridFieldDetailForm')
                 ->addComponent($manager)
-				->addComponent(new OrdersGridFieldDetailForm());
+                ->addComponent(new OrdersGridFieldDetailForm());
         }
 
         $this->extend("updateEditForm", $form);
@@ -150,16 +155,18 @@ class OrderAdmin extends ModelAdmin {
         return $form;
     }
     
-    public function getList() {
-		$list = parent::getList();
+    public function getList()
+    {
+        $list = parent::getList();
         
         // Ensure that we only show Order objects in the order tab
-		if ($this->modelClass == "Order")
-			$list = $list
+        if ($this->modelClass == "Order") {
+            $list = $list
                 ->addFilter(array("ClassName" => "Order"));
+        }
                 
         $this->extend("updateList", $list);
 
-		return $list;
-	}
+        return $list;
+    }
 }

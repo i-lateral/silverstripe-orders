@@ -1,5 +1,6 @@
 <?php
-class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_ActionProvider {
+class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_ActionProvider
+{
     
     /**
      * List of fields that will be mapped to the new object
@@ -8,11 +9,13 @@ class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_
      */
     protected $map_fields = array();
     
-    public function getMapFields() {
+    public function getMapFields()
+    {
         return $this->map_fields;
     }
     
-    public function setMapFields($map) {
+    public function setMapFields($map)
+    {
         $this->map_fields = $map;
         return $this;
     }
@@ -25,36 +28,43 @@ class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_
      */
     protected $association = "CustomerID";
     
-    public function getAssociation() {
+    public function getAssociation()
+    {
         return $this->association;
     }
     
-    public function setAssociation($association) {
+    public function setAssociation($association)
+    {
         $this->association = $association;
         return $this;
     }
     
-    public function augmentColumns($gridField, &$columns) {
-        if(!in_array('Actions', $columns)) {
+    public function augmentColumns($gridField, &$columns)
+    {
+        if (!in_array('Actions', $columns)) {
             $columns[] = 'Actions';
         }
     }
     
-    public function getColumnAttributes($gridField, $record, $columnName) {
+    public function getColumnAttributes($gridField, $record, $columnName)
+    {
         return array('class' => 'col-buttons');
     }
     
-    public function getColumnMetadata($gridField, $columnName) {
-        if($columnName == 'Actions') {
+    public function getColumnMetadata($gridField, $columnName)
+    {
+        if ($columnName == 'Actions') {
             return array('title' => '');
         }
     }
     
-    public function getColumnsHandled($gridField) {
+    public function getColumnsHandled($gridField)
+    {
         return array('Actions');
     }
     
-    public function getColumnContent($gridField, $record, $columnName) {
+    public function getColumnContent($gridField, $record, $columnName)
+    {
         $link = $gridField
             ->getForm()
             ->getController()
@@ -81,16 +91,18 @@ class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_
         return $field->Field();
     }
     
-    public function getActions($gridField) {
+    public function getActions($gridField)
+    {
         return array('doselect');
     }
     
-    public function handleAction(GridField $gridField, $actionName, $arguments, $data) {
-        if(
-            array_key_exists("RecordID",$arguments) &&
-            array_key_exists("RecordClassName",$arguments) &&
-            array_key_exists("TargetClassName",$arguments) &&
-            array_key_exists("TargetID",$arguments) &&
+    public function handleAction(GridField $gridField, $actionName, $arguments, $data)
+    {
+        if (
+            array_key_exists("RecordID", $arguments) &&
+            array_key_exists("RecordClassName", $arguments) &&
+            array_key_exists("TargetClassName", $arguments) &&
+            array_key_exists("TargetID", $arguments) &&
             $actionName == "doselect"
         ) {
             $target_class = $arguments["TargetClassName"];
@@ -99,15 +111,15 @@ class GridFieldMapExistingAction implements GridField_ColumnProvider, GridField_
             $target = $target_class::get()->byID($arguments["TargetID"]);
             $record = $record_class::get()->byID($arguments["RecordID"]);
             
-            if($target && $record) {
-                foreach($this->getMapFields() as $target_field => $record_field) {
+            if ($target && $record) {
+                foreach ($this->getMapFields() as $target_field => $record_field) {
                     $target->setCastedField($target_field, $record->$record_field);
                 }
                 
                 // If we have an association setup, set it now
                 $association = $this->association;
                 
-                if($association) {
+                if ($association) {
                     $target->{$association} = $record->ID;
                 }
                 
