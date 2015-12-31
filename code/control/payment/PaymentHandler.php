@@ -5,7 +5,8 @@
  * particular payment class
  *
  */
-abstract class PaymentHandler extends Controller {
+abstract class PaymentHandler extends Controller
+{
     
     private static $allowed_actions = array(
         "index",
@@ -13,14 +14,14 @@ abstract class PaymentHandler extends Controller {
     );
     
     /**
-	 * Set up the "restful" URLs
-	 *
-	 * @config
-	 * @var array
-	 */
-	private static $url_handlers = array(
-		'$Action/$ID' => 'handleAction',
-	);
+     * Set up the "restful" URLs
+     *
+     * @config
+     * @var array
+     */
+    private static $url_handlers = array(
+        '$Action/$ID' => 'handleAction',
+    );
     
     /**
      * The current payment gateway we are using
@@ -29,11 +30,13 @@ abstract class PaymentHandler extends Controller {
      */
     protected $payment_gateway;
 
-    public function getPaymentGateway() {
+    public function getPaymentGateway()
+    {
         return $this->payment_gateway;
     }
 
-    public function setPaymentGateway($gateway) {
+    public function setPaymentGateway($gateway)
+    {
         $this->payment_gateway = $gateway;
         return $this;
     }
@@ -46,11 +49,13 @@ abstract class PaymentHandler extends Controller {
      */
     protected $order_data;
 
-    public function getOrderData() {
+    public function getOrderData()
+    {
         return $this->order_data;
     }
 
-    public function setOrderData($data) {
+    public function setOrderData($data)
+    {
         $this->order_data = $data;
         return $this;
     }
@@ -73,39 +78,46 @@ abstract class PaymentHandler extends Controller {
      */
     protected $payment_data;
 
-    public function getPaymentData() {
+    public function getPaymentData()
+    {
         return $this->payment_data;
     }
 
-    public function setPaymentData($data) {
+    public function setPaymentData($data)
+    {
         $this->payment_data = $data;
         return $this;
     }
     
-    public function handleRequest(SS_HTTPRequest $request, DataModel $model) {
-		if(!$request) user_error("Controller::handleRequest() not passed a request!", E_USER_ERROR);
-		
-		$this->urlParams = $request->allParams();
-		$this->request = $request;
-		$this->response = new SS_HTTPResponse();
-		$this->setDataModel($model);
-		
-		// If we had a redirection or something, halt processing.
-		if($this->response->isFinished()) {
-			return $this->response;
-		}
+    public function handleRequest(SS_HTTPRequest $request, DataModel $model)
+    {
+        if (!$request) {
+            user_error("Controller::handleRequest() not passed a request!", E_USER_ERROR);
+        }
+        
+        $this->urlParams = $request->allParams();
+        $this->request = $request;
+        $this->response = new SS_HTTPResponse();
+        $this->setDataModel($model);
+        
+        // If we had a redirection or something, halt processing.
+        if ($this->response->isFinished()) {
+            return $this->response;
+        }
         
         // Find our action or set to index if not found
         $action = $this->request->param("Action");
-        if(!$action) $action = "index";
+        if (!$action) {
+            $action = "index";
+        }
 
-		$this->response->setBody($this->$action($request));
+        $this->response->setBody($this->$action($request));
 
-		ContentNegotiator::process($this->response);
-		HTTP::add_cache_headers($this->response);
+        ContentNegotiator::process($this->response);
+        HTTP::add_cache_headers($this->response);
 
-		return $this->response;
-	}
+        return $this->response;
+    }
 
     /**
      * The index action is called by the payment controller before order

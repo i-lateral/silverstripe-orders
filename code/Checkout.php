@@ -7,7 +7,8 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package checkout
  */
-class Checkout extends ViewableData {
+class Checkout extends ViewableData
+{
     
     /**
      * Seperate tax out in totals on the cart and summary.
@@ -123,10 +124,11 @@ class Checkout extends ViewableData {
      * 
      * @return PostageArea
      */
-    public static function CreateFreePostageObject() {
+    public static function CreateFreePostageObject()
+    {
         $postage = new PostageArea();
         $postage->ID = -1;
-        $postage->Title = _t("Checkout.FreeShipping","Free Shipping");
+        $postage->Title = _t("Checkout.FreeShipping", "Free Shipping");
         $postage->Country = "*";
         $postage->ZipCode = "*";
         
@@ -140,7 +142,8 @@ class Checkout extends ViewableData {
      * @param $country_code 2 character code
      * @return string
      */
-    public static function country_name_from_code($country_code) {
+    public static function country_name_from_code($country_code)
+    {
         try {
             $source = Zend_Locale::getTranslationList(
                 'territory',
@@ -149,7 +152,7 @@ class Checkout extends ViewableData {
             );
 
             return (array_key_exists($country_code, $source)) ? $source[$country_code] : $country_code;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return "";
         }
     }
@@ -160,7 +163,8 @@ class Checkout extends ViewableData {
      * 
      * @return Boolean
      */
-    public function GuestCheckout() {
+    public function GuestCheckout()
+    {
         return $this->config()->guest_checkout;
     }
     
@@ -170,7 +174,8 @@ class Checkout extends ViewableData {
      * 
      * @return Boolean
      */
-    public function ClickAndCollect() {
+    public function ClickAndCollect()
+    {
         return $this->config()->click_and_collect;
     }
     
@@ -182,8 +187,8 @@ class Checkout extends ViewableData {
      * @param $length Length of the string
      * @return Int
      */
-    public static function getRandomNumber($int = 1, $length = 16) {
+    public static function getRandomNumber($int = 1, $length = 16)
+    {
         return substr(md5(time() * rand() * $int), 0, $length);
     }
-    
 }

@@ -2,10 +2,11 @@
 
 use wadeshuler\paypalipn\IpnListener;
 
-class PayPalHandler extends PaymentHandler {
+class PayPalHandler extends PaymentHandler
+{
 
-    public function index($request) {
-        
+    public function index($request)
+    {
         $this->extend('onBeforeIndex');
         
         $site = SiteConfig::current_site_config();
@@ -13,10 +14,11 @@ class PayPalHandler extends PaymentHandler {
         $cart = ShoppingCart::get();
 
         // Setup the paypal gateway URL
-        if(Director::isDev())
+        if (Director::isDev()) {
             $gateway_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
-        else
+        } else {
             $gateway_url = "https://www.paypal.com/cgi-bin/webscr";
+        }
 
         $callback_url = Controller::join_links(
             Director::absoluteBaseURL(),
@@ -74,7 +76,7 @@ class PayPalHandler extends PaymentHandler {
             HiddenField::create('cancel_return', null, $error_url)
         );
         
-        if(!Checkout::config()->simple_checkout && !$cart->isCollection()) {
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection()) {
             // Shipping Details
             $fields->add(HiddenField::create('shipping_addressee_name', null, $order->DeliveryFirstnames . " " . $order->DeliverySurname));
             $fields->add(HiddenField::create('shipping_address1', null, $order->DeliveryAddress1));
@@ -86,15 +88,15 @@ class PayPalHandler extends PaymentHandler {
 
         $i = 1;
 
-        foreach($cart->getItems() as $item) {
+        foreach ($cart->getItems() as $item) {
             $fields->add(HiddenField::create('item_name_' . $i, null, $item->Title));
-            $fields->add(HiddenField::create('amount_' . $i, null, number_format($item->Price,2)));
+            $fields->add(HiddenField::create('amount_' . $i, null, number_format($item->Price, 2)));
             $fields->add(HiddenField::create('quantity_' . $i, null, $item->Quantity));
 
             $i++;
         }
         
-        if(!Checkout::config()->simple_checkout && !$cart->isCollection()) {
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection()) {
             // Add shipping as an extra product
             $fields->add(HiddenField::create('item_name_' . $i, null, $order->PostageType));
             $fields->add(HiddenField::create('amount_' . $i, null, number_format($cart->PostageCost, 2)));
@@ -102,7 +104,7 @@ class PayPalHandler extends PaymentHandler {
         }
         
         // Add tax (if needed) else just total
-        if($cart->TaxCost) {
+        if ($cart->TaxCost) {
             $fields->add(HiddenField::create(
                 'tax_cart',
                 null,
@@ -111,20 +113,20 @@ class PayPalHandler extends PaymentHandler {
         }
 
         $actions = FieldList::create(
-            LiteralField::create('BackButton','<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back','Back') . '</a>'),
-            FormAction::create('Submit', _t('Checkout.ConfirmPay','Confirm and Pay'))
+            LiteralField::create('BackButton', '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back', 'Back') . '</a>'),
+            FormAction::create('Submit', _t('Checkout.ConfirmPay', 'Confirm and Pay'))
                 ->addExtraClass('btn')
                 ->addExtraClass('btn-green')
         );
 
-        $form = Form::create($this,'Form',$fields,$actions)
+        $form = Form::create($this, 'Form', $fields, $actions)
             ->addExtraClass('forms')
             ->setFormMethod('POST')
             ->setFormAction($gateway_url);
 
         $this->customise(array(
-            "Title"     => _t('Checkout.Summary',"Summary"),
-            "MetaTitle" => _t('Checkout.Summary',"Summary"),
+            "Title"     => _t('Checkout.Summary', "Summary"),
+            "MetaTitle" => _t('Checkout.Summary', "Summary"),
             "Form"      => $form,
             "Order"     => $order
         ));
@@ -142,8 +144,8 @@ class PayPalHandler extends PaymentHandler {
     /**
      * Process the callback data from the payment provider
      */
-    public function callback($request) {
-        
+    public function callback($request)
+    {
         $this->extend('onBeforeCallback');
         
         $data = $this->request->postVars();
@@ -159,17 +161,21 @@ class PayPalHandler extends PaymentHandler {
         );
 
         // Check if CallBack data exists and install id matches the saved ID
-        if(isset($data) && isset($data['custom']) && isset($data['payment_status'])) {
+        if (isset($data) && isset($data['custom']) && isset($data['payment_status'])) {
             $order_id = $data['custom'];
             $paypal_request = 'cmd=_notify-validate';
             $final_response = "";
             
             // If the transaction ID is set, keep it
-            if(array_key_exists("txn_id", $data)) $payment_id = $data["txn_id"];
+            if (array_key_exists("txn_id", $data)) {
+                $payment_id = $data["txn_id"];
+            }
             
             $listener = new IpnListener();
             
-            if(Director::isDev()) $listener->use_sandbox = true;
+            if (Director::isDev()) {
+                $listener->use_sandbox = true;
+            }
 
             try {
                 $verified = $listener->processIpn();
@@ -180,7 +186,7 @@ class PayPalHandler extends PaymentHandler {
 
             if ($verified) {
                 // IPN response was "VERIFIED"
-                switch($data['payment_status']) {
+                switch ($data['payment_status']) {
                     case 'Canceled_Reversal':
                         $status = "canceled";
                         break;
@@ -216,7 +222,6 @@ class PayPalHandler extends PaymentHandler {
                 error_log("Invalid payment status");
                 return $this->httpError(500);
             }
-            
         } else {
             error_log("No payment details set");
             return $this->httpError(500);

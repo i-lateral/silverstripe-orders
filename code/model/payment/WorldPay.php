@@ -1,6 +1,7 @@
 <?php
 
-class WorldPay extends PaymentMethod {
+class WorldPay extends PaymentMethod
+{
 
     public static $handler = "WorldPayHandler";
 
@@ -13,10 +14,11 @@ class WorldPay extends PaymentMethod {
         'ResponsePassword' => 'Varchar(10)'
     );
 
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = parent::getCMSFields();
 
-        if($this->ID) {            
+        if ($this->ID) {
             $fields->addFieldToTab(
                 "Root.Main",
                 TextField::create('InstallID', 'Instalation ID'),
@@ -33,12 +35,14 @@ class WorldPay extends PaymentMethod {
         return $fields;
     }
 
-    public function onBeforeWrite() {
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
 
         $this->CallBackSlug = (!$this->CallBackSlug) ? 'worldpay' : $this->CallBackSlug;
 
-        if(!$this->Summary)
+        if (!$this->Summary) {
             $this->Summary = "Pay with credit/debit card securely via WorldPay";
+        }
     }
 }

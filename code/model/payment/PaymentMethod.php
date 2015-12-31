@@ -7,7 +7,8 @@
  *
  *
  */
-class PaymentMethod extends DataObject implements PermissionProvider {
+class PaymentMethod extends DataObject implements PermissionProvider
+{
 
     /**
      * Shall this class appear in the list of payment providers. Use this to
@@ -56,11 +57,13 @@ class PaymentMethod extends DataObject implements PermissionProvider {
      *
      * @return String
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         return ($this->Icon) ? '<img class="payment-icon" src="'. $this->Icon .'" /> <span>' . $this->Summary . '</span>' : "<span>{$this->Summary}</span>";
     }
 
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = parent::getCMSFields();
 
         $fields->removeByName('ParentConfigID');
@@ -71,18 +74,19 @@ class PaymentMethod extends DataObject implements PermissionProvider {
         unset($payments['PaymentMethod']);
 
         // Check if any payment types have been hidden and unset
-        foreach($payments as $payment_type) {
-            if($payment_type::$hidden)
+        foreach ($payments as $payment_type) {
+            if ($payment_type::$hidden) {
                 unset($payments[$payment_type]);
+            }
         }
 
-        $classname_field = DropdownField::create('ClassName','Type of Payment',$payments)
+        $classname_field = DropdownField::create('ClassName', 'Type of Payment', $payments)
             ->setHasEmptyDefault(true)
             ->setEmptyString('Select Gateway');
 
         $fields->addFieldToTab('Root.Main', $classname_field);
 
-        if($this->ID) {
+        if ($this->ID) {
             $fields->addFieldToTab("Root.Main", TextField::create('Summary', 'Summary message to appear on website'));
             $fields->addFieldToTab("Root.Main", CheckboxField::create('Default', 'Default payment method?'));
             $fields->addFieldToTab("Root.Main", HTMLEditorField::create("PaymentInfo", "Message to appear on payment summary page"));
@@ -137,11 +141,13 @@ class PaymentMethod extends DataObject implements PermissionProvider {
     }
 
     // Get relevent payment gateway URL to use in HTML form
-    public function GatewayURL() {
+    public function GatewayURL()
+    {
         return $this->URL;
     }
     
-    public function providePermissions() {
+    public function providePermissions()
+    {
         return array(
             "MANAGE_PAYMENTS" => array(
                 'name' => 'Manage payment methods',
@@ -152,66 +158,84 @@ class PaymentMethod extends DataObject implements PermissionProvider {
         );
     }
     
-    public function canView($member = null) {
+    public function canView($member = null)
+    {
         $extended = $this->extendedCan('canView', $member);
-		if($extended !== null) return $extended;
+        if ($extended !== null) {
+            return $extended;
+        }
         
         return true;
     }
     
-    public function canCreate($member = null) {
+    public function canCreate($member = null)
+    {
         $extended = $this->extendedCan('canCreate', $member);
-		if($extended !== null) return $extended;
+        if ($extended !== null) {
+            return $extended;
+        }
         
-        if($member instanceof Member)
+        if ($member instanceof Member) {
             $memberID = $member->ID;
-        else if(is_numeric($member))
+        } elseif (is_numeric($member)) {
             $memberID = $member;
-        else
+        } else {
             $memberID = Member::currentUserID();
+        }
 
-        if($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS")))
+        if ($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS"))) {
             return true;
-        else if($memberID && $memberID == $this->CustomerID)
+        } elseif ($memberID && $memberID == $this->CustomerID) {
             return true;
+        }
 
         return false;
     }
 
-    public function canEdit($member = null) {
+    public function canEdit($member = null)
+    {
         $extended = $this->extendedCan('canEdit', $member);
-		if($extended !== null) return $extended;
+        if ($extended !== null) {
+            return $extended;
+        }
         
-        if($member instanceof Member)
+        if ($member instanceof Member) {
             $memberID = $member->ID;
-        else if(is_numeric($member))
+        } elseif (is_numeric($member)) {
             $memberID = $member;
-        else
+        } else {
             $memberID = Member::currentUserID();
+        }
 
-        if($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS")))
+        if ($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS"))) {
             return true;
-        else if($memberID && $memberID == $this->CustomerID)
+        } elseif ($memberID && $memberID == $this->CustomerID) {
             return true;
+        }
 
         return false;
     }
 
-    public function canDelete($member = null) {
+    public function canDelete($member = null)
+    {
         $extended = $this->extendedCan('canDelete', $member);
-		if($extended !== null) return $extended;
+        if ($extended !== null) {
+            return $extended;
+        }
         
-        if($member instanceof Member)
+        if ($member instanceof Member) {
             $memberID = $member->ID;
-        else if(is_numeric($member))
+        } elseif (is_numeric($member)) {
             $memberID = $member;
-        else
+        } else {
             $memberID = Member::currentUserID();
+        }
 
-        if($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS")))
+        if ($memberID && Permission::checkMember($memberID, array("ADMIN", "MANAGE_PAYMENTS"))) {
             return true;
-        else if($memberID && $memberID == $this->CustomerID)
+        } elseif ($memberID && $memberID == $this->CustomerID) {
             return true;
+        }
 
         return false;
     }

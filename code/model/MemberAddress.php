@@ -7,10 +7,11 @@
  * @package checkout
  * @author i-lateral (http://www.i-lateral.com)
  */
-class MemberAddress extends DataObject {
+class MemberAddress extends DataObject
+{
 
-    static $db = array(
-        'Company'        	=> 'Varchar',
+    public static $db = array(
+        'Company'            => 'Varchar',
         'FirstName'         => 'Varchar',
         'Surname'           => 'Varchar',
         'Address1'          => 'Varchar',
@@ -21,11 +22,11 @@ class MemberAddress extends DataObject {
         'Default'           => 'Boolean'
     );
 
-    static $has_one = array(
+    public static $has_one = array(
         "Owner" => "Member"
     );
     
-    static $summary_fields = array(
+    public static $summary_fields = array(
         "FirstName",
         "Surname",
         "Address1",
@@ -39,16 +40,22 @@ class MemberAddress extends DataObject {
      *
      * @return Boolean
      */
-    public function canCreate($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canCreate($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
 
-		$extended = $this->extendedCan('canCreate', $member);
-		if($extended !== null) return $extended;
+        $extended = $this->extendedCan('canCreate', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
 
-        if($member)
+        if ($member) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -56,18 +63,24 @@ class MemberAddress extends DataObject {
      *
      * @return Boolean
      */
-    public function canView($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canView($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
         
-		$extended = $this->extendedCan('canView', $member);
-		if($extended !== null) return $extended;
+        $extended = $this->extendedCan('canView', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
 
-        if($member && $this->OwnerID == $member->ID)
+        if ($member && $this->OwnerID == $member->ID) {
             return true;
-        else if($member && Permission::checkMember($member->ID, array("ADMIN")))
+        } elseif ($member && Permission::checkMember($member->ID, array("ADMIN"))) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -75,18 +88,24 @@ class MemberAddress extends DataObject {
      *
      * @return Boolean
      */
-    public function canEdit($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canEdit($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
         
-		$extended = $this->extendedCan('canEdit', $member);
-		if($extended !== null) return $extended;
+        $extended = $this->extendedCan('canEdit', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
         
-        if($member && $this->OwnerID == $member->ID)
+        if ($member && $this->OwnerID == $member->ID) {
             return true;
-        else if($member && Permission::checkMember($member->ID, array("ADMIN")))
+        } elseif ($member && Permission::checkMember($member->ID, array("ADMIN"))) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -94,17 +113,23 @@ class MemberAddress extends DataObject {
      *
      * @return Boolean
      */
-    public function canDelete($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canDelete($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
         
-		$extended = $this->extendedCan('canDelete', $member);
-		if($extended !== null) return $extended;
+        $extended = $this->extendedCan('canDelete', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
 
-        if($member && $this->OwnerID == $member->ID)
+        if ($member && $this->OwnerID == $member->ID) {
             return true;
-        else if($member && Permission::checkMember($member->ID, array("ADMIN")))
+        } elseif ($member && Permission::checkMember($member->ID, array("ADMIN"))) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 }
