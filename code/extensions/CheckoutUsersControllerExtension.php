@@ -132,7 +132,7 @@ class CheckoutUserAccountControllerExtension extends Extension {
             CountryDropdownField::create(
                 'Country',
                 _t('Checkout.Country','Country')
-            )->setAttribute("class",'countrydropdown dropdown btn')
+            )->setAttribute("class",'countrydropdown dropdown')
         )->setName("AddressFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')
