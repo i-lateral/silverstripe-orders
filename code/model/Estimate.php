@@ -1,6 +1,7 @@
 <?php
 
-class Estimate extends Order {
+class Estimate extends Order
+{
     
     private static $summary_fields = array(
         "ID"        => "#",
@@ -11,8 +12,8 @@ class Estimate extends Order {
         "Created"   => "Created"
     );
     
-    public function getCMSFields() {
-        
+    public function getCMSFields()
+    {
         $existing_customer = $this->config()->existing_customer_class;
         
         // Manually inject HTML for totals as Silverstripe refuses to
@@ -22,7 +23,7 @@ class Estimate extends Order {
         $subtotal_html .= _t("Orders.SubTotal", "Sub Total");
         $subtotal_html .= '</label>';
         $subtotal_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_SubTotal" class="readonly">';
-		$subtotal_html .= $this->SubTotal->Nice();
+        $subtotal_html .= $this->SubTotal->Nice();
         $subtotal_html .= '</span></div></div>';
         
         $discount_html = '<div id="Discount" class="field readonly">';
@@ -30,7 +31,7 @@ class Estimate extends Order {
         $discount_html .= _t("Orders.Discount", "Discount");
         $discount_html .= '</label>';
         $discount_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Discount" class="readonly">';
-		$discount_html .= $this->dbObject("DiscountAmount")->Nice();
+        $discount_html .= $this->dbObject("DiscountAmount")->Nice();
         $discount_html .= '</span></div></div>';
 
         $postage_html = '<div id="Postage" class="field readonly">';
@@ -38,7 +39,7 @@ class Estimate extends Order {
         $postage_html .= _t("Orders.Postage", "Postage");
         $postage_html .= '</label>';
         $postage_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Postage" class="readonly">';
-		$postage_html .= $this->Postage->Nice();
+        $postage_html .= $this->Postage->Nice();
         $postage_html .= '</span></div></div>';
         
         $tax_html = '<div id="TaxTotal" class="field readonly">';
@@ -46,7 +47,7 @@ class Estimate extends Order {
         $tax_html .= _t("Orders.Tax", "Tax");
         $tax_html .= '</label>';
         $tax_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_TaxTotal" class="readonly">';
-		$tax_html .= $this->TaxTotal->Nice();
+        $tax_html .= $this->TaxTotal->Nice();
         $tax_html .= '</span></div></div>';
         
         $total_html = '<div id="Total" class="field readonly">';
@@ -54,7 +55,7 @@ class Estimate extends Order {
         $total_html .= _t("Orders.Total", "Total");
         $total_html .= '</label>';
         $total_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Total" class="readonly">';
-		$total_html .= $this->Total->Nice();
+        $total_html .= $this->Total->Nice();
         $total_html .= '</span></div></div>';
         
         $fields = new FieldList(
@@ -126,7 +127,7 @@ class Estimate extends Order {
             )
         );
         
-        if($this->canEdit()) {
+        if ($this->canEdit()) {
             // Sidebar
             $tab_customer->insertBefore(
                 CustomerSidebar::create(
@@ -144,10 +145,10 @@ class Estimate extends Order {
                 "Company"
             );
             
-            if(is_array($this->config()->existing_customer_fields)) {
+            if (is_array($this->config()->existing_customer_fields)) {
                 $columns = $config->getComponentByType("GridFieldDataColumns");
                 
-                if($columns) {
+                if ($columns) {
                     $columns
                         ->setDisplayFields($this
                             ->config()
@@ -168,12 +169,12 @@ class Estimate extends Order {
         return $fields;
     }
     
-    public function onBeforeWrite() {
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
         
         $this->Status = $this->config()->default_status;
         
         $this->extend("onBeforeWrite");
-    } 
-    
+    }
 }

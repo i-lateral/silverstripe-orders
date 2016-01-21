@@ -1,5 +1,5 @@
 <?php
 
-class CustomerSidebar extends FieldGroup {
-
+class CustomerSidebar extends FieldGroup
+{
 }

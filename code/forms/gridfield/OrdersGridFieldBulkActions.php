@@ -5,7 +5,8 @@
  *
  * @package commerce
  */
-class OrdersFieldBulkActions extends GridFieldBulkActionHandler {
+class OrdersFieldBulkActions extends GridFieldBulkActionHandler
+{
 
     private static $allowed_actions = array(
         'cancelled',
@@ -21,10 +22,11 @@ class OrdersFieldBulkActions extends GridFieldBulkActionHandler {
         'dispatched'=> 'dispatched'
     );
 
-    public function cancelled(SS_HTTPRequest $request) {
+    public function cancelled(SS_HTTPRequest $request)
+    {
         $ids = array();
 
-        foreach($this->getRecords() as $record) {
+        foreach ($this->getRecords() as $record) {
             array_push($ids, $record->ID);
 
             $record->Status = 'cancelled';
@@ -41,10 +43,11 @@ class OrdersFieldBulkActions extends GridFieldBulkActionHandler {
         return $response;
     }
     
-    public function paid(SS_HTTPRequest $request) {
+    public function paid(SS_HTTPRequest $request)
+    {
         $ids = array();
 
-        foreach($this->getRecords() as $record) {
+        foreach ($this->getRecords() as $record) {
             array_push($ids, $record->ID);
 
             $record->Status = 'paid';
@@ -61,10 +64,11 @@ class OrdersFieldBulkActions extends GridFieldBulkActionHandler {
         return $response;
     }
     
-    public function processing(SS_HTTPRequest $request) {
+    public function processing(SS_HTTPRequest $request)
+    {
         $ids = array();
 
-        foreach($this->getRecords() as $record) {
+        foreach ($this->getRecords() as $record) {
             array_push($ids, $record->ID);
 
             $record->Status = 'processing';
@@ -81,10 +85,11 @@ class OrdersFieldBulkActions extends GridFieldBulkActionHandler {
         return $response;
     }
 
-    public function dispatched(SS_HTTPRequest $request) {
+    public function dispatched(SS_HTTPRequest $request)
+    {
         $ids = array();
 
-        foreach($this->getRecords() as $record) {
+        foreach ($this->getRecords() as $record) {
             array_push($ids, $record->ID);
 
             $record->Status = 'dispatched';
