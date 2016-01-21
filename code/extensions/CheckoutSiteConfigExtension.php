@@ -5,7 +5,8 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package checkout
  */
-class CheckoutSiteConfigExtension extends DataExtension {
+class CheckoutSiteConfigExtension extends DataExtension
+{
     private static $db = array(
         "PaymentNumberPrefix" => "Varchar(6)",
         'PaymentSuccessContent' => 'Text',
@@ -18,7 +19,8 @@ class CheckoutSiteConfigExtension extends DataExtension {
         'PaymentMethods'    => 'PaymentMethod',
     );
 
-    public function updateCMSFields(FieldList $fields) {
+    public function updateCMSFields(FieldList $fields)
+    {
         
         // Payment Methods
         $payment_table = GridField::create(
@@ -40,11 +42,11 @@ class CheckoutSiteConfigExtension extends DataExtension {
         // setup compressed payment options
         $payment_fields = ToggleCompositeField::create(
             'PaymentSettings',
-            _t("CheckoutAdmin.Payments","Payment Settings"),
+            _t("CheckoutAdmin.Payments", "Payment Settings"),
             array(
                 TextField::create(
                     'PaymentNumberPrefix',
-                    _t("CheckoutAdmin.OrderPrefix","Add prefix to order numbers"),
+                    _t("CheckoutAdmin.OrderPrefix", "Add prefix to order numbers"),
                     null,
                     9
                 )->setAttribute(
@@ -115,7 +117,7 @@ class CheckoutSiteConfigExtension extends DataExtension {
                 ),
                 'Calculation'  => array(
                     'title' => 'Base unit',
-                    'callback' => function($record, $column, $grid) {
+                    'callback' => function ($record, $column, $grid) {
                         return DropdownField::create(
                             $column,
                             "Based on",

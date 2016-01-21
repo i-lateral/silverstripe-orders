@@ -6,7 +6,8 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package checkout
  */
-class CheckoutMemberExtension extends DataExtension {
+class CheckoutMemberExtension extends DataExtension
+{
     
     /**
      * Cache an address object for if we need to us it again.
@@ -32,7 +33,8 @@ class CheckoutMemberExtension extends DataExtension {
         'Country'           => 'Varchar'
     );
 
-    public function updateCMSFields(FieldList $fields) {
+    public function updateCMSFields(FieldList $fields)
+    {
         $fields->remove("PhoneNumber");
 
         $fields->addFieldToTab(
@@ -57,8 +59,9 @@ class CheckoutMemberExtension extends DataExtension {
      * 
      * @return MemberAddress
      */
-    public function getDefaultAddress() {
-        if($this->cached_address) {
+    public function getDefaultAddress()
+    {
+        if ($this->cached_address) {
             return $this->cached_address;
         } else {
             $address = $this
@@ -78,9 +81,11 @@ class CheckoutMemberExtension extends DataExtension {
      * 
      * @return String
      */
-    public function getAddress1() {
-        if($address = $this->owner->getDefaultAddress())
+    public function getAddress1()
+    {
+        if ($address = $this->owner->getDefaultAddress()) {
             return $address->Address1;
+        }
     }
     
     /**
@@ -88,9 +93,11 @@ class CheckoutMemberExtension extends DataExtension {
      * 
      * @return String
      */
-    public function getAddress2() {
-        if($address = $this->owner->getDefaultAddress())
+    public function getAddress2()
+    {
+        if ($address = $this->owner->getDefaultAddress()) {
             return $address->Address2;
+        }
     }
     
     /**
@@ -98,14 +105,18 @@ class CheckoutMemberExtension extends DataExtension {
      * 
      * @return String
      */
-    public function getCity() {
-        if($address = $this->owner->getDefaultAddress())
+    public function getCity()
+    {
+        if ($address = $this->owner->getDefaultAddress()) {
             return $address->City;
+        }
     }
     
-    public function getPostCode() {
-        if($address = $this->owner->getDefaultAddress())
+    public function getPostCode()
+    {
+        if ($address = $this->owner->getDefaultAddress()) {
             return $address->PostCode;
+        }
     }
     
     /**
@@ -113,9 +124,11 @@ class CheckoutMemberExtension extends DataExtension {
      * 
      * @return String
      */
-    public function getCountry() {
-        if($address = $this->owner->getDefaultAddress())
+    public function getCountry()
+    {
+        if ($address = $this->owner->getDefaultAddress()) {
             return $address->Country;
+        }
     }
 
     /**
@@ -123,11 +136,12 @@ class CheckoutMemberExtension extends DataExtension {
      *
      * @return Discount
      */
-    public function getDiscount() {
+    public function getDiscount()
+    {
         $discounts = ArrayList::create();
 
-        foreach($this->owner->Groups() as $group) {
-            foreach($group->Discounts() as $discount) {
+        foreach ($this->owner->Groups() as $group) {
+            foreach ($group->Discounts() as $discount) {
                 $discounts->add($discount);
             }
         }

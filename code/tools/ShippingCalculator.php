@@ -11,7 +11,8 @@
  * @author ilateral (info@ilateral.co.uk)
  * @package checkout
  */
-class ShippingCalculator extends Object {
+class ShippingCalculator extends Object
+{
     
     /**
      * 2 character country code
@@ -20,12 +21,14 @@ class ShippingCalculator extends Object {
      */
     private $country_code;
     
-    public function setCountryCode($value) {
+    public function setCountryCode($value)
+    {
         $this->country_code = $value;
         return $this;
     }
 
-    public function getCountryCode() {
+    public function getCountryCode()
+    {
         return $this->country_code;
     }
     
@@ -36,12 +39,14 @@ class ShippingCalculator extends Object {
      */
     private $zipcode;
         
-    public function setZipCode($value) {
+    public function setZipCode($value)
+    {
         $this->zipcode = $value;
         return $this;
     }
 
-    public function getZipCode() {
+    public function getZipCode()
+    {
         return $this->zipcode;
     }
     
@@ -52,12 +57,14 @@ class ShippingCalculator extends Object {
      */
     private $cost = 0.0;
     
-    public function setCost($value) {
+    public function setCost($value)
+    {
         $this->cost = $value;
         return $this;
     }
 
-    public function getCost() {
+    public function getCost()
+    {
         return $this->cost;
     }
     
@@ -68,12 +75,14 @@ class ShippingCalculator extends Object {
      */
     private $weight = 0;
     
-    public function setWeight($value) {
+    public function setWeight($value)
+    {
         $this->weight = $value;
         return $this;
     }
 
-    public function getWeight() {
+    public function getWeight()
+    {
         return $this->weight;
     }
     
@@ -84,12 +93,14 @@ class ShippingCalculator extends Object {
      */
     private $items = 0;
     
-    public function setItems($value) {
+    public function setItems($value)
+    {
         $this->items = $value;
         return $this;
     }
 
-    public function getItems() {
+    public function getItems()
+    {
         return $this->items;
     }
     
@@ -100,12 +111,14 @@ class ShippingCalculator extends Object {
      */
     private $include_wildcards = true;
     
-    public function setWildcards($value) {
+    public function setWildcards($value)
+    {
         $this->include_wildcards = $value;
         return $this;
     }
 
-    public function getWildcards() {
+    public function getWildcards()
+    {
         return $this->include_wildcards;
     }
     
@@ -117,9 +130,9 @@ class ShippingCalculator extends Object {
      * @param country_code 2 character country code
      * @param zipcode string of the zipo/postal code
      */
-    public function __construct($zipcode, $country_code = null) {
-        
-        if($country_code) {
+    public function __construct($zipcode, $country_code = null)
+    {
+        if ($country_code) {
             $this->country_code = $country_code;
         } else {
             $locale = new Zend_Locale();
@@ -127,19 +140,23 @@ class ShippingCalculator extends Object {
             $this->country_code = $locale->getRegion();
         }
         
-        if($zipcode) $this->zipcode = $zipcode;
+        if ($zipcode) {
+            $this->zipcode = $zipcode;
+        }
     }
     
     /**
-	 * Get the locale of the Member, or if we're not logged in or don't have a locale, use the default one
-	 * @return string
-	 */
-	protected function locale() {
-		if(($member = Member::currentUser()) && $member->Locale)
+     * Get the locale of the Member, or if we're not logged in or don't have a locale, use the default one
+     * @return string
+     */
+    protected function locale()
+    {
+        if (($member = Member::currentUser()) && $member->Locale) {
             return $member->Locale;
+        }
             
-		return i18n::get_locale();
-	}
+        return i18n::get_locale();
+    }
     
     
     /**
@@ -154,14 +171,15 @@ class ShippingCalculator extends Object {
      *
      * @return ArrayList
      */
-    public function getPostageAreas() {
+    public function getPostageAreas()
+    {
         $return = ArrayList::create();
         $config = SiteConfig::current_site_config();
         $cart = ShoppingCart::get();
         $discount = $cart->getDiscount();
         $filter_zipcode = strtolower(substr($this->zipcode, 0, 2));
         
-        if($this->include_wildcards) {
+        if ($this->include_wildcards) {
             $filter = array(
                 "Country:PartialMatch" => array($this->country_code, "*"),
                 "ZipCode:PartialMatch" => array($filter_zipcode, "*")
@@ -181,13 +199,13 @@ class ShippingCalculator extends Object {
         // Check if any discounts are set with free postage
         // This is a little hacky at the moment, need to find a nicer
         // way to add free shipping.
-        if($discount && $discount->Type == "Free Shipping" && ((strpos($discount->Country, $this->country_code) !== false) || $discount->Country == "*")) {
+        if ($discount && $discount->Type == "Free Shipping" && ((strpos($discount->Country, $this->country_code) !== false) || $discount->Country == "*")) {
             $postage = Checkout::CreateFreePostageObject();
             $return->add($postage);
         }
         
         // Make sure we don't effect any associations
-        foreach($postage_areas as $item) {
+        foreach ($postage_areas as $item) {
             $return->add($item);
         }
         
@@ -195,15 +213,17 @@ class ShippingCalculator extends Object {
         $exact_country = false;
         
         // Find any countries that are exactly matched 
-        foreach($return as $location) {
-            if($location->Country != "*")
+        foreach ($return as $location) {
+            if ($location->Country != "*") {
                 $exact_country = true;
+            }
         }
         
         // If exactly matched, remove any wildcards
-        foreach($return as $location) {
-            if($exact_country && $location->Country == "*" && $location->ID != -1)
+        foreach ($return as $location) {
+            if ($exact_country && $location->Country == "*" && $location->ID != -1) {
                 $return->remove($location);
+            }
         }
         
 
@@ -218,43 +238,51 @@ class ShippingCalculator extends Object {
         $max_items = 0;
 
         // First loop through and find items that are invalid
-        foreach($return as $location) {
-            if($location->Calculation == "Price" && ($total_cost < $location->Unit))
+        foreach ($return as $location) {
+            if ($location->Calculation == "Price" && ($total_cost < $location->Unit)) {
                 $return->remove($location);
+            }
 
-            if($location->Calculation == "Weight" && ($total_weight < $location->Unit))
+            if ($location->Calculation == "Weight" && ($total_weight < $location->Unit)) {
                 $return->remove($location);
+            }
 
-            if($location->Calculation == "Items" && ($total_items < $location->Unit))
+            if ($location->Calculation == "Items" && ($total_items < $location->Unit)) {
                 $return->remove($location);
+            }
         }
 
         // Now find max values based on units
-        foreach($return as $location) {
-            if($location->Calculation == "Price" && ($location->Unit > $max_cost))
+        foreach ($return as $location) {
+            if ($location->Calculation == "Price" && ($location->Unit > $max_cost)) {
                 $max_cost = $location->Unit;
+            }
 
-            if($location->Calculation == "Weight" && ($location->Unit > $max_weight))
+            if ($location->Calculation == "Weight" && ($location->Unit > $max_weight)) {
                 $max_weight = $location->Unit;
+            }
 
-            if($location->Calculation == "Items" && ($location->Unit > $max_items))
+            if ($location->Calculation == "Items" && ($location->Unit > $max_items)) {
                 $max_items = $location->Unit;
+            }
         }
 
         // Now loop through again and calculate which brackets each
         // Location fits in
-        foreach($return as $location) {
-            if($location->Calculation == "Price" && ($location->Unit < $max_cost))
+        foreach ($return as $location) {
+            if ($location->Calculation == "Price" && ($location->Unit < $max_cost)) {
                 $return->remove($location);
+            }
 
-            if($location->Calculation == "Weight" && ($location->Unit < $max_weight))
+            if ($location->Calculation == "Weight" && ($location->Unit < $max_weight)) {
                 $return->remove($location);
+            }
 
-            if($location->Calculation == "Items" && ($location->Unit < $max_items))
+            if ($location->Calculation == "Items" && ($location->Unit < $max_items)) {
                 $return->remove($location);
+            }
         }
 
         return $return;
     }
-    
 }
