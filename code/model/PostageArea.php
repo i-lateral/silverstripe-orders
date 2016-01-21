@@ -4,7 +4,8 @@
  *
  * @author morven
  */
-class PostageArea extends DataObject {
+class PostageArea extends DataObject
+{
 
     private static $db = array(
         "Title"         => "Varchar",
@@ -29,37 +30,51 @@ class PostageArea extends DataObject {
      * 
      * @return Decimal
      */
-    public function Total() {
-        if($this->Cost && $this->Tax)
+    public function Total()
+    {
+        if ($this->Cost && $this->Tax) {
             return $this->Cost + (($this->Cost / 100) * $this->Tax);
+        }
         
-        return $this->Cost;            
+        return $this->Cost;
     }
 
-    public function canView($member = null) {
-		$extended = $this->extendedCan('canView', $member);
-		if($extended !== null) return $extended;
+    public function canView($member = null)
+    {
+        $extended = $this->extendedCan('canView', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
         
         return true;
     }
     
-    public function canCreate($member = null) {
-		$extended = $this->extendedCan('canCreate', $member);
-		if($extended !== null) return $extended;
+    public function canCreate($member = null)
+    {
+        $extended = $this->extendedCan('canCreate', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
         
         return true;
     }
 
-    public function canEdit($member = null) {
-		$extended = $this->extendedCan('canEdit', $member);
-		if($extended !== null) return $extended;
+    public function canEdit($member = null)
+    {
+        $extended = $this->extendedCan('canEdit', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
         
         return true;
     }
 
-    public function canDelete($member = null) {
-		$extended = $this->extendedCan('canDelete', $member);
-		if($extended !== null) return $extended;
+    public function canDelete($member = null)
+    {
+        $extended = $this->extendedCan('canDelete', $member);
+        if ($extended !== null) {
+            return $extended;
+        }
         
         return true;
     }

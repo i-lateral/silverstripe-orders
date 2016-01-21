@@ -9,7 +9,8 @@
  * ShoppingCart.item_class in your config file.
  * 
  */
-class ShoppingCartItem extends ViewableData {
+class ShoppingCartItem extends ViewableData
+{
     
     /**
      * ID used to detect this item
@@ -116,11 +117,12 @@ class ShoppingCartItem extends ViewableData {
      *
      * @return Currency
      */
-    public function getPrice() {
+    public function getPrice()
+    {
         $price = $this->BasePrice;
                 
         // Check for customisations that modify price
-        foreach($this->getCustomisations() as $item) {
+        foreach ($this->getCustomisations() as $item) {
             $price += ($item->Price) ? $item->Price : 0;
         }
         
@@ -132,17 +134,19 @@ class ShoppingCartItem extends ViewableData {
      * 
      * @return Float
      */
-    public function getDiscount() {
+    public function getDiscount()
+    {
         $amount = 0;
         $cart = ShoppingCart::get();
         $items = $cart->TotalItems;
         $discount = $cart->getDiscount();
         
-        if($this->BasePrice && $discount && $discount->Amount) {
-            if($discount->Type == "Fixed")
+        if ($this->BasePrice && $discount && $discount->Amount) {
+            if ($discount->Type == "Fixed") {
                 $amount = ($discount->Amount / $items) * $this->Quantity;
-            elseif($discount->Type == "Percentage")
+            } elseif ($discount->Type == "Percentage") {
                 $amount = (($this->Price / 100) * $discount->Amount) * $this->Quantity;
+            }
         }
         
         return $amount;
@@ -153,7 +157,8 @@ class ShoppingCartItem extends ViewableData {
      * 
      * @return Float
      */
-    public function getTotalDiscount() {
+    public function getTotalDiscount()
+    {
         return $this->Discount;
     }
     
@@ -162,7 +167,8 @@ class ShoppingCartItem extends ViewableData {
      *
      * @return Currency
      */
-    public function getSubTotal() {
+    public function getSubTotal()
+    {
         return $this->Price * $this->Quantity;
     }
     
@@ -173,7 +179,8 @@ class ShoppingCartItem extends ViewableData {
      *
      * @return Currency
      */
-    public function getTotalPrice() {
+    public function getTotalPrice()
+    {
         return $this->SubTotal + $this->TotalTax - $this->Discount;
     }
     
@@ -183,11 +190,13 @@ class ShoppingCartItem extends ViewableData {
      *
      * @return Currency
      */
-    public function getTax() {
+    public function getTax()
+    {
         $amount = 0;
 
-        if($this->Price && $this->TaxRate)
+        if ($this->Price && $this->TaxRate) {
             $amount = (($this->Price - $this->Discount) / 100) * $this->TaxRate;
+        }
         
         return $amount;
     }
@@ -197,19 +206,22 @@ class ShoppingCartItem extends ViewableData {
      *
      * @return Currency
      */
-    public function getTotalTax() {
+    public function getTotalTax()
+    {
         $amount = 0;
 
-        if($this->Price && $this->TaxRate && $this->Quantity)
+        if ($this->Price && $this->TaxRate && $this->Quantity) {
             $amount = ((($this->Price * $this->Quantity) - $this->Discount) / 100) * $this->TaxRate;
+        }
         
         return $amount;
     }
     
-    public function getCustomisations() {
+    public function getCustomisations()
+    {
         $return = ArrayList::create();
         
-        foreach($this->CustomisationArray as $item) {
+        foreach ($this->CustomisationArray as $item) {
             $return->add(ArrayData::create($item));
         }
         
@@ -222,14 +234,15 @@ class ShoppingCartItem extends ViewableData {
      * 
      * @return DataObject
      */
-    public function FindStockItem() {
+    public function FindStockItem()
+    {
         $classname = $this->ClassName;
         $id = $this->ID;
         
-        if($classname && $id)
+        if ($classname && $id) {
             return $classname::get()->byID($id);
-        else
+        } else {
             return null;
+        }
     }
-    
 }

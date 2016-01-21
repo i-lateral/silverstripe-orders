@@ -8,7 +8,8 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package checkout
  */
-class ShoppingCart extends Controller {
+class ShoppingCart extends Controller
+{
 
     /**
      * URL Used to access this controller
@@ -99,31 +100,38 @@ class ShoppingCart extends Controller {
      * Getters and setters
      *
      */
-    public function getClassName() {
+    public function getClassName()
+    {
         return self::config()->class_name;
     }
 
-    public function getTitle() {
+    public function getTitle()
+    {
         return ($this->config()->title) ? $this->config()->title : _t("Checkout.CartName", "Shopping Cart");
     }
 
-    public function getMetaTitle() {
+    public function getMetaTitle()
+    {
         return $this->getTitle();
     }
 
-    public function getShowDiscountForm() {
+    public function getShowDiscountForm()
+    {
         return $this->config()->show_discount_form;
     }
 
-    public function getItems() {
+    public function getItems()
+    {
         return $this->items;
     }
 
-    public function getDiscount() {
+    public function getDiscount()
+    {
         return $this->discount;
     }
 
-    public function setDiscount(Discount $discount) {
+    public function setDiscount(Discount $discount)
+    {
         $this->discount = $discount;
     }
         
@@ -132,7 +140,8 @@ class ShoppingCart extends Controller {
      * 
      * @return string
      */
-    public function Link($action = null) {
+    public function Link($action = null)
+    {
         return Controller::join_links(
             Director::BaseURL(),
             $this->config()->url_segment,
@@ -148,8 +157,8 @@ class ShoppingCart extends Controller {
      * @param $code Zip or Postal code
      * @return ShoppingCart
      */
-    public function setAvailablePostage($country, $code) {
-        
+    public function setAvailablePostage($country, $code)
+    {
         $postage_areas = new ShippingCalculator($code, $country);
         
         $postage_areas
@@ -171,13 +180,15 @@ class ShoppingCart extends Controller {
      * 
      * @return Boolean
      */
-    public function isCollection() {
-        if(Checkout::config()->click_and_collect) {
+    public function isCollection()
+    {
+        if (Checkout::config()->click_and_collect) {
             $type = Session::get("Checkout.Delivery");
             
             return ($type == "collect") ? true : false;
-        } else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -186,35 +197,40 @@ class ShoppingCart extends Controller {
      *
      * @return ShoppingCart
      */
-    public static function get() {
+    public static function get()
+    {
         return ShoppingCart::create();
     }
 
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         
         // If items are stored in a session, get them now
-        if(Session::get('Checkout.ShoppingCart.Items'))
+        if (Session::get('Checkout.ShoppingCart.Items')) {
             $this->items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
-        else
+        } else {
             $this->items = ArrayList::create();
+        }
         
         // If discounts stored in a session, get them, else create new list
-        if(Session::get('Checkout.ShoppingCart.Discount'))
+        if (Session::get('Checkout.ShoppingCart.Discount')) {
             $this->discount = unserialize(Session::get('Checkout.ShoppingCart.Discount'));
+        }
 
         // If we don't have any discounts, a user is logged in and he has
         // access to discounts through a group, add the discount here
-        if(!$this->discount && Member::currentUserID()) {
+        if (!$this->discount && Member::currentUserID()) {
             $member = Member::currentUser();
             $this->discount = $member->getDiscount();
             Session::set('Checkout.ShoppingCart.Discount', serialize($this->discount));
         }
         
         // Setup postage
-        if($postage = PostageArea::get()->byID(Session::get("Checkout.PostageID")))
+        if ($postage = PostageArea::get()->byID(Session::get("Checkout.PostageID"))) {
             $this->postage = $postage;
+        }
         
         // Allow extension of the shopping cart after initial setup
         $this->extend("augmentSetup");
@@ -225,7 +241,8 @@ class ShoppingCart extends Controller {
      *
      * @return string
      */
-    public function getViewCartButton(){
+    public function getViewCartButton()
+    {
         return $this->renderWith('ViewCartButton');
     }
 
@@ -236,7 +253,8 @@ class ShoppingCart extends Controller {
     /**
      * Default acton for the shopping cart
      */
-    public function index() {
+    public function index()
+    {
         $this->extend("onBeforeIndex");
 
         return $this->renderWith(array(
@@ -253,13 +271,14 @@ class ShoppingCart extends Controller {
      *
      * @return Redirect
      */
-    public function remove() {
+    public function remove()
+    {
         $key = $this->request->param('ID');
         $title = "";
 
-        if(!empty($key)) {
-            foreach($this->items as $item) {
-                if($item->Key == $key) {
+        if (!empty($key)) {
+            foreach ($this->items as $item) {
+                if ($item->Key == $key) {
                     $title = $item->Title;
                     $this->items->remove($item);
                 }
@@ -267,7 +286,7 @@ class ShoppingCart extends Controller {
 
             $this->save();
             
-            if($title) {
+            if ($title) {
                 $this->setSessionMessage(
                     "bad",
                     _t(
@@ -287,7 +306,8 @@ class ShoppingCart extends Controller {
      * Action that will clear shopping cart and associated sessions
      *
      */
-    public function emptycart() {
+    public function emptycart()
+    {
         $this->extend("onBeforeEmpty");
         $this->removeAll();
         $this->save();
@@ -307,29 +327,32 @@ class ShoppingCart extends Controller {
      * forms seem to provide a less than perfect user experience
      *
      */
-    public function usediscount() {
+    public function usediscount()
+    {
         $this->extend("onBeforeUseDiscount");
 
         $code_to_search = $this->request->param("ID");
         $code = false;
 
-        if(!$code_to_search)
+        if (!$code_to_search) {
             return $this->httpError(404, "Page not found");
+        }
 
         // First check if the discount is already added (so we don't
         // query the DB if we don't have to).
-        if(!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
+        if (!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
             $codes = Discount::get()
                 ->filter("Code", $code_to_search)
                 ->exclude("Expires:LessThan", date("Y-m-d"));
 
-            if($codes->exists()) {
+            if ($codes->exists()) {
                 $code = $codes->first();
                 $this->discount = $code;
                 $this->save();
             }
-        } elseif($this->discount && $this->discount->Code == $code_to_search)
+        } elseif ($this->discount && $this->discount->Code == $code_to_search) {
             $code = $this->discount;
+        }
 
         return $this
             ->customise(array(
@@ -347,12 +370,13 @@ class ShoppingCart extends Controller {
      * 
      * @return Redirect
      */
-    public function setdeliverytype() {
+    public function setdeliverytype()
+    {
         $this->extend("onBeforeSetDeliveryType");
 
         $type = $this->request->param("ID");
         
-        if($type && in_array($type, array("deliver", "collect"))) {
+        if ($type && in_array($type, array("deliver", "collect"))) {
             Session::set("Checkout.Delivery", $type);
             Session::clear("Checkout.PostageID");
         }
@@ -377,25 +401,26 @@ class ShoppingCart extends Controller {
      * @param $object Object that we will add to the shopping cart
      * @param $quantity Number of these objects to add
      */
-    public function add($data, $quantity = 1) {
-        if(array_key_exists("Key", $data)) {
+    public function add($data, $quantity = 1)
+    {
+        if (array_key_exists("Key", $data)) {
             $added = false;
             $item_key = $data['Key'];
 
             // Check if object already in the cart and update quantity
-            foreach($this->items as $item) {
-                if($item->Key == $item_key) {
+            foreach ($this->items as $item) {
+                if ($item->Key == $item_key) {
                     $this->update($item->Key, ($item->Quantity + $quantity));
                     $added = true;
                 }
             }
 
             // If no update was sucessfull then add to cart items
-            if(!$added) {
+            if (!$added) {
                 $cart_item = self::config()->item_class;
                 $cart_item = $cart_item::create();
                 
-                foreach($data as $key => $value) {                
+                foreach ($data as $key => $value) {
                     $cart_item->$key = $value;
                 }
                 
@@ -416,12 +441,13 @@ class ShoppingCart extends Controller {
      * @param Item
      * @param Quantity
      */
-    public function update($item_key, $quantity) {
+    public function update($item_key, $quantity)
+    {
         $item = $this
             ->items
             ->find("Key", $item_key);
         
-        if($item) {
+        if ($item) {
             $item->Quantity = $quantity;
             
             $this->extend("onBeforeUpdate", $item);
@@ -430,14 +456,15 @@ class ShoppingCart extends Controller {
         }
 
         return false;
-     }
+    }
 
     /**
      * Empty the shopping cart object of all items.
      *
      */
-    public function removeAll() {
-        foreach($this->items as $item) {
+    public function removeAll()
+    {
+        foreach ($this->items as $item) {
             $this->items->remove($item);
         }
     }
@@ -446,7 +473,8 @@ class ShoppingCart extends Controller {
      * Save the current products list and postage to a session.
      *
      */
-    public function save() {
+    public function save()
+    {
         Session::clear("Checkout.PostageID");
         
         // Extend our save operation
@@ -465,7 +493,7 @@ class ShoppingCart extends Controller {
         );
 
         // Update available postage
-        if($data = Session::get("Form.Form_PostageForm.data")) {
+        if ($data = Session::get("Form.Form_PostageForm.data")) {
             $country = $data["Country"];
             $code = $data["ZipCode"];
             $this->setAvailablePostage($country, $code);
@@ -477,7 +505,8 @@ class ShoppingCart extends Controller {
      * empty, as that retains the session.
      *
      */
-    public function clear() {
+    public function clear()
+    {
         Session::clear('Checkout.ShoppingCart.Items');
         Session::clear('Checkout.ShoppingCart.Discount');
         Session::clear("Checkout.PostageID");
@@ -489,7 +518,8 @@ class ShoppingCart extends Controller {
      * 
      * @return boolean
      */
-    public function ShowTax() {
+    public function ShowTax()
+    {
         return Checkout::config()->show_tax;
     }
 
@@ -498,12 +528,14 @@ class ShoppingCart extends Controller {
      *
      * @return Decimal
      */
-    public function getTotalWeight() {
+    public function getTotalWeight()
+    {
         $total = 0;
 
-        foreach($this->items as $item) {
-            if($item->Weight && $item->Quantity)
+        foreach ($this->items as $item) {
+            if ($item->Weight && $item->Quantity) {
                 $total = $total + ($item->Weight * $item->Quantity);
+            }
         }
         
         return $total;
@@ -514,10 +546,11 @@ class ShoppingCart extends Controller {
      *
      * @return Int
      */
-    public function getTotalItems() {        
+    public function getTotalItems()
+    {
         $total = 0;
         
-        foreach($this->items as $item) {
+        foreach ($this->items as $item) {
             $total += ($item->Quantity) ? $item->Quantity : 1;
         }
 
@@ -529,11 +562,14 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function getSubTotalCost() {
+    public function getSubTotalCost()
+    {
         $total = 0;
 
-        foreach($this->items as $item) {
-            if($item->SubTotal) $total += $item->SubTotal;
+        foreach ($this->items as $item) {
+            if ($item->SubTotal) {
+                $total += $item->SubTotal;
+            }
         }
         
         return $total;
@@ -544,10 +580,13 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function getPostageCost() {
+    public function getPostageCost()
+    {
         $total = 0;
         
-        if($this->postage) $total = $this->postage->Cost;
+        if ($this->postage) {
+            $total = $this->postage->Cost;
+        }
         
         return $total;
     }
@@ -557,19 +596,24 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function getDiscountAmount() {
+    public function getDiscountAmount()
+    {
         $total = 0;
         $discount = 0;
         
-        foreach($this->items as $item) {
-            if($item->Price)
+        foreach ($this->items as $item) {
+            if ($item->Price) {
                 $total += ($item->Price * $item->Quantity);
+            }
             
-            if($item->Discount)
+            if ($item->Discount) {
                 $discount += ($item->TotalDiscount);
+            }
         }
         
-        if($discount > $total) $discount = $total;
+        if ($discount > $total) {
+            $discount = $total;
+        }
 
         return $discount;
     }
@@ -580,15 +624,19 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function getTaxCost() {
+    public function getTaxCost()
+    {
         $total = 0;
 
-        foreach($this->items as $item) {            
-            if($item->TotalTax) $total += $item->TotalTax;
+        foreach ($this->items as $item) {
+            if ($item->TotalTax) {
+                $total += $item->TotalTax;
+            }
         }
 
-        if($this->postage && $this->postage->Cost && $this->postage->Tax)
+        if ($this->postage && $this->postage->Cost && $this->postage->Tax) {
             $total += ($this->postage->Cost / 100) * $this->postage->Tax;
+        }
         
         return $total;
     }
@@ -599,7 +647,8 @@ class ShoppingCart extends Controller {
      *
      * @return Currency
      */
-    public function getTotalCost() {
+    public function getTotalCost()
+    {
         $subtotal = $this->SubTotalCost;
         $discount = $this->DiscountAmount;
         $postage = $this->PostageCost;
@@ -615,11 +664,12 @@ class ShoppingCart extends Controller {
      *
      * @return Form
      */
-    public function CartForm() {
+    public function CartForm()
+    {
         $fields = new FieldList();
 
         $actions = new FieldList(
-            FormAction::create('doUpdate', _t('Checkout.UpdateCart','Update Cart'))
+            FormAction::create('doUpdate', _t('Checkout.UpdateCart', 'Update Cart'))
                 ->addExtraClass('btn')
                 ->addExtraClass('btn-blue')
         );
@@ -639,7 +689,8 @@ class ShoppingCart extends Controller {
      *
      * @return Form
      */
-    public function DiscountForm() {
+    public function DiscountForm()
+    {
         $fields = new FieldList(
             TextField::create(
                 "DiscountCode",
@@ -651,7 +702,7 @@ class ShoppingCart extends Controller {
         );
 
         $actions = new FieldList(
-            FormAction::create('doAddDiscount', _t('Checkout.Add','Add'))
+            FormAction::create('doAddDiscount', _t('Checkout.Add', 'Add'))
                 ->addExtraClass('btn')
                 ->addExtraClass('btn-blue')
         );
@@ -670,8 +721,9 @@ class ShoppingCart extends Controller {
      *
      * @return Form
      */
-    public function PostageForm() {
-        if(!Checkout::config()->simple_checkout) {
+    public function PostageForm()
+    {
+        if (!Checkout::config()->simple_checkout) {
             $available_postage = Session::get("Checkout.AvailablePostage");
             
             // Setup form
@@ -681,17 +733,17 @@ class ShoppingCart extends Controller {
                 $fields = new FieldList(
                     CountryDropdownField::create(
                         'Country',
-                        _t('Checkout.Country','Country')
+                        _t('Checkout.Country', 'Country')
                     ),
                     TextField::create(
                         "ZipCode",
-                        _t('Checkout.ZipCode',"Zip/Postal Code")
+                        _t('Checkout.ZipCode', "Zip/Postal Code")
                     )
                 ),
                 $actions = new FieldList(
                     FormAction::create(
                         "doSetPostage",
-                        _t('Checkout.Search',"Search")
+                        _t('Checkout.Search', "Search")
                     )->addExtraClass('btn')
                     ->addExtraClass('btn btn-green')
                 ),
@@ -706,11 +758,11 @@ class ShoppingCart extends Controller {
 
             // If we have stipulated a search, then see if we have any results
             // otherwise load empty fieldsets
-            if($available_postage && $available_postage->exists()) {
+            if ($available_postage && $available_postage->exists()) {
                 // Loop through all postage areas and generate a new list
                 $postage_array = array();
                 
-                foreach($available_postage as $area) {
+                foreach ($available_postage as $area) {
                     $area_currency = new Currency("Cost");
                     $area_currency->setValue($area->Cost);
                     $postage_array[$area->ID] = $area->Title . " (" . $area_currency->Nice() . ")";
@@ -718,23 +770,27 @@ class ShoppingCart extends Controller {
 
                 $fields->add(OptionsetField::create(
                     "PostageID",
-                    _t('Checkout.SelectPostage',"Select Postage"),
+                    _t('Checkout.SelectPostage', "Select Postage"),
                     $postage_array
                 ));
 
                 $actions
                     ->dataFieldByName("action_doSetPostage")
-                    ->setTitle(_t('Checkout.Update',"Update"));
+                    ->setTitle(_t('Checkout.Update', "Update"));
             }
 
             // Check if the form has been re-posted and load data
             $data = Session::get("Form.{$form->FormName()}.data");
-            if(is_array($data)) $form->loadDataFrom($data);
+            if (is_array($data)) {
+                $form->loadDataFrom($data);
+            }
 
             // Check if the postage area has been set, if so, Set Postage ID
             $data = array();
             $data["PostageID"] = Session::get("Checkout.PostageID");
-            if(is_array($data)) $form->loadDataFrom($data);
+            if (is_array($data)) {
+                $form->loadDataFrom($data);
+            }
 
             // Extension call
             $this->extend("updatePostageForm", $form);
@@ -749,14 +805,15 @@ class ShoppingCart extends Controller {
      * @param type $data
      * @param type $form
      */
-    public function doUpdate($data, $form) {
-        foreach($this->items as $cart_item) {
-            foreach($data as $key => $value) {
+    public function doUpdate($data, $form)
+    {
+        foreach ($this->items as $cart_item) {
+            foreach ($data as $key => $value) {
                 $sliced_key = explode("_", $key);
-                if($sliced_key[0] == "Quantity") {
-                    if(isset($cart_item) && ($cart_item->Key == $sliced_key[1])) {
+                if ($sliced_key[0] == "Quantity") {
+                    if (isset($cart_item) && ($cart_item->Key == $sliced_key[1])) {
                         try {
-                            if($value > 0) {
+                            if ($value > 0) {
                                 $this->update($cart_item->Key, $value);
                                 
                                 $this->setSessionMessage(
@@ -771,12 +828,12 @@ class ShoppingCart extends Controller {
                                     _t("Checkout.EmptiedShoppingCart", "Shopping cart emptied")
                                 );
                             }
-                        } catch(ValidationException $e) {
+                        } catch (ValidationException $e) {
                             $this->setSessionMessage(
                                 "bad",
                                 $e->getMessage()
                             );
-                        } catch(Exception $e) {
+                        } catch (Exception $e) {
                             $this->setSessionMessage(
                                 "bad",
                                 $e->getMessage()
@@ -798,18 +855,21 @@ class ShoppingCart extends Controller {
      * @param type $data
      * @param type $form
      */
-    public function doAddDiscount($data, $form) {
+    public function doAddDiscount($data, $form)
+    {
         $code_to_search = $data['DiscountCode'];
 
         // First check if the discount is already added (so we don't
         // query the DB if we don't have to).
-        if(!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
+        if (!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
             $code = Discount::get()
                 ->filter("Code", $code_to_search)
                 ->exclude("Expires:LessThan", date("Y-m-d"))
                 ->first();
 
-            if($code) $this->discount = $code;
+            if ($code) {
+                $this->discount = $code;
+            }
         }
 
         $this->save();
@@ -824,7 +884,8 @@ class ShoppingCart extends Controller {
      * @param $data
      * @param $form
      */
-    public function doSetPostage($data, $form) {
+    public function doSetPostage($data, $form)
+    {
         $country = $data["Country"];
         $code = $data["ZipCode"];
 
@@ -833,20 +894,21 @@ class ShoppingCart extends Controller {
         $postage = Session::get("Checkout.AvailablePostage");
 
         // Check that postage is set, if not, see if we can set a default
-        if(array_key_exists("PostageID", $data) && $data["PostageID"]) {
+        if (array_key_exists("PostageID", $data) && $data["PostageID"]) {
             
             // First is the current postage ID in the list of postage
             // areas
-            if($postage && $postage->exists() && $postage->find("ID", $data["PostageID"]))
+            if ($postage && $postage->exists() && $postage->find("ID", $data["PostageID"])) {
                 $id = $data["PostageID"];
-            else
+            } else {
                 $id = $postage->first()->ID;
+            }
                 
             $data["PostageID"] = $id;
             Session::set("Checkout.PostageID", $id);
         } else {
             // Finally set the default postage
-            if($postage && $postage->exists()) {
+            if ($postage && $postage->exists()) {
                 $data["PostageID"] = $postage->first()->ID;
                 Session::set("Checkout.PostageID", $postage->first()->ID);
             }
@@ -855,10 +917,8 @@ class ShoppingCart extends Controller {
         // Set the form pre-populate data before redirecting
         Session::set("Form.{$form->FormName()}.data", $data);
         
-        $url = Controller::join_links($this->Link(),"#{$form->FormName()}");
+        $url = Controller::join_links($this->Link(), "#{$form->FormName()}");
 
         return $this->redirect($url);
     }
 }
-
-

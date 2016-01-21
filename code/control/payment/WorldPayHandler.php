@@ -1,9 +1,10 @@
 <?php
 
-class WorldPayHandler extends PaymentHandler {
+class WorldPayHandler extends PaymentHandler
+{
 
-    public function index($request) {
-        
+    public function index($request)
+    {
         $this->extend('onBeforeIndex');
         
         // Setup payment gateway form
@@ -11,10 +12,11 @@ class WorldPayHandler extends PaymentHandler {
         $cart = ShoppingCart::get();
         
         // Setup the gateway URL
-        if(Director::isDev())
+        if (Director::isDev()) {
             $gateway_url = "https://secure-test.worldpay.com/wcc/purchase";
-        else
+        } else {
             $gateway_url = "https://secure.worldpay.com/wcc/purchase ";
+        }
 
         $callback_url = Controller::join_links(
             Director::absoluteBaseURL(),
@@ -36,7 +38,7 @@ class WorldPayHandler extends PaymentHandler {
             HiddenField::create('MC_callback', null, $callback_url),
 
             // Amount and Currency details
-            HiddenField::create('amount', null, number_format($cart->TotalCost,2)),
+            HiddenField::create('amount', null, number_format($cart->TotalCost, 2)),
             HiddenField::create('currency', null, Checkout::config()->currency_code),
 
             // Payee details
@@ -54,11 +56,11 @@ class WorldPayHandler extends PaymentHandler {
         // Create a string of items ordered (to manage the order via WorldPay)
         $desc_string = "";
         
-        foreach($cart->getItems() as $item) {
+        foreach ($cart->getItems() as $item) {
             $desc_string .= $item->Title . ' x ' . $item->Quantity . ', ';
         }
         
-        if(!Checkout::config()->simple_checkout && !$cart->isCollection()) {
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection()) {
             // Add postage type to description
             $desc_string .= _t("Checkout.Postage", "Postage") . ': ' . $order->PostageType . '; ';
             
@@ -75,24 +77,25 @@ class WorldPayHandler extends PaymentHandler {
 
         $fields->add(HiddenField::create('desc', null, $desc_string));
 
-        if(Director::isDev())
+        if (Director::isDev()) {
             $fields->add(HiddenField::create('testMode', null, '100'));
+        }
 
         $actions = FieldList::create(
-            LiteralField::create('BackButton','<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back','Back') . '</a>'),
-            FormAction::create('Submit', _t('Checkout.ConfirmPay','Confirm and Pay'))
+            LiteralField::create('BackButton', '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back', 'Back') . '</a>'),
+            FormAction::create('Submit', _t('Checkout.ConfirmPay', 'Confirm and Pay'))
                 ->addExtraClass('btn')
                 ->addExtraClass('btn-green')
         );
 
-        $form = Form::create($this,'Form',$fields,$actions)
+        $form = Form::create($this, 'Form', $fields, $actions)
             ->addExtraClass('forms')
             ->setFormMethod('POST')
             ->setFormAction($gateway_url);
         
         $this->customise(array(
-            "Title"     => _t('Checkout.Summary',"Summary"),
-            "MetaTitle" => _t('Checkout.Summary',"Summary"),
+            "Title"     => _t('Checkout.Summary', "Summary"),
+            "MetaTitle" => _t('Checkout.Summary', "Summary"),
             "Form"      => $form,
             "Order"     => $order
         ));
@@ -110,8 +113,8 @@ class WorldPayHandler extends PaymentHandler {
     /**
      * Retrieve and process order data from the request
      */
-    public function callback($request) {
-        
+    public function callback($request)
+    {
         $this->extend('onBeforeCallback');
         
         $data = $this->request->postVars();
@@ -138,7 +141,7 @@ class WorldPayHandler extends PaymentHandler {
         );
 
         // Check if CallBack data exists and install id matches the saved ID
-        if(
+        if (
             isset($data) && // Data and order are set
             (isset($data['instId']) && isset($data['cartId']) && isset($data['transStatus']) && isset($data["callbackPW"])) && // check required
             $this->payment_gateway->InstallID == $data['instId'] && // The current install ID matches the postback ID
@@ -148,14 +151,15 @@ class WorldPayHandler extends PaymentHandler {
             $payment_id = $data['transId'];
             $status = $data['transStatus'];
 
-            if($data['transStatus'] == 'Y') {
+            if ($data['transStatus'] == 'Y') {
                 $status = 'paid';
                 $vars["RedirectURL"] = $success_url;
             } else {
                 $status = 'failed';
             }
-        } else
+        } else {
             return $this->httpError(500);
+        }
         
         $payment_data = ArrayData::array_to_object(array(
             "OrderID" => $order_id,
@@ -173,5 +177,4 @@ class WorldPayHandler extends PaymentHandler {
         
         return $this->renderWith(array("Worldpay_callback"));
     }
-
 }

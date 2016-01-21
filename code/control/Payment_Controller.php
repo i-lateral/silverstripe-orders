@@ -7,7 +7,8 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package checkout
  */
-class Payment_Controller extends Controller {
+class Payment_Controller extends Controller
+{
 
     /**
      * URL Used to generate links to this controller.
@@ -35,15 +36,15 @@ class Payment_Controller extends Controller {
         "complete"
     );
 
-	/**
-	 * Set up the "restful" URLs
-	 *
-	 * @config
-	 * @var array
-	 */
-	private static $url_handlers = array(
-		'$Action/$ID' => 'handleAction',
-	);
+    /**
+     * Set up the "restful" URLs
+     *
+     * @config
+     * @var array
+     */
+    private static $url_handlers = array(
+        '$Action/$ID' => 'handleAction',
+    );
     
     /**
      * Name of the payment handler we are using
@@ -52,11 +53,13 @@ class Payment_Controller extends Controller {
      */
     protected $payment_handler;
 
-    public function getPaymentHandler() {
+    public function getPaymentHandler()
+    {
         return $this->payment_handler;
     }
 
-    public function setPaymentHandler($handler) {
+    public function setPaymentHandler($handler)
+    {
         $this->payment_handler = $handler;
         return $this;
     }
@@ -68,16 +71,19 @@ class Payment_Controller extends Controller {
      */
     protected $payment_method;
 
-    public function getPaymentMethod() {
+    public function getPaymentMethod()
+    {
         return $this->payment_method;
     }
 
-    public function setPaymentMethod($method) {
+    public function setPaymentMethod($method)
+    {
         $this->payment_method = $method;
         return $this;
     }
     
-    public function getClassName() {
+    public function getClassName()
+    {
         return self::config()->class_name;
     }
     
@@ -87,7 +93,8 @@ class Payment_Controller extends Controller {
      * 
      * @return boolean
      */
-    public function ShowTax() {
+    public function ShowTax()
+    {
         return Checkout::config()->show_tax;
     }
         
@@ -96,7 +103,8 @@ class Payment_Controller extends Controller {
      * 
      * @return string
      */
-    public function Link($action = null) {
+    public function Link($action = null)
+    {
         return Controller::join_links(
             Director::BaseURL(),
             $this->config()->url_segment,
@@ -104,18 +112,21 @@ class Payment_Controller extends Controller {
         );
     }
 
-    public function init() {
+    public function init()
+    {
         parent::init();
 
         // Check if payment ID set and corresponds 
-        if($this->request->param('ID') && $method = PaymentMethod::get()->byID($this->request->param('ID')))
+        if ($this->request->param('ID') && $method = PaymentMethod::get()->byID($this->request->param('ID'))) {
             $this->payment_method = $method;
+        }
         // Then check session
-        elseif($method = PaymentMethod::get()->byID(Session::get('Checkout.PaymentMethodID')))
+        elseif ($method = PaymentMethod::get()->byID(Session::get('Checkout.PaymentMethodID'))) {
             $this->payment_method = $method;
+        }
 
         // Setup payment handler
-        if($this->payment_method && $this->payment_method !== null) {
+        if ($this->payment_method && $this->payment_method !== null) {
             $handler = $this->payment_method->ClassName;
             $handler = $handler::$handler;
 
@@ -136,22 +147,24 @@ class Payment_Controller extends Controller {
      *
      * @param $request Current request object
      */
-    public function index($request) {
+    public function index($request)
+    {
         $cart = ShoppingCart::get();
         $data = array();
         $payment_data = array();
         $handler = $this->payment_handler;
 
         // If shopping cart doesn't exist, redirect to base
-        if(!$cart->getItems()->exists() || $this->getPaymentHandler() === null)
+        if (!$cart->getItems()->exists() || $this->getPaymentHandler() === null) {
             return $this->redirect($cart->Link());
+        }
 
         // Get billing and delivery details and merge into an array
         $billing_data = Session::get("Checkout.BillingDetailsForm.data");
         $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
         
         // If we have applied free shipping, set that up, else get 
-        if(Session::get('Checkout.PostageID') == -1) {
+        if (Session::get('Checkout.PostageID') == -1) {
             $postage = Checkout::CreateFreePostageObject();
         } else {
             $postage = PostageArea::get()->byID(Session::get('Checkout.PostageID'));
@@ -159,11 +172,13 @@ class Payment_Controller extends Controller {
         
         // If we are using a complex checkout and do not have correct
         // details redirect 
-        if(!Checkout::config()->simple_checkout && !$cart->isCollection() && (!$postage || !$billing_data || !$delivery_data))
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && (!$postage || !$billing_data || !$delivery_data)) {
             return $this->redirect(Checkout_Controller::create()->Link());
+        }
             
-        if($cart->isCollection() && (!$billing_data))
+        if ($cart->isCollection() && (!$billing_data)) {
             return $this->redirect(Checkout_Controller::create()->Link());
+        }
 
         // Create an order number
         $data["OrderNumber"] = substr(chunk_split(Checkout::getRandomNumber(), 4, '-'), 0, -1);
@@ -175,34 +190,35 @@ class Payment_Controller extends Controller {
         $data['Status'] = 'incomplete';
 
         // Assign billing, delivery and postage data
-        if(!Checkout::config()->simple_checkout) {
+        if (!Checkout::config()->simple_checkout) {
             $data = array_merge($data, $billing_data);
             $data = (is_array($delivery_data)) ? array_merge($data, $delivery_data) : $data;
             $checkout_data = Checkout::config()->checkout_data;
             
-            if(!$cart->isCollection()) {
+            if (!$cart->isCollection()) {
                 $data['PostageType'] = $postage->Title;
                 $data['PostageCost'] = $postage->Cost;
                 $data['PostageTax'] = ($postage->Tax) ? ($postage->Cost / 100) * $postage->Tax : 0;
             }
             
-            if($cart->getDiscount()) {
+            if ($cart->getDiscount()) {
                 $data['Discount'] = $cart->getDiscount()->Title;
                 $data['DiscountAmount'] = $cart->DiscountAmount;
             }
             
             // Add full country names if needed
-            if(in_array("CountryFull",$checkout_data)) {
+            if (in_array("CountryFull", $checkout_data)) {
                 $data['CountryFull'] = Checkout::country_name_from_code($data["Country"]);
             }
             
-            if(in_array("DeliveryCountryFull",$checkout_data) && array_key_exists("DeliveryCountry", $data)) {
+            if (in_array("DeliveryCountryFull", $checkout_data) && array_key_exists("DeliveryCountry", $data)) {
                 $data['DeliveryCountryFull'] = Checkout::country_name_from_code($data["DeliveryCountry"]);
             }
             
-            foreach($checkout_data as $key) {
-                if(array_key_exists($key,$data))
+            foreach ($checkout_data as $key) {
+                if (array_key_exists($key, $data)) {
                     $payment_data[$key] = $data[$key];
+                }
             }
         }
         
@@ -222,9 +238,10 @@ class Payment_Controller extends Controller {
      * 
      * @param $request Current Request Object
      */
-    public function callback($request) {
+    public function callback($request)
+    {
         // If post data exists, process. Otherwise provide error
-        if($this->payment_handler === null) {
+        if ($this->payment_handler === null) {
             // Redirect to error page
             return $this->redirect(Controller::join_links(
                 Director::BaseURL(),
@@ -245,15 +262,17 @@ class Payment_Controller extends Controller {
      *
      * @return String
      */
-    public function complete() {
+    public function complete()
+    {
         $site = SiteConfig::current_site_config();
 
         $id = $this->request->param('ID');
 
-        if($id == "error")
+        if ($id == "error") {
             $return = $this->error_data();
-        else
+        } else {
             $return = $this->success_data();
+        }
             
         $this->customise($return);
         
@@ -262,7 +281,7 @@ class Payment_Controller extends Controller {
         $this->extend("onBeforeComplete");
 
         // Clear our session data
-        if(isset($_SESSION)) {
+        if (isset($_SESSION)) {
             ShoppingCart::get()->clear();
             unset($_SESSION['Checkout.PostageID']);
             unset($_SESSION['Checkout.PaymentMethod']);
@@ -281,11 +300,12 @@ class Payment_Controller extends Controller {
      *
      * @return array
      */
-    public function success_data() {
+    public function success_data()
+    {
         $site = SiteConfig::current_site_config();
 
         return array(
-            'Title' => _t('Checkout.ThankYouForOrder','Thank you for your order'),
+            'Title' => _t('Checkout.ThankYouForOrder', 'Thank you for your order'),
             'Content' => ($site->SuccessCopy) ? nl2br(Convert::raw2xml($site->SuccessCopy), true) : false
         );
     }
@@ -295,11 +315,12 @@ class Payment_Controller extends Controller {
      *
      * @return array
      */
-    public function error_data() {
+    public function error_data()
+    {
         $site = SiteConfig::current_site_config();
 
         return array(
-            'Title'     => _t('Checkout.OrderProblem','There was a problem with your order'),
+            'Title'     => _t('Checkout.OrderProblem', 'There was a problem with your order'),
             'Content'   => ($site->FailerCopy) ? nl2br(Convert::raw2xml($site->FailerCopy), true) : false
         );
     }
