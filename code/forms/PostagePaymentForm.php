@@ -59,10 +59,7 @@ class PostagePaymentForm extends Form
             $postage_field = CompositeField::create(
                 HeaderField::create("PostageHeader", _t('Checkout.Postage', "Postage")),
                 $select_postage_field
-            )->setName("PostageFields")
-            ->addExtraClass("unit")
-            ->addExtraClass("size1of2")
-            ->addExtraClass("unit-50");
+            )->setName("PostageFields");
         } elseif (ShoppingCart::get()->isCollection()) {
             $postage_field = CompositeField::create(
                 HeaderField::create("PostageHeader", _t('Checkout.CollectionOnly', "Collection Only")),
@@ -71,10 +68,7 @@ class PostagePaymentForm extends Form
                     "",
                     _t("Checkout.ItemsReservedInstore", "Your items will be held instore until you collect them")
                 )
-            )->setName("CollectionFields")
-            ->addExtraClass("unit")
-            ->addExtraClass("size1of2")
-            ->addExtraClass("unit-50");
+            )->setName("CollectionFields");
         } else {
             $postage_field = null;
         }
@@ -107,33 +101,20 @@ class PostagePaymentForm extends Form
         $payment_field = CompositeField::create(
             HeaderField::create('PaymentHeading', _t('Checkout.Payment', 'Payment'), 2),
             $payment_field
-        )->setName("PaymentFields")
-        ->addExtraClass("unit")
-        ->addExtraClass("size1of2")
-        ->addExtraClass("unit-50");
+        )->setName("PaymentFields");
 
         $fields = FieldList::create(
             CompositeField::create(
                 $postage_field,
                 $payment_field
             )->setName("PostagePaymentFields")
-            ->addExtraClass("units-row")
-            ->addExtraClass("line")
+            ->setColumnCount(2)
         );
 
-        $back_url = $controller->Link("billing");
-        
         if ($payment_methods->exists()) {
             $actions = FieldList::create(
-                LiteralField::create(
-                    'BackButton',
-                    '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back', 'Back') . '</a>'
-                ),
-
                 FormAction::create('doContinue', _t('Checkout.PaymentDetails', 'Enter Payment Details'))
-                    ->addExtraClass('btn')
                     ->addExtraClass('checkout-action-next')
-                    ->addExtraClass('btn-green')
             );
         } else {
             $actions = FieldList::create();
@@ -145,7 +126,13 @@ class PostagePaymentForm extends Form
         ));
 
         parent::__construct($controller, $name, $fields, $actions, $validator);
+        
+        $this->setTemplate($this->ClassName);
     }
+    
+    public function getBackURL() {
+        return $this->controller->Link("billing");
+    } 
 
     public function doContinue($data)
     {

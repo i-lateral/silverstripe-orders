@@ -20,10 +20,7 @@ class BillingDetailsForm extends Form
                 ->setRightTitle(_t("Checkout.Optional", "Optional")),
             EmailField::create('Email', _t('Checkout.Email', 'Email')),
             TextField::create('PhoneNumber', _t('Checkout.Phone', 'Phone Number'))
-        )->setName("PersonalFields")
-        ->addExtraClass('unit')
-        ->addExtraClass('size1of2')
-        ->addExtraClass('unit-50');
+        )->setName("PersonalFields");
 
         $address_fields = CompositeField::create(
             HeaderField::create(
@@ -42,19 +39,15 @@ class BillingDetailsForm extends Form
                 null,
                 'GB'
             )
-        )->setName("AddressFields")
-        ->addExtraClass('unit')
-        ->addExtraClass('size1of2')
-        ->addExtraClass('unit-50');
+        )->setName("AddressFields");
 
         $fields= FieldList::create(
             // Add default fields
-            CompositeField::create(
+            $billing_fields = CompositeField::create(
                 $personal_fields,
                 $address_fields
             )->setName("BillingFields")
-            ->addExtraClass('line')
-            ->addExtraClass('units-row')
+            ->setColumnCount(2)
         );
 
         // Add a save address for later checkbox if a user is logged in
@@ -71,37 +64,22 @@ class BillingDetailsForm extends Form
             );
         }
 
-        $back_url = Controller::join_links(
-            BASE_URL,
-            ShoppingCart::config()->url_segment
-        );
-
-        $actions = FieldList::create(
-            LiteralField::create(
-                'BackButton',
-                '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back', 'Back') . '</a>'
-            )
-        );
+        $actions = FieldList::create();
         
-        if (ShoppingCart::get()->isCollection()) {
+        if(ShoppingCart::get()->isCollection()) {
             $actions->add(
                 FormAction::create('doSetDelivery', _t('Checkout.UseTheseDetails', 'Use these details'))
-                    ->addExtraClass('btn')
-                    ->addExtraClass('btn-green')
                     ->addExtraClass('checkout-action-next')
             );
         } else {
             $actions->add(
                 FormAction::create('doSetDelivery', _t('Checkout.SetDeliveryAddress', 'Deliver to another address'))
-                    ->addExtraClass('btn')
                     ->addExtraClass('checkout-action-next')
             );
             
             $actions->add(
                 FormAction::create('doContinue', _t('Checkout.DeliverThisAddress', 'Deliver to this address'))
-                    ->addExtraClass('btn')
                     ->addExtraClass('checkout-action-next')
-                    ->addExtraClass('btn-green')
             );
         }
 
@@ -117,6 +95,20 @@ class BillingDetailsForm extends Form
         );
 
         parent::__construct($controller, $name, $fields, $actions, $validator);
+        
+        $this->setTemplate($this->ClassName);
+    }
+    
+    public function getShoppingCart() {
+        return ShoppingCart::get();
+    }
+    
+    public function getBackURL()
+    {
+        return Controller::join_links(
+            BASE_URL,
+            ShoppingCart::config()->url_segment
+        );
     }
 
     /**

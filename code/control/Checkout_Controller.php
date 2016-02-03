@@ -319,10 +319,7 @@ class Checkout_Controller extends Controller
      */
     public function BillingForm()
     {
-        $form = BillingDetailsForm::create($this, 'BillingForm')
-            ->addExtraClass('forms')
-            ->addExtraClass('columnar')
-            ->addExtraClass('row');
+        $form = BillingDetailsForm::create($this, 'BillingForm');
 
         $data = Session::get("Checkout.BillingDetailsForm.data");
         if (is_array($data)) {

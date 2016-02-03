@@ -19,10 +19,7 @@ class DeliveryDetailsForm extends Form
                 ->setRightTitle(_t("Checkout.Optional", "Optional")),
             TextField::create('DeliveryFirstnames', _t('Checkout.FirstName', 'First Name(s)')),
             TextField::create('DeliverySurname', _t('Checkout.Surname', 'Surname'))
-        )->setName("PersonalFields")
-        ->addExtraClass('unit')
-        ->addExtraClass('size1of2')
-        ->addExtraClass('unit-50');
+        )->setName("PersonalFields");
 
         $address_fields = CompositeField::create(
             HeaderField::create(
@@ -39,18 +36,14 @@ class DeliveryDetailsForm extends Form
                 'DeliveryCountry',
                 _t('Checkout.Country', 'Country')
             )
-        )->setName("AddressFields")
-        ->addExtraClass('unit')
-        ->addExtraClass('size1of2')
-        ->addExtraClass('unit-50');
+        )->setName("AddressFields");
 
         $fields= FieldList::create(
             CompositeField::create(
                 $personal_fields,
                 $address_fields
             )->setName("DeliveryFields")
-            ->addExtraClass('line')
-            ->addExtraClass('units-row')
+            ->setColumnCount(2)
         );
 
         // Add a save address for later checkbox if a user is logged in
@@ -58,29 +51,16 @@ class DeliveryDetailsForm extends Form
             $member = Member::currentUser();
 
             $fields->add(
-                CompositeField::create(
-                    CheckboxField::create(
-                        "SaveAddress",
-                        _t('Checkout.SaveAddress', 'Save this address for later')
-                    )
-                )->setName("SaveAddressHolder")
-                ->addExtraClass('line')
-                ->addExtraClass('units-row')
+                CheckboxField::create(
+                    "SaveAddress",
+                    _t('Checkout.SaveAddress', 'Save this address for later')
+                )
             );
         }
 
-        $back_url = $controller->Link();
-
         $actions = FieldList::create(
-            LiteralField::create(
-                'BackButton',
-                '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back', 'Back') . '</a>'
-            ),
-
             FormAction::create('doContinue', _t('Checkout.PostageDetails', 'Select Postage'))
-                ->addExtraClass('btn')
                 ->addExtraClass('checkout-action-next')
-                ->addExtraClass('btn-green')
         );
 
         $validator = new RequiredFields(
@@ -93,6 +73,13 @@ class DeliveryDetailsForm extends Form
         );
 
         parent::__construct($controller, $name, $fields, $actions, $validator);
+        
+        $this->setTemplate($this->ClassName);
+    }
+    
+    public function getBackURL()
+    {
+        return $this->controller->Link();
     }
 
     public function doContinue($data)
