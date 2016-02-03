@@ -1,5 +1,5 @@
 <% if $IncludeFormTag %>
-<form $addExtraClass('forms columnar row').AttributesHTML>
+<form $addExtraClass('forms columnar').AttributesHTML>
 <% end_if %>
 
     <% if $Message %>
@@ -11,9 +11,7 @@
     <fieldset>
         <% if $Legend %><legend>$Legend</legend><% end_if %>
 
-        <div class="Fields">
-            $Fields.dataFieldByName(SecurityID)
-            
+        <div class="Fields row units-row line">
             <% with $Fields.fieldByName("DeliveryFields") %>
                 <$Tag class="CompositeField line row units-row $extraClass <% if ColumnCount %>multicolumn<% end_if %>">
                     <% if $Tag == 'fieldset' && $Legend %>
@@ -22,7 +20,7 @@
                     
                     <% loop $FieldList %>
                         <% if $Up.ColumnCount %>
-                            <div class="column-{$Up.ColumnCount} <% if $Up.ColumnCount == 2 %>unit-50 col-sm-6<% else_if $Up.ColumnCount == 3 %>unit-33 col-sm-4<% end_if %> $FirstLast">
+                            <div class="column-{$Up.ColumnCount} unit <% if $Up.ColumnCount == 2 %>unit-50 half size1of2 col-sm-6<% else_if $Up.ColumnCount == 3 %>unit-33 third size1of3 col-sm-4<% end_if %> $FirstLast">
                                 $FieldHolder
                             </div>
                         <% else %>
@@ -33,6 +31,12 @@
                     <% if $Description %><span class="description">$Description</span><% end_if %>
                 </$Tag>
             <% end_with %>
+            
+            <div class="line row units-row">
+                $Fields.fieldByName("SaveAddressHolder").FieldHolder
+            </div>
+            
+            $Fields.dataFieldByName("SecurityID")
         </div>
 
         <div class="clear"><!-- --></div>

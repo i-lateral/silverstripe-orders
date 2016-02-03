@@ -51,10 +51,12 @@ class DeliveryDetailsForm extends Form
             $member = Member::currentUser();
 
             $fields->add(
-                CheckboxField::create(
-                    "SaveAddress",
-                    _t('Checkout.SaveAddress', 'Save this address for later')
-                )
+                CompositeField::create(
+                    CheckboxField::create(
+                        "SaveAddress",
+                        _t('Checkout.SaveAddress', 'Save this address for later')
+                    )
+                )->setName("SaveAddressHolder")
             );
         }
 

@@ -59,8 +59,6 @@ class BillingDetailsForm extends Form
                         _t('Checkout.SaveAddress', 'Save this address for later')
                     )
                 )->setName("SaveAddressHolder")
-                ->addExtraClass('line')
-                ->addExtraClass('units-row')
             );
         }
 
