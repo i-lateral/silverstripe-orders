@@ -338,10 +338,7 @@ class Checkout_Controller extends Controller
      */
     public function DeliveryForm()
     {
-        $form = DeliveryDetailsForm::create($this, 'DeliveryForm')
-            ->addExtraClass('forms')
-            ->addExtraClass('columnar')
-            ->addExtraClass('row');
+        $form = DeliveryDetailsForm::create($this, 'DeliveryForm');
 
         $data = Session::get("Checkout.DeliveryDetailsForm.data");
         if (is_array($data)) {
@@ -360,8 +357,7 @@ class Checkout_Controller extends Controller
      */
     public function PostagePaymentForm()
     {
-        $form = PostagePaymentForm::create($this, "PostagePaymentForm")
-            ->addExtraClass("forms");
+        $form = PostagePaymentForm::create($this, "PostagePaymentForm");
 
         $this->extend("updatePostagePaymentForm", $form);
 
