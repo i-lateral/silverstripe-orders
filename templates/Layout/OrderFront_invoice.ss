@@ -1,9 +1,9 @@
-<div class="content-container typography">
-    <div class="units-row">
-        <div class="unit-66">
+<div class="content-container container typography">
+    <div class="units-row row">
+        <div class="unit-66 col-xs-12 col-sm-8">
             &nbsp;
         </div>
-        <div class="unit-33 unit-push-right">
+        <div class="unit-33 col-xs-12 col-sm-4 unit-push-right">
             $SiteConfig.OrdersHeader
         </div>
     </div>
@@ -13,8 +13,8 @@
     <hr/>
 
     <% with $Object %>
-        <div class="units-row end">
-            <div class="unit-66">
+        <div class="units-row row end">
+            <div class="unit-66 col-xs-12 col-sm-8">
                 <p>
                     $FirstName $Surname<br/>
                     <% if $Company %>$Company<br/><% end_if %>
@@ -26,7 +26,7 @@
                 </p>
             </div>
 
-            <div class="unit-33">
+            <div class="unit-33 col-xs-12 col-sm-4">
                 <table class="width-100">
                     <tbody>
                         <tr>
@@ -72,11 +72,11 @@
             </tbody>
         </table>
         <hr />
-        <div class="units-row">
-            <div class="unit-33">
+        <div class="units-row row">
+            <div class="unit-33 col-xs-12 col-sm-4">
 				$Up.SiteConfig.InvoiceFooter
 			</div>
-            <div class="unit-33 unit-push-right">
+            <div class="unit-33 col-xs-12 col-sm-4 col-sm-offset-4 unit-push-right">
                 <table class="width-100">
                     <tbody>
                         <tr>

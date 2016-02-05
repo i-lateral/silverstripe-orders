@@ -1,11 +1,11 @@
-<div class="units-row users-account line">
+<div class="units-row row users-account line">
     <% include Users_Profile_SideBar %>
 
-    <div class="content-container typography unit-75">
+    <div class="content-container typography unit-75 col-xs-12 col-sm-9">
         <% if $Order %><% with $Order %>
             <h1><%t Orders.Order "Order" %>: $OrderNumber</h1>
-            <div class="units-row-end">
-                <p class="unit-50">
+            <div class="units-row-end row">
+                <p class="unit-50 col-xs-12 col-sm-6">
                     <strong><%t Orders.Date "Date" %>:</strong> $Created.Nice <br/>
                     <strong><%t Orders.Status "Status" %>:</strong> $TranslatedStatus<br/>
                     <strong><%t Orders.FirstNames "First Name(s)" %>:</strong> $FirstName <br/>
@@ -14,7 +14,7 @@
                     <strong><%t Orders.PhoneNumber "Phone Number" %>:</strong> $PhoneNumber <br/>
                 </p>
 
-                <p class="unit-50">
+                <p class="unit-50 col-xs-12 col-sm-6">
                     <strong><%t Orders.DeliveryDetails "Delivery Details" %></strong><br/>
                     <% if $DeliveryCompany %>
 						<strong><%t Orders.Company "Company" %>:</strong> $DeliveryCompany <br/>
