@@ -37,8 +37,8 @@
     <hr/>
     
     <% with $Order %>
-        <div class="checkout-payment-summary units-row line">
-            <div class="unit-50 unit size1of2">
+        <div class="checkout-payment-summary units-row row line">
+            <div class="unit-50 unit size1of2 col-xs-12 col-sm-6">
                 <h2><%t Checkout.BillingDetails "Billing Details" %></h2>
                 <p>
                     <% if $Company %>
@@ -56,7 +56,7 @@
                 </p>
             </div>
 
-            <div class="unit-50 unit size1of2">
+            <div class="unit-50 unit size1of2 col-xs-12 col-sm-6">
                 <h2><%t Checkout.DeliveryDetails "Delivery Details" %></h2>
                 <% if $Top.ShoppingCart.isCollection %>
                     <p><%t Checkout.ItemsReservedInstore "Your items will be held instore until you collect them" %></p>

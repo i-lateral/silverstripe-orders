@@ -1,13 +1,13 @@
-<div class="units-row users-account line">
+<div class="units-row row users-account line">
     <% include Users_Profile_SideBar %>
 
-    <div class="content-container typography checkout-account unit-75 unit size3of4 lastUnit">
+    <div class="content-container typography checkout-account unit-75 unit size3of4 lastUnit col-xs-12 col-md-8">
         <h1><%t Checkout.YourAddresses "Your Addresses" %></h1>
 
         <% with $CurrentMember %>
-            <div class="units-row line">
+            <div class="units-row row line">
                 <% loop $Addresses %>
-                    <div class="unit-33 unit size1of3<% if $MultipleOf(3) %> lastUnit<% end_if %>">
+                    <div class="unit-33 col-xs-12 col-sm-4 unit size1of3<% if $MultipleOf(3) %> lastUnit<% end_if %>">
                         <p>
                             <strong>$FirstName $Surname</strong><br/>
                             $Address1<br/>
@@ -26,7 +26,7 @@
                             </a>
                         </p>
                     </div>
-                    <% if MultipleOf(3) %></div><div class="units-row line"><% end_if %>
+                    <% if MultipleOf(3) %></div><div class="units-row row line"><% end_if %>
                 <% end_loop %>
             </div>
 

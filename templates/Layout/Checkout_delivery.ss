@@ -8,7 +8,7 @@
 
         <div class="units-row line">
             <% loop $CurrentMember.Addresses %>
-                <div class="unit size1of4 unit-25">
+                <div class="unit size1of4 unit-25 col-xs-12 col-md-3">
                     <h3>$FirstName $Surname</h3>
                     <p>
                         $Address1<br/>

@@ -12,8 +12,8 @@ $SessionMessage
 
         <hr/>
 
-        <div class="units-row line">
-            <div class="unit-66 unit size2of3">
+        <div class="units-row row line">
+            <div class="unit-66 unit size2of3 col-xs-12 col-md-8">
                 <% if $Discount || $ShowDiscountForm %>
                     <div class="checkout-cart-discounts line units-row end">
                         <% if $Discount %>
@@ -31,9 +31,9 @@ $SessionMessage
                     <hr/>
                 <% end_if %>
 
-                <div class="units-row line">
+                <div class="units-row row line">
                     <% if Checkout.ClickAndCollect %>
-                        <div class="unit-50 size10f2 checkout-cart-clickandcollect">
+                        <div class="unit-50 size10f2 col-xs-12 col-sm-6 checkout-cart-clickandcollect">
                             <h3>
                                 <%t Checkout.RecieveGoods "How would you like to recieve your goods?" %>
                             </h3>
@@ -51,7 +51,7 @@ $SessionMessage
                     <% end_if %>
                     
                     <% if $PostageForm && not $isCollection %>
-                        <div class="unit-50 size10f2 checkout-cart-postage">
+                        <div class="unit-50 size10f2 col-xs-12 col-sm-6 checkout-cart-postage">
                             $PostageForm
                         </div>
                     <% else %>
@@ -60,7 +60,7 @@ $SessionMessage
                 </div>
             </div>
 
-            <div class="unit-33 unit size1of3">
+            <div class="unit-33 unit size1of3 col-xs-12 col-md-4">
                 <table class="checkout-total-table width-100">
                     <tr class="subtotal">
                         <td class="text-right">
