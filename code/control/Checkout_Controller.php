@@ -324,6 +324,14 @@ class Checkout_Controller extends Controller
         $data = Session::get("Checkout.BillingDetailsForm.data");
         if (is_array($data)) {
             $form->loadDataFrom($data);
+        } elseif($member = Member::currentUser()) {
+            // Fill email, phone, etc
+            $form->loadDataFrom($member);
+            
+            // Then fill with Address info
+            if($member->DefaultAddress()) {
+                $form->loadDataFrom($member->DefaultAddress());
+            }
         }
 
         $this->extend("updateBillingForm", $form);
