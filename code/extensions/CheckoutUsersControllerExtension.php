@@ -239,14 +239,20 @@ class CheckoutUserAccountControllerExtension extends Extension
      */
     public function updateEditAccountForm($form)
     {
-        $form->Fields()->insertBefore(TextField::create(
+        // Add company name field
+        $company_field = TextField::create(
             "Company",
             _t('CheckoutUsers.Company', "Company")
-        ), "FirstName");
+        );
+        $company_field->setRightTitle(_t("Checkout.Optional", "Optional"));
+        $form->Fields()->insertBefore($company_field, "FirstName");
 
-        $form->Fields()->add(TextField::create(
+        // Add contact phone number field
+        $phone_field = TextField::create(
             "PhoneNumber",
             _t("CheckoutUsers.PhoneNumber", "Phone Number")
-        ));
+        );
+        $phone_field->setRightTitle(_t("Checkout.Optional", "Optional"));
+        $form->Fields()->add($phone_field);
     }
 }
