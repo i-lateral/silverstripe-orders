@@ -159,7 +159,7 @@ class CheckoutUserAccountControllerExtension extends Extension
         $actions = FieldList::create(
             LiteralField::create(
                 'BackButton',
-                '<a href="' . $this->owner->Link('addresses') . '" class="btn btn-red">' . _t('Checkout.Back', 'Back') . '</a>'
+                '<a href="' . $this->owner->Link('addresses') . '" class="btn btn-red">' . _t('Checkout.Cancel', 'Cancel') . '</a>'
             ),
 
             FormAction::create('doSaveAddress', _t('Checkout.Add', 'Add'))
