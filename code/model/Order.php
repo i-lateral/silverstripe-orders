@@ -49,6 +49,32 @@ class Order extends DataObject implements PermissionProvider
         "refunded" => "Refunded"
     );
     
+    
+    /**
+     * What statuses does an order need to be marked as "outstanding".
+     * At the moment this is only used against an @Member.
+     * 
+     * @var array
+     * @config
+     */
+    private static $outstanding_statuses = array(
+        "paid",
+        "processing"
+    );
+    
+    
+    /**
+     * What statuses does an order need to be marked as "historic".
+     * At the moment this is only used against an @Member.
+     * 
+     * @var array
+     * @config
+     */
+    private static $historic_statuses = array(
+        "dispatched",
+        "canceled"
+    );
+    
     /**
      * Actions on an order are to determine what will happen on
      * completion (the defaults are post or collect).

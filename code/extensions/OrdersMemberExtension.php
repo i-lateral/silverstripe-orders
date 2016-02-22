@@ -19,7 +19,7 @@ class OrdersMemberExtension extends DataExtension
             ->owner
             ->Orders()
             ->filter(array(
-                "Status" => array("paid", "processing")
+                "Status" => Order::config()->outstanding_statuses
             ));
     }
 
@@ -35,7 +35,7 @@ class OrdersMemberExtension extends DataExtension
             ->owner
             ->Orders()
             ->filter(array(
-                "Status" => array("dispatched", "canceled")
+                "Status" => Order::config()->historic_statuses
             ));
     }
 }
