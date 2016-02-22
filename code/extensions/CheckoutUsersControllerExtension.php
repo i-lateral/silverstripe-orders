@@ -102,7 +102,7 @@ class CheckoutUserAccountControllerExtension extends Extension
 
         if ($address && $address->canDelete($member)) {
             $address->delete();
-            $this->owner->setFlashMessage(
+            $this->owner->setSessionMessage(
                 "success",
                 _t("Checkout.AddressRemoved", "Address Removed")
             );
