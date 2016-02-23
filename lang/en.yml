@@ -43,7 +43,7 @@ en:
     FirstName: 'First Name(s)'
     Name: Name
     NoPaymentMethods: 'You cannot pay at this time, if you feel there has been an error please contact us.'
-    NoPostageSelection: 'Unfortunatly we cannot deliever to your address'
+    NoPostageSelection: 'Unfortunatly we cannot deliver to your address'
     NoSavedAddresses: 'You have no saved addresses.'
     Optional: Optional
     Or: Or
