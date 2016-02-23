@@ -51,6 +51,11 @@ class CheckoutMemberExtension extends DataExtension
 
         return $fields;
     }
+
+    public function DefaultAddress()
+    {
+        return $this->owner->getDefaultAddress();
+    }
     
     
     /**

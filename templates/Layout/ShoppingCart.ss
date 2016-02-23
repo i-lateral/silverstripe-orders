@@ -35,7 +35,7 @@ $SessionMessage
                     <% if Checkout.ClickAndCollect %>
                         <div class="unit-50 size10f2 col-xs-12 col-sm-6 checkout-cart-clickandcollect">
                             <h3>
-                                <%t Checkout.RecieveGoods "How would you like to recieve your goods?" %>
+                                <%t Checkout.ReceiveGoods "How would you like to receive your goods?" %>
                             </h3>
                             
                             <div class="checkout-delivery-buttons">

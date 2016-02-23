@@ -102,7 +102,7 @@ class CheckoutUserAccountControllerExtension extends Extension
 
         if ($address && $address->canDelete($member)) {
             $address->delete();
-            $this->owner->setFlashMessage(
+            $this->owner->setSessionMessage(
                 "success",
                 _t("Checkout.AddressRemoved", "Address Removed")
             );
@@ -120,9 +120,10 @@ class CheckoutUserAccountControllerExtension extends Extension
     {
         $personal_fields = CompositeField::create(
             HeaderField::create('PersonalHeader', _t('Checkout.PersonalDetails', 'Personal Details'), 2),
-            TextField::create('FirstName', _t('Checkout.FirstName', 'First Name(s)') . '*'),
-            TextField::create('Surname', _t('Checkout.Surname', 'Surname') . '*'),
+            TextField::create('FirstName', _t('Checkout.FirstName', 'First Name(s)')),
+            TextField::create('Surname', _t('Checkout.Surname', 'Surname')),
             CheckboxField::create('Default', _t('Checkout.DefaultAddress', 'Default Address?'))
+                ->setRightTitle(_t('Checkout.Optional', 'Optional'))
         )->setName("PersonalFields")
         ->addExtraClass('unit')
         ->addExtraClass('size1of2')
@@ -130,10 +131,11 @@ class CheckoutUserAccountControllerExtension extends Extension
 
         $address_fields = CompositeField::create(
             HeaderField::create('AddressHeader', _t('Checkout.Address', 'Address'), 2),
-            TextField::create('Address1', _t('Checkout.Address1', 'Address Line 1') . '*'),
-            TextField::create('Address2', _t('Checkout.Address2', 'Address Line 2')),
-            TextField::create('City', _t('Checkout.City', 'City') . '*'),
-            TextField::create('PostCode', _t('Checkout.PostCode', 'Post Code') . '*'),
+            TextField::create('Address1', _t('Checkout.Address1', 'Address Line 1')),
+            TextField::create('Address2', _t('Checkout.Address2', 'Address Line 2'))
+                ->setRightTitle(_t('Checkout.Optional', 'Optional')),
+            TextField::create('City', _t('Checkout.City', 'City')),
+            TextField::create('PostCode', _t('Checkout.PostCode', 'Post Code')),
             CountryDropdownField::create(
                 'Country',
                 _t('Checkout.Country','Country')
@@ -157,7 +159,7 @@ class CheckoutUserAccountControllerExtension extends Extension
         $actions = FieldList::create(
             LiteralField::create(
                 'BackButton',
-                '<a href="' . $this->owner->Link('addresses') . '" class="btn btn-red">' . _t('Checkout.Back', 'Back') . '</a>'
+                '<a href="' . $this->owner->Link('addresses') . '" class="btn btn-red">' . _t('Checkout.Cancel', 'Cancel') . '</a>'
             ),
 
             FormAction::create('doSaveAddress', _t('Checkout.Add', 'Add'))
@@ -237,14 +239,20 @@ class CheckoutUserAccountControllerExtension extends Extension
      */
     public function updateEditAccountForm($form)
     {
-        $form->Fields()->insertBefore(TextField::create(
+        // Add company name field
+        $company_field = TextField::create(
             "Company",
             _t('CheckoutUsers.Company', "Company")
-        ), "FirstName");
+        );
+        $company_field->setRightTitle(_t("Checkout.Optional", "Optional"));
+        $form->Fields()->insertBefore($company_field, "FirstName");
 
-        $form->Fields()->add(TextField::create(
+        // Add contact phone number field
+        $phone_field = TextField::create(
             "PhoneNumber",
             _t("CheckoutUsers.PhoneNumber", "Phone Number")
-        ));
+        );
+        $phone_field->setRightTitle(_t("Checkout.Optional", "Optional"));
+        $form->Fields()->add($phone_field);
     }
 }

@@ -122,12 +122,6 @@ class WorldPayHandler extends PaymentHandler
         $order_id = 0;
         $payment_id = 0;
 
-        $success_url = Controller::join_links(
-            Director::absoluteBaseURL(),
-            Payment_Controller::config()->url_segment,
-            'complete'
-        );
-
         $error_url = Controller::join_links(
             Director::absoluteBaseURL(),
             Payment_Controller::config()->url_segment,
@@ -150,6 +144,13 @@ class WorldPayHandler extends PaymentHandler
             $order_id = $data['cartId'];
             $payment_id = $data['transId'];
             $status = $data['transStatus'];
+            
+            $success_url = Controller::join_links(
+                Director::absoluteBaseURL(),
+                Payment_Controller::config()->url_segment,
+                'complete',
+                $order_id
+            );
 
             if ($data['transStatus'] == 'Y') {
                 $status = 'paid';

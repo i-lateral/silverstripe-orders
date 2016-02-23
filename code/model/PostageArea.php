@@ -28,15 +28,23 @@ class PostageArea extends DataObject
     /**
      * Get the total cost including tax
      * 
-     * @return Decimal
+     * @param int $decimal_size Should we round this number to a
+     *             specific size? If set will round the output. 
+     * @return Float
      */
-    public function Total()
+    public function Total($decimal_size = null)
     {
         if ($this->Cost && $this->Tax) {
-            return $this->Cost + (($this->Cost / 100) * $this->Tax);
+            $cost = $this->Cost + (($this->Cost / 100) * $this->Tax);
+        } else {
+            $cost = $this->Cost;
         }
         
-        return $this->Cost;
+        if($decimal_size) {
+            $cost = number_format($cost, $decimal_size);
+        }
+        
+        return $cost;
     }
 
     public function canView($member = null)
