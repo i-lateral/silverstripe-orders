@@ -671,7 +671,7 @@ class ShoppingCart extends Controller
         $actions = new FieldList(
             FormAction::create('doUpdate', _t('Checkout.UpdateCart', 'Update Cart'))
                 ->addExtraClass('btn')
-                ->addExtraClass('btn-blue')
+                ->addExtraClass('btn-blue btn-info')
         );
 
         $form = Form::create($this, "CartForm", $fields, $actions)
@@ -704,7 +704,7 @@ class ShoppingCart extends Controller
         $actions = new FieldList(
             FormAction::create('doAddDiscount', _t('Checkout.Add', 'Add'))
                 ->addExtraClass('btn')
-                ->addExtraClass('btn-blue')
+                ->addExtraClass('btn-blue btn-info')
         );
 
         $form = Form::create($this, "DiscountForm", $fields, $actions)
@@ -745,7 +745,7 @@ class ShoppingCart extends Controller
                         "doSetPostage",
                         _t('Checkout.Search', "Search")
                     )->addExtraClass('btn')
-                    ->addExtraClass('btn btn-green')
+                    ->addExtraClass('btn btn-green btn-success')
                 ),
                 $required = RequiredFields::create(array(
                     "Country",

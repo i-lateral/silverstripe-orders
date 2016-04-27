@@ -305,7 +305,7 @@ class Checkout_Controller extends Controller
         $form
             ->Actions()
             ->dataFieldByName('action_dologin')
-            ->addExtraClass("btn");
+            ->addExtraClass("btn btn-primary");
 
         $this->extend("updateLoginForm", $form);
 

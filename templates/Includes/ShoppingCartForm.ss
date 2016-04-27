@@ -61,6 +61,6 @@
             <%t Checkout.CartEmpty "Empty Cart" %>
         </a>
         
-        $Actions.dataFieldByName(action_doUpdate).addextraClass('btn-primary')
+        $Actions.dataFieldByName(action_doUpdate).addextraClass('btn-primary').Field
     </fieldset>
 </form>

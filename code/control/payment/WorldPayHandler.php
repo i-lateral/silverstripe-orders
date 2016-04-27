@@ -85,7 +85,7 @@ class WorldPayHandler extends PaymentHandler
             LiteralField::create('BackButton', '<a href="' . $back_url . '" class="btn btn-red checkout-action-back">' . _t('Checkout.Back', 'Back') . '</a>'),
             FormAction::create('Submit', _t('Checkout.ConfirmPay', 'Confirm and Pay'))
                 ->addExtraClass('btn')
-                ->addExtraClass('btn-green')
+                ->addExtraClass('btn-green btn-success')
         );
 
         $form = Form::create($this, 'Form', $fields, $actions)
