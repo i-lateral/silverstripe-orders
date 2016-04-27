@@ -22,10 +22,10 @@
                             <% if not $Default %><br/><% end_if %>
                         </p>
                         <p>
-                            <a href="{$Top.Link('editaddress')}/{$ID}" class="btn btn-green">
+                            <a href="{$Top.Link('editaddress')}/{$ID}" class="btn btn-green btn-success">
                                 <%t Checkout.Edit "Edit" %>
                             </a>
-                            <a href="{$Top.Link('removeaddress')}/{$ID}" class="btn btn-red">
+                            <a href="{$Top.Link('removeaddress')}/{$ID}" class="btn btn-red btn-danger">
                                 <%t Checkout.Remove "Remove" %>
                             </a>
                         </p>
@@ -45,7 +45,7 @@
         <% end_with %>
 
         <p>
-            <a href="{$Link('addaddress')}" class="btn btn-green">
+            <a href="{$Link('addaddress')}" class="btn btn-green btn-success">
                 <%t Checkout.AddAddress "Add Address" %>
             </a>
         </p>

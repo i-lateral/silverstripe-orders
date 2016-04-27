@@ -18,7 +18,7 @@
                         $Country
                     </p>
                     <p>
-                        <a class="btn btn-green" href="{$Top.Link('usememberaddress')}/$ID/billing">
+                        <a class="btn btn-green btn-success" href="{$Top.Link('usememberaddress')}/$ID/billing">
                             <%t Checkout.UseThisAddress "Use this address" %>
                         </a>
                     </p>

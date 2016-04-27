@@ -39,11 +39,11 @@ $SessionMessage
                             </h3>
                             
                             <div class="checkout-delivery-buttons">
-                                <a class="btn <% if not isCollection %>btn-active<% end_if %> width-100" href="{$Link(setdeliverytype)}/deliver">
+                                <a class="btn btn-primary <% if not isCollection %>btn-active active<% end_if %> width-100" href="{$Link(setdeliverytype)}/deliver">
                                     <%t Checkout.Delivered "Delivered" %>
                                 </a>
                                 <br/>
-                                <a class="btn <% if isCollection %>btn-active<% end_if %> width-100" href="{$Link(setdeliverytype)}/collect">
+                                <a class="btn btn-default<% if isCollection %>btn-active avtive<% end_if %> width-100" href="{$Link(setdeliverytype)}/collect">
                                     <%t Checkout.CollectInstore "Collect Instore" %>
                                 </a>
                             </div>
@@ -125,7 +125,7 @@ $SessionMessage
                 </table>
                 
                 <p class="checkout-cart-proceed line units-row end">
-                    <a href="{$BaseHref}checkout/checkout" class="btn btn-green btn-big">
+                    <a href="{$BaseHref}checkout/checkout" class="btn btn-green btn-big btn-lg btn-success">
                         <%t Checkout.CartProceed 'Proceed to Checkout' %>
                     </a>
                 </p>
