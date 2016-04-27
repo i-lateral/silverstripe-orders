@@ -38,7 +38,7 @@ $SessionMessage
                                 <%t Checkout.ReceiveGoods "How would you like to receive your goods?" %>
                             </h3>
                             
-                            <div class="checkout-delivery-buttons btn-group pull-right">
+                            <div class="checkout-delivery-buttons">
                                 <a class="btn btn-primary<% if not isCollection %> btn-active active<% end_if %> width-100" href="{$Link(setdeliverytype)}/deliver">
                                     <%t Checkout.Delivered "Delivered" %>
                                 </a>
