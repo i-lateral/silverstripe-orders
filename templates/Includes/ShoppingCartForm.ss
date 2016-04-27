@@ -56,11 +56,13 @@
 		</div>
     </fieldset>
 
-    <fieldset class="checkout-cart-actions Actions btn-group pull-right">
-        <a href="$Controller.Link('emptycart')" class="btn btn-red btn-danger">
-            <%t Checkout.CartEmpty "Empty Cart" %>
-        </a>
-        
-        $Actions.dataFieldByName(action_doUpdate).addextraClass('btn-primary').Field
+    <fieldset class="checkout-cart-actions Actions row">
+		<div class="btn-group pull-right">
+			<a href="$Controller.Link('emptycart')" class="btn btn-red btn-danger">
+				<%t Checkout.CartEmpty "Empty Cart" %>
+			</a>
+			
+			$Actions.dataFieldByName(action_doUpdate).Field
+		</div>
     </fieldset>
 </form>
