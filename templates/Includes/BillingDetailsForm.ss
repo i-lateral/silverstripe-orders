@@ -56,7 +56,7 @@
                         <% else_if $Name == "action_doContinue" %>
                             $addExtraClass("btn btn-green btn-success").Field
                         <% else %>
-                            $addExtraClass('btn btn-primary').Field
+                            $addExtraClass('btn').Field
                         <% end_if %>
                     <% end_loop %>
                 </div>
