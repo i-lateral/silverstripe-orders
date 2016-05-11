@@ -16,11 +16,11 @@ class QuantityField extends NumericField
     /** PHP Validation **/
     public function validate($validator)
     {
-        if ($this->value && !is_numeric(trim($this->value))) {
+        if ($this->value && !is_int(floatval(trim($this->value)))) {
             $validator->validationError(
                 $this->name,
                 _t(
-                    'NumericField.VALIDATION', "'{value}' is not a number, only numbers can be accepted for this field",
+                    'NumericField.VALIDATION', "'{value}' is not a valid number, only whole numbers can be accepted for this field",
                     array('value' => $this->value)
                 ),
                 "validation"

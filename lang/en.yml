@@ -111,7 +111,7 @@ en:
     PLURALNAME: 'Member Addresss'
     SINGULARNAME: 'Member Address'
   NumericField:
-    VALIDATION: '''{value}'' is not a number, only numbers can be accepted for this field'
+    VALIDATION: '''{value}'' is not a valid number, only whole numbers can be accepted for this field'
   PayPal:
     PLURALNAME: 'Pay Pals'
     SINGULARNAME: 'Pay Pal'
