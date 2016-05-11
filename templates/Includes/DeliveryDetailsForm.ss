@@ -44,7 +44,7 @@
         <% if $Actions %>
             <div class="Actions row units-row line">
                 <div class="unit-25 col-sm-4 text-left">
-                    <a href="{$BackURL}" class="btn btn-red checkout-action-back">
+                    <a href="{$BackURL}" class="btn btn-red btn-danger checkout-action-back">
                         <%t Checkout.Back 'Back' %>
                     </a>
                 </div>
@@ -52,9 +52,9 @@
                 <div class="unit-75 col-sm-8 text-right">
                     <% loop $Actions %>
                         <% if $Name == "action_doContinue" %>
-                            $addExtraClass("btn btn-green").Field
+                            $addExtraClass("btn btn-green btn-success").Field
                         <% else %>
-                            $addExtraClass('btn').Field
+                            $addExtraClass('btn btn-primary').Field
                         <% end_if %>
                     <% end_loop %>
                 </div>

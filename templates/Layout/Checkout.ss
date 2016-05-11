@@ -14,7 +14,7 @@
             </p>
 
             <p class="units-row line">
-                <a href="{$BaseHref}users/register?BackURL={$Link}" class="btn text-centered unit-push-right width-100">
+                <a href="{$BaseHref}users/register?BackURL={$Link}" class="btn btn-primary text-centered unit-push-right width-100">
                     <%t Checkout.Register "Register" %>
                 </a>
             </p>
@@ -25,7 +25,7 @@
                 </p>
 
                 <p class="units-row line">
-                    <a href="{$Link('billing')}" class="btn text-centered unit-push-right width-100">
+                    <a href="{$Link('billing')}" class="btn btn-primary text-centered unit-push-right width-100">
                         <%t Checkout.ContinueAsGuest "Continue as a Guest" %>
                     </a>
                 </p>

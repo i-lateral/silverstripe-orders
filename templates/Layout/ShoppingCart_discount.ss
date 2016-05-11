@@ -10,7 +10,7 @@
         <% end_if %>
 
         <p>
-            <a class="btn" href="$BaseHref">
+            <a class="btn btn-primary" href="$BaseHref">
                 <%t Checkout.StartShopping "Start shopping" %>
             </a>
         </p>
@@ -20,7 +20,7 @@
         <p><%t Checkout.DiscountNotValidText "This discount is either not valid or has expired"  %>.</p>
 
         <p>
-            <a class="btn" href="{$BaseHref}">
+            <a class="btn btn-primary" href="{$BaseHref}">
                 <%t Checkout.StartShopping "Start shopping" %>
             </a>
         </p>

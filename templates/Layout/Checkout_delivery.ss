@@ -19,7 +19,7 @@
                     </p>
                     
                     <p>
-                        <a class="btn btn-green" href="{$Top.Link('usememberaddress')}/$ID/delivery">
+                        <a class="btn btn-green btn-success" href="{$Top.Link('usememberaddress')}/$ID/delivery">
                             <%t Checkout.UseThisAddress "Use this address" %>
                         </a>
                     </p>
