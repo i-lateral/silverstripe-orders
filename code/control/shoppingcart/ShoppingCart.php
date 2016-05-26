@@ -448,7 +448,7 @@ class ShoppingCart extends Controller
             ->find("Key", $item_key);
         
         if ($item) {
-            $item->Quantity = $quantity;
+            $item->Quantity = floor($quantity);
             
             $this->extend("onBeforeUpdate", $item);
             
