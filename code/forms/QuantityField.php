@@ -16,26 +16,25 @@ class QuantityField extends NumericField
     /** PHP Validation **/
     public function validate($validator)
     {
-        if ($this->value && !is_int(floatval(trim($this->value)))) {
-            $validator->validationError(
-                $this->name,
-                _t(
-                    'NumericField.VALIDATION', "'{value}' is not a valid number, only whole numbers can be accepted for this field",
-                    array('value' => $this->value)
-                ),
-                "validation"
-            );
-            return false;
-        } elseif (!$this->value) {
-            $validator->validationError(
-                $this->name,
-                sprintf(_t('Form.FIELDISREQUIRED', '%s is required'), $this->title),
-                "validation"
-            );
-            return false;
-        } else {
-            return true;
+        // First check if value is numeric
+        if ($this->value && $this->isNumeric()) {
+            // Convert to a number to check
+            $value = $this->value + 0;
+            
+            if(is_int($value)) {
+                return true;
+            }
         }
+        
+        $validator->validationError(
+            $this->name,
+            _t(
+                'Checkout.VALIDATION', '{value} is not a valid number, only whole numbers can be accepted for this field',
+                array('value' => $this->value)
+            ),
+            "validation"
+        );
+        return false;
     }
     
     public function dataValue()
