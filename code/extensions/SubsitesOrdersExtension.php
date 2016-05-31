@@ -38,7 +38,7 @@ class SubsitesOrdersExtension extends DataExtension
 
         // If you're querying by ID, ignore the sub-site - this is a bit ugly...
         // if(!$query->where || (strpos($query->where[0], ".\"ID\" = ") === false && strpos($query->where[0], ".`ID` = ") === false && strpos($query->where[0], ".ID = ") === false && strpos($query->where[0], "ID = ") !== 0)) {
-        if (!$query->where || (!preg_match('/\.(\'|"|`|)ID(\'|"|`|)( ?)=/', $query->where[0]))) {
+        if (!$query->where) {
             if (Subsite::$force_subsite) {
                 $subsiteID = Subsite::$force_subsite;
             } else {

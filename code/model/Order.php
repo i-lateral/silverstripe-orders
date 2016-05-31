@@ -226,7 +226,9 @@ class Order extends DataObject implements PermissionProvider
         'Total'             => 'Currency',
         'ItemSummary'       => 'Text',
         'ItemSummaryHTML'   => 'HTMLText',
-        'TranslatedStatus'  => 'Varchar'
+        'TranslatedStatus'  => 'Varchar',
+        "QuoteLink"         => 'Varchar',
+        "InvoiceLink"       => 'Varchar'
     );
 
     private static $defaults = array(
@@ -250,6 +252,22 @@ class Order extends DataObject implements PermissionProvider
     );
 
     private static $default_sort = "Created DESC";
+    
+    public function QuoteLink() {
+        return Controller::join_links(
+            OrdersFront_Controller::create()->AbsoluteLink("quote"),
+            $this->ID,
+            $this->AccessKey
+        );
+    }
+    
+    public function InvoiceLink() {
+        return Controller::join_links(
+            OrdersFront_Controller::create()->AbsoluteLink(),
+            $this->ID,
+            $this->AccessKey
+        );
+    }
     
     public function populateDefaults()
     {

@@ -76,15 +76,7 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
         // Deal with Estimate objects
         if ($record->ClassName == "Estimate") {
             if ($record->ID && $record->AccessKey) {
-                $frontend_url = Controller::join_links(
-                    Director::absoluteBaseUrl(),
-                    "OrdersFront",
-                    "quote",
-                    $record->ID,
-                    $record->AccessKey
-                );
-                
-                $html = '<a href="' . $frontend_url . '" ';
+                $html = '<a href="' . $record->QuoteLink() . '" ';
                 $html .= 'target="_blank" ';
                 $html .= 'class="action ss-ui-button ui-button ui-corner-all open-external" ';
                 $html .= '>' . _t('Orders.ViewQuote', 'View Quote') . '</a>';
@@ -184,15 +176,7 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
             }
             
             if ($record->ID && $record->AccessKey) {
-                $frontend_url = Controller::join_links(
-                    Director::absoluteBaseUrl(),
-                    "OrdersFront",
-                    "invoice",
-                    $record->ID,
-                    $record->AccessKey
-                );
-                
-                $html = '<a href="' . $frontend_url . '" ';
+                $html = '<a href="' . $record->InvoiceLink() . '" ';
                 $html .= 'target="_blank" ';
                 $html .= 'class="action ss-ui-button ui-button ui-corner-all open-external" ';
                 $html .= '>' . _t('Orders.ViewInvoice', 'View Invoice') . '</a>';

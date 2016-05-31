@@ -6,8 +6,16 @@
  * 
  * @package Orders
  */
-class OrdersFront extends Controller
+class OrdersFront_Controller extends Controller
 {
+    /**
+     * ClassName of Order object 
+     *
+     * @var string
+     * @config
+     */
+    private static $url_segment = "orders/front";
+    
     
     private static $allowed_actions = array(
         "invoice",
@@ -29,6 +37,42 @@ class OrdersFront extends Controller
      * @config
      */
     private static $estimate_class = "Estimate";
+    
+    /**
+     * Get a relative link to anorder or invoice
+     * 
+     * NOTE: this controller will always require an ID of an order and
+     * access key to be passed (as well as an action). 
+     * 
+     * @param $action Action we would like to view.
+     * @param $id ID or the order we want to view.
+     * @param $key Access key of the order (for security).
+     * @return string
+     */
+    public function Link($action = "invoice") {
+        return Controller::join_links(
+            $this->config()->url_segment,
+            $action
+        );
+    }
+    
+    /**
+     * Get an absolute link to an order or invoice
+     * 
+     * NOTE: this controller will always require an ID of an order and
+     * access key to be passed (as well as an action). 
+     * 
+     * @param $action Action we would like to view.
+     * @param $id ID or the order we want to view.
+     * @param $key Access key of the order (for security).
+     * @return string
+     */
+    public function AbsoluteLink($action = "invoice") {
+        return Controller::join_links(
+            Director::absoluteBaseURL(),
+            $this->Link($action)
+        );
+    }
 
     public function invoice()
     {

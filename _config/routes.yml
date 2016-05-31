@@ -1,0 +1,7 @@
+---
+Name: ordersroutes
+After: framework/routes#rootroutes
+---
+Director:
+  rules:
+    'orders/front//$Action/$ID/$OtherID': 'OrdersFront_Controller'
