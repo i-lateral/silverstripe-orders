@@ -27,7 +27,7 @@
 		$EditFormTools
 	<% end_with %>
 	
-	<div class="cms-content-fields center <% if not $Fields.hasTabset %>cms-panel-padded<% end_if %>">
+	<div class="cms-content-fields center orders-center<% if not $Fields.hasTabset %> cms-panel-padded<% end_if %>">
 		<fieldset>
 			<% if $Legend %><legend>$Legend</legend><% end_if %> 
             

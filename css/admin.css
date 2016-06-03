@@ -44,7 +44,7 @@
   overflow: auto;
   box-sizing: border-box;
 }
-.cms-content-fields.center > fieldset {
+.cms-content-fields.orders-center > fieldset {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
