@@ -463,6 +463,8 @@ class Order extends DataObject implements PermissionProvider
 
         $this->extend("updateCMSFields", $fields);
 
+		$fields->fieldByName('Root')->addextraClass('orders-root');
+
         return $fields;
     }
 

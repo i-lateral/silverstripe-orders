@@ -31,16 +31,11 @@
     text-align: right;
 }
 
-#Root {
+#Root.orders-root {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
   padding-right: 280px;
-}
-#Root_Main {
-	overflow: auto;
-	height: 100%;
-	width: 100%;
 }
 
 #Root .order-admin-items {
