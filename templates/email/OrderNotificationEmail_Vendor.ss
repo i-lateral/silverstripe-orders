@@ -94,7 +94,8 @@
         <p><%t Orders.ItemsToBeCollected "The items are to be collected" %></p>
     <% else %>
         <p>
-            {$FirstName} {$Surname}<br/>
+            <% if $DeliveryCompany %>$DeliveryCompany<br/><% end_if %>
+            {$DeliveryFirstnames} {$DeliverySurnameSurname}<br/>
             {$DeliveryAddress1},<br/>
             <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
             {$DeliveryCity},<br/>

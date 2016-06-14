@@ -87,7 +87,8 @@
             <p><%t Orders.AwaitingCollect "The items are awaiting collection" %></p>
         <% else %>
             <p>
-                {$BillingFirstnames} {$BillingSurname}<br/>
+                <% if $DeliveryCompany %>$DeliveryCompany<br/><% end_if %>
+                {$DeliveryFirstnames} {$DeliverySurname}<br/>
                 {$DeliveryAddress1},<br/>
                 <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
                 {$DeliveryCity},<br/>
