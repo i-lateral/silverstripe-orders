@@ -82,7 +82,7 @@
 
     <p>
         <%t Orders.Name "Name" %>: {$FirstName} {$Surname}<br/>
-        <% if $Phone %><%t Orders.Phone "Phone" %>: {$Phone}<br/><% end_if %>
+        <% if $PhoneNumber %><%t Orders.Phone "Phone" %>: {$PhoneNumber}<br/><% end_if %>
         <% if $Email %><%t Orders.Email "Email" %>: <a href="mailto:{$Email}">{$Email}</a><br/><% end_if %>
     </p>
         
@@ -95,7 +95,7 @@
     <% else %>
         <p>
             <% if $DeliveryCompany %>$DeliveryCompany<br/><% end_if %>
-            {$DeliveryFirstnames} {$DeliverySurnameSurname}<br/>
+            {$DeliveryFirstnames} {$DeliverySurname}<br/>
             {$DeliveryAddress1},<br/>
             <% if $DeliveryAddress2 %>{$DeliveryAddress2},<br/><% end_if %>
             {$DeliveryCity},<br/>
