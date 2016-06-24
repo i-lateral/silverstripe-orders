@@ -97,13 +97,7 @@ abstract class PaymentHandler extends Controller
         
         $this->urlParams = $request->allParams();
         $this->request = $request;
-        $this->response = new SS_HTTPResponse();
         $this->setDataModel($model);
-        
-        // If we had a redirection or something, halt processing.
-        if ($this->response->isFinished()) {
-            return $this->response;
-        }
         
         // Find our action or set to index if not found
         $action = $this->request->param("Action");
@@ -111,7 +105,20 @@ abstract class PaymentHandler extends Controller
             $action = "index";
         }
 
-        $this->response->setBody($this->$action($request));
+        $result = $this->$action($request);
+
+        // Try to determine what response we are dealing with
+        if($result instanceof SS_HTTPResponse) {
+            $this->response = $result;
+        } else {
+            $this->response = new SS_HTTPResponse();
+            $this->response->setBody($result);
+        }
+
+        // If we had a redirection or something, halt processing.
+        if ($this->response->isFinished()) {
+            return $this->response;
+        }
 
         ContentNegotiator::process($this->response);
         HTTP::add_cache_headers($this->response);
