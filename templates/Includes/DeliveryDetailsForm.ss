@@ -1,5 +1,5 @@
 <% if $IncludeFormTag %>
-<form $addExtraClass('forms columnar').AttributesHTML>
+<form $addExtraClass('forms columnar form-horizontal').AttributesHTML>
 <% end_if %>
 
     <% if $Message %>
