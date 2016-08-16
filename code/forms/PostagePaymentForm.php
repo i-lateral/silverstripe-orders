@@ -89,7 +89,7 @@ class PostagePaymentForm extends Form
                 _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
                 $payment_methods->map('ID', 'Label'),
                 $payment_methods->filter('Default', 1)->first()->ID
-            );
+            )->setTemplate("PaymentsOptionsetField");
         } else {
             $payment_field = ReadonlyField::create(
                 "PaymentMethodID",
