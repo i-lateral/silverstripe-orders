@@ -27,7 +27,7 @@
             </div>
 
             <div class="unit-33 col-xs-12 col-sm-4">
-                <table class="width-100">
+                <table class="width-100 table">
                     <tbody>
                         <tr>
                             <td class="bold"><%t Orders.RefNo "Ref No." %></td>
@@ -48,7 +48,7 @@
 
         <hr/>
 
-        <table class="width-100">
+        <table class="width-100 table">
             <thead>
                 <tr>
                     <th class="sku"><%t Orders.SKU "SKU" %></th>
@@ -77,7 +77,7 @@
 				$Up.SiteConfig.InvoiceFooter
 			</div>
             <div class="unit-33 col-xs-12 col-sm-4 col-sm-offset-4 unit-push-right">
-                <table class="width-100">
+                <table class="width-100 table">
                     <tbody>
                         <tr>
                             <td class="text-right bold">
