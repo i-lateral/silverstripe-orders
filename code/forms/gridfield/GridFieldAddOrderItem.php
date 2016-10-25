@@ -347,15 +347,6 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             )->addExtraClass("relation-search no-change-track")
             ->setAttribute('data-search-url', Controller::join_links($gridField->Link('search')));
 
-        $findAction = new GridField_FormAction(
-            $gridField,
-            'gridfield_relationfind',
-            _t('GridField.Find', "Find"),
-            'find',
-            'find'
-        );
-        $findAction->setAttribute('data-icon', 'relationfind');
-
         $addAction = new GridField_FormAction(
             $gridField,
             'gridfield_orderitemadd',
@@ -370,7 +361,6 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
         $forTemplate->Fields = new ArrayList();
 
         $forTemplate->Fields->push($textField);
-        $forTemplate->Fields->push($findAction);
         $forTemplate->Fields->push($addAction);
 
         return array(
