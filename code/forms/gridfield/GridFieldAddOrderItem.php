@@ -59,6 +59,7 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
      * @var array
      **/
     protected $filter_fields = array(
+        "Title",
         "StockID"
     );
 
