@@ -111,6 +111,15 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $default_status = "incomplete";
+
+    /**
+     * The status which an order is considered "complete" (meaning)
+     * ready for processing, dispatch, etc.
+     * 
+     * @var string
+     * @config
+     */
+    private static $completion_status = "paid";
     
     /**
      * Set the default action on our order. If we were using this module
