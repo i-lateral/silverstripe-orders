@@ -271,9 +271,9 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
 
         $form->saveInto($record);
         
-        $record->ClassName = "Order";
-        
+        $record->convertToOrder();
         $record->write();
+        
         $this->gridField->getList()->add($record);
 
         $message = sprintf(

@@ -11,6 +11,20 @@ class Estimate extends Order
         "Total"     => "Total",
         "Created"   => "Created"
     );
+
+    /**
+     * Factory method to convert this estimate to an
+     * order.
+     *
+     * At the moment this only changes the classname, but
+     * using a factory allows us to add more complex
+     * functionality in the future.
+     *
+     */
+    public function convertToOrder()
+    {
+        $this->ClassName = "Order";
+    }
     
     public function getCMSFields()
     {
