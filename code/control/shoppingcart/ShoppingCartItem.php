@@ -11,7 +11,12 @@
  */
 class ShoppingCartItem extends ViewableData
 {
-    
+    /**
+     * The param used on a related product to track Stock Levels
+     *
+     */
+    private static $stock_param = "StockLevel";
+
     /**
      * ID used to detect this item
      * 
@@ -243,6 +248,31 @@ class ShoppingCartItem extends ViewableData
             return $classname::get()->byID($id);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Check stock levels for this item.
+     *
+     * If stock levels are too low, throws an exception
+     * 
+     * @param $qty The quantity we want to check against
+     * @return null
+     */
+    public function checkStockLevel($qty)
+    {
+        $stock_param = $this->config()->stock_param;
+        $item = $this->FindStockItem();
+        $stock = ($item->$stock_param) ? $item->$stock_param : 0;
+        
+        // if not enough stock, throw an exception
+        if($stock < $qty) {
+            throw new ValidationException(_t(
+                "Checkout.NotEnoughStock",
+                "There are not enough '{title}' in stock",
+                "Message to show that an item hasn't got enough stock",
+                array('title' => $item->Title)
+            ));
         }
     }
 }

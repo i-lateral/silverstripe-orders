@@ -35,6 +35,14 @@ class ShoppingCart extends Controller
      */
     private static $item_class = "ShoppingCartItem";
 
+    /**
+     * Should the cart check for stock levels on items added?
+     *
+     * @var string
+     * @config
+     */
+    private static $check_stock_levels = false;
+
     private static $allowed_actions = array(
         "remove",
         "emptycart",
@@ -423,6 +431,11 @@ class ShoppingCart extends Controller
                 foreach ($data as $key => $value) {
                     $cart_item->$key = $value;
                 }
+
+                // If we need to track stock, do it now
+                if ($this->config()->check_stock_levels) {
+                    $cart_item->checkStockLevel($quantity);
+                }
                 
                 $cart_item->Key = $item_key;
                 $cart_item->Quantity = $quantity;
@@ -448,6 +461,11 @@ class ShoppingCart extends Controller
             ->find("Key", $item_key);
         
         if ($item) {
+            // If we need to track stock, do it now
+            if ($this->config()->check_stock_levels) {
+                $item->checkStockLevel($quantity);
+            }
+
             $item->Quantity = floor($quantity);
             
             $this->extend("onBeforeUpdate", $item);
