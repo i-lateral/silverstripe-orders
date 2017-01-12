@@ -93,6 +93,14 @@ class ShoppingCartItem extends ViewableData
      * @var String
      */
     public $StockID;
+
+    /**
+     * Is this a locked item? Locked items cannot be changed in
+     * the shopping cart.
+     * 
+     * @var Boolean
+     */
+    public $Locked = false;
     
     /**
      * A list of customisations that has been made to this item. This

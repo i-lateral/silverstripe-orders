@@ -460,7 +460,7 @@ class ShoppingCart extends Controller
             ->items
             ->find("Key", $item_key);
         
-        if ($item) {
+        if ($item && !$item->Locked) {
             // If we need to track stock, do it now
             if ($this->config()->check_stock_levels) {
                 $item->checkStockLevel($quantity);
@@ -471,6 +471,8 @@ class ShoppingCart extends Controller
             $this->extend("onBeforeUpdate", $item);
             
             $this->save();
+        } else {
+            throw new Exception(_t("Checkout.UnableToEditItem", "Unable to change item's quantity"));
         }
 
         return false;
