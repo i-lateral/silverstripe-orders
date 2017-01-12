@@ -17,6 +17,7 @@
                         $PostCode<br/>
                         $Country
                     </p>
+                    
                     <p>
                         <a class="btn btn-green btn-success" href="{$Top.Link('usememberaddress')}/$ID/billing">
                             <%t Checkout.UseThisAddress "Use this address" %>
