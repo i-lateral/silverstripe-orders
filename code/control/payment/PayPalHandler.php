@@ -118,6 +118,7 @@ class PayPalHandler extends PaymentHandler
             FormAction::create('Submit', _t('Checkout.ConfirmPay', 'Confirm and Pay'))
                 ->addExtraClass('btn')
                 ->addExtraClass('btn-green btn-success')
+                ->addExtraClass('pull-right')
         );
 
         $form = Form::create($this, 'Form', $fields, $actions)

@@ -200,6 +200,26 @@ class ShoppingCart extends Controller
     }
 
     /**
+     * Determine if the current cart contains delivereable items.
+     * This is used to determine setting and usage of delivery and
+     * postage options in the checkout.
+     *
+     * @return Boolean
+     */
+     public function isDeliverable()
+     {
+         $deliverable = false;
+
+         foreach ($this->getItems() as $item) {
+             if ($item->Deliverable) {
+                 $deliverable = true;
+             }
+         }
+
+         return $deliverable;
+     }
+
+    /**
      * Shortcut for ShoppingCart::create, exists because create()
      * doesn't seem quite right.
      *
@@ -743,7 +763,7 @@ class ShoppingCart extends Controller
      */
     public function PostageForm()
     {
-        if (!Checkout::config()->simple_checkout) {
+        if (!Checkout::config()->simple_checkout && $this->isDeliverable()) {
             $available_postage = Session::get("Checkout.AvailablePostage");
             
             // Setup form

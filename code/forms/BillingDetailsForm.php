@@ -8,6 +8,8 @@ class BillingDetailsForm extends Form
 {
     public function __construct($controller, $name = "BillingDetailsForm")
     {
+        $cart = $this->getShoppingCart();
+        
         $personal_fields = CompositeField::create(
             HeaderField::create(
                 'PersonalHeader',
@@ -63,8 +65,8 @@ class BillingDetailsForm extends Form
         }
 
         $actions = FieldList::create();
-        
-        if(ShoppingCart::get()->isCollection()) {
+
+        if(!$cart->isDeliverable() || $cart->isCollection()) {
             $actions->add(
                 FormAction::create('doSetDelivery', _t('Checkout.UseTheseDetails', 'Use these details'))
                     ->addExtraClass('checkout-action-next')

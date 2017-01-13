@@ -31,32 +31,34 @@ $SessionMessage
                     <hr/>
                 <% end_if %>
 
-                <div class="units-row row line">
-                    <% if Checkout.ClickAndCollect %>
-                        <div class="unit-50 size10f2 col-xs-12 col-sm-6 checkout-cart-clickandcollect">
-                            <h3>
-                                <%t Checkout.ReceiveGoods "How would you like to receive your goods?" %>
-                            </h3>
-                            
-                            <div class="checkout-delivery-buttons">
-                                <a class="btn btn-primary<% if not isCollection %> btn-active active<% end_if %> width-100" href="{$Link(setdeliverytype)}/deliver">
-                                    <%t Checkout.Delivered "Delivered" %>
-                                </a>
-                                <a class="btn btn-primary<% if isCollection %> btn-active active<% end_if %> width-100" href="{$Link(setdeliverytype)}/collect">
-                                    <%t Checkout.CollectInstore "Collect Instore" %>
-                                </a>
+                <% if isDeliverable %>
+                    <div class="units-row row line">
+                        <% if Checkout.ClickAndCollect %>
+                            <div class="unit-50 size10f2 col-xs-12 col-sm-6 checkout-cart-clickandcollect">
+                                <h3>
+                                    <%t Checkout.ReceiveGoods "How would you like to receive your goods?" %>
+                                </h3>
+                                
+                                <div class="checkout-delivery-buttons">
+                                    <a class="btn btn-primary<% if not isCollection %> btn-active active<% end_if %> width-100" href="{$Link(setdeliverytype)}/deliver">
+                                        <%t Checkout.Delivered "Delivered" %>
+                                    </a>
+                                    <a class="btn btn-primary<% if isCollection %> btn-active active<% end_if %> width-100" href="{$Link(setdeliverytype)}/collect">
+                                        <%t Checkout.CollectInstore "Collect Instore" %>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    <% end_if %>
-                    
-                    <% if $PostageForm && not $isCollection %>
-                        <div class="unit-50 size10f2 col-xs-12 col-sm-6 checkout-cart-postage">
-                            $PostageForm
-                        </div>
-                    <% else %>
-                        <br/>
-                    <% end_if %>
-                </div>
+                        <% end_if %>
+                        
+                        <% if $PostageForm && not $isCollection %>
+                            <div class="unit-50 size10f2 col-xs-12 col-sm-6 checkout-cart-postage">
+                                $PostageForm
+                            </div>
+                        <% else %>
+                            <br/>
+                        <% end_if %>
+                    </div>
+                <% end_if %>
             </div>
 
             <div class="unit-33 unit size1of3 col-xs-12 col-md-4">

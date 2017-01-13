@@ -9,12 +9,13 @@ class PostagePaymentForm extends Form
     
     public function __construct($controller, $name = "PostagePaymentForm")
     {
-        if (!Checkout::config()->simple_checkout && !ShoppingCart::get()->isCollection()) {
+        $cart = ShoppingCart::get();
+        
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && $cart->isDeliverable()) {
             // Get delivery data and postage areas from session
             $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
             $country = $delivery_data['DeliveryCountry'];
             $postcode = $delivery_data['DeliveryPostCode'];
-            $cart = ShoppingCart::get();
             
             $postage_areas = new ShippingCalculator($postcode, $country);
             $postage_areas
@@ -60,13 +61,25 @@ class PostagePaymentForm extends Form
                 HeaderField::create("PostageHeader", _t('Checkout.Postage', "Postage")),
                 $select_postage_field
             )->setName("PostageFields");
-        } elseif (ShoppingCart::get()->isCollection()) {
+        } elseif ($cart->isCollection()) {
             $postage_field = CompositeField::create(
                 HeaderField::create("PostageHeader", _t('Checkout.CollectionOnly', "Collection Only")),
                 ReadonlyField::create(
                     "CollectionText",
                     "",
                     _t("Checkout.ItemsReservedInstore", "Your items will be held instore until you collect them")
+                )
+            )->setName("CollectionFields");
+        } elseif (!$cart->isDeliverable()) {
+            $postage_field = CompositeField::create(
+                HeaderField::create(
+                    "PostageHeader",
+                    _t('Checkout.Postage', "Postage")
+                ),
+                ReadonlyField::create(
+                    "CollectionText",
+                    "",
+                    _t("Checkout.NoDeliveryForOrder", "Your order does not contain items that can be posted")
                 )
             )->setName("CollectionFields");
         } else {

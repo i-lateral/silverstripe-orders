@@ -101,6 +101,15 @@ class ShoppingCartItem extends ViewableData
      * @var Boolean
      */
     public $Locked = false;
+
+    /**
+     * Is this a product that can be delivered? If the cart contains only
+     * non deliverable items, shipping and delivery options wont be
+     * factored into the checkout.
+     * 
+     * @var Boolean
+     */
+    public $Deliverable = true;
     
     /**
      * A list of customisations that has been made to this item. This

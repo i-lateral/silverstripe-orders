@@ -149,13 +149,20 @@ class Checkout_Controller extends Controller
      */
     public function delivery()
     {
+        $cart = ShoppingCart::get();
+        
         // If we are using simple checkout, skip
         if (Checkout::config()->simple_checkout) {
             return $this->redirect($this->Link('finish'));
         }
             
         // If customer is collecting, skip
-        if (ShoppingCart::get()->isCollection()) {
+        if ($cart->isCollection()) {
+            return $this->redirect($this->Link('finish'));
+        }
+            
+        // If cart is not deliverable, also skip
+        if (!$cart->isDeliverable()) {
             return $this->redirect($this->Link('finish'));
         }
         
@@ -228,7 +235,7 @@ class Checkout_Controller extends Controller
             $action = "delivery";
         }
 
-        if ($otherid == "delivery") {
+        if ($otherid == "delivery" || !ShoppingCart::get()->isDeliverable()) {
             $data['DeliveryCompany']  = $address->Company;
             $data['DeliveryFirstnames']  = $address->FirstName;
             $data['DeliverySurname']    = $address->Surname;

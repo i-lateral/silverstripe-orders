@@ -164,15 +164,14 @@ class Payment_Controller extends Controller
         $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
         
         // If we have applied free shipping, set that up, else get 
-        if (Session::get('Checkout.PostageID') == -1) {
+        if (Session::get('Checkout.PostageID') == -1 || !$cart->isDeliverable()) {
             $postage = Checkout::CreateFreePostageObject();
         } else {
             $postage = PostageArea::get()->byID(Session::get('Checkout.PostageID'));
         }
         
-        // If we are using a complex checkout and do not have correct
-        // details redirect 
-        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && (!$postage || !$billing_data || !$delivery_data)) {
+        // If we are using a complex checkout and do not have correct details redirect 
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && $cart->isDeliverable() && (!$postage || !$billing_data || !$delivery_data)) {
             return $this->redirect(Checkout_Controller::create()->Link());
         }
             
