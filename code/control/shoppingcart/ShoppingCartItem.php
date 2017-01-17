@@ -95,6 +95,15 @@ class ShoppingCartItem extends ViewableData
     public $StockID;
 
     /**
+     * Is this item stocked (and as such reduces in stock when bought)
+     * If ShoppingCart.check_stock_levels is set to true, then this is
+     * ignored.
+     * 
+     * @var Boolean
+     */
+    public $Stocked = true;
+
+    /**
      * Is this a locked item? Locked items cannot be changed in
      * the shopping cart.
      * 

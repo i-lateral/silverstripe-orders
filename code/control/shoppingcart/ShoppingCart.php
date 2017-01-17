@@ -36,7 +36,9 @@ class ShoppingCart extends Controller
     private static $item_class = "ShoppingCartItem";
 
     /**
-     * Should the cart check for stock levels on items added?
+     * Should the cart globally check for stock levels on items added?
+     * Using this settings will ignore individual "Stocked" settings
+     * on Shopping Cart Items.
      *
      * @var string
      * @config
@@ -453,7 +455,7 @@ class ShoppingCart extends Controller
                 }
 
                 // If we need to track stock, do it now
-                if ($this->config()->check_stock_levels) {
+                if ($cart_item->Stocked || $this->config()->check_stock_levels) {
                     $cart_item->checkStockLevel($quantity);
                 }
                 
@@ -482,7 +484,7 @@ class ShoppingCart extends Controller
         
         if ($item && !$item->Locked) {
             // If we need to track stock, do it now
-            if ($this->config()->check_stock_levels) {
+            if ($item->Stocked || $this->config()->check_stock_levels) {
                 $item->checkStockLevel($quantity);
             }
 
