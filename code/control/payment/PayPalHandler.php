@@ -1,6 +1,6 @@
 <?php
 
-use dezlov\PayPal\IpnListener;
+use overint\PaypalIPN;
 
 class PayPalHandler extends PaymentHandler
 {
@@ -173,16 +173,16 @@ class PayPalHandler extends PaymentHandler
                 $payment_id = $data["txn_id"];
             }
             
-            $listener = new IpnListener();
+            $listener = new PaypalIPN();
             
             if (Director::isDev()) {
-                $listener->use_sandbox = true;
+                $listener->useSandbox();
             }
 
             try {
-                $verified = $listener->processIpn();
+                $verified = $listener->verifyIPN();
             } catch (Exception $e) {
-                error_log("Exception caught: " . $e->getMessage());
+                error_log("Unable to verify IPN: " . $e->getMessage());
                 return $this->httpError(500);
             }
 
