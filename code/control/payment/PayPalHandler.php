@@ -1,6 +1,6 @@
 <?php
 
-use wadeshuler\paypalipn\IpnListener;
+use dezlov\PayPal\IpnListener;
 
 class PayPalHandler extends PaymentHandler
 {
