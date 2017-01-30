@@ -101,7 +101,7 @@ class ShoppingCartItem extends ViewableData
      * 
      * @var Boolean
      */
-    public $Stocked = true;
+    public $Stocked = false;
 
     /**
      * Is this a locked item? Locked items cannot be changed in
