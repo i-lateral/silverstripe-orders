@@ -4,7 +4,7 @@
 
     <div class="checkout-payment-summary row units-row line">
         <% with $ShoppingCart %>
-            <div class="unit col-m-4 col-xs-12 size1of3 unit-25">
+            <div class="unit col-m-4 col-xs-12 size1of3 unit-33">
                 <h2><%t Checkout.Order "Order" %></h2>
                 <p>
                     <strong><%t Checkout.SubTotal "Sub Total" %>:</strong>
@@ -36,7 +36,7 @@
         <% end_with %>
     
         <% with $Order %>
-            <div class="unit-50 unit size1of2 col-xs-12 col-m-4">
+            <div class="unit-33 unit size1of2 col-xs-12 col-m-4">
                 <h2><%t Checkout.BillingDetails "Billing Details" %></h2>
                 <p>
                     <% if $Company %>
@@ -55,7 +55,7 @@
             </div>
 
             <% if $Top.ShoppingCart.isDeliverable %>
-                <div class="unit-50 unit size1of2 col-xs-12 col-m-4">
+                <div class="unit-33 unit size1of2 col-xs-12 col-m-4">
                     <h2><%t Checkout.DeliveryDetails "Delivery Details" %></h2>
                     <% if $Top.ShoppingCart.isCollection %>
                         <p><%t Checkout.ItemsReservedInstore "Your items will be held instore until you collect them" %></p>
