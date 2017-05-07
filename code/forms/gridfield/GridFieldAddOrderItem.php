@@ -211,8 +211,9 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             $dbField = $this->getDataObjectField();
             $objClass = $gridField->getModelClass();
             $source_class = $this->getSourceClass();
+            $source_item = null;
             $filter = array();
-            
+
             // Has the user used autocomplete
             if (isset($data['relationID']) && $data['relationID']) {
                 $id = $data['relationID'];
@@ -325,16 +326,15 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
      * @return string HTML
      **/
     public function getHTMLFragments($gridField)
-    {
+    {        
         $dataClass = $gridField->getList()->dataClass();
         $obj = singleton($dataClass);
+
         if (!$obj->canCreate()) {
             return "";
         }
 
-        $dbField = $this->getDataObjectField();
-
-        $textField = TextField::create("gridfieldaddbydbfield")
+        $text_field = TextField::create("gridfieldaddbydbfield")
             ->setAttribute(
                 "placeholder",
                 _t(
@@ -347,23 +347,36 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
                     )
                 )
             )->addExtraClass("relation-search no-change-track")
-            ->setAttribute('data-search-url', Controller::join_links($gridField->Link('search')));
+            ->setAttribute(
+                'data-search-url',
+                Controller::join_links($gridField->Link('search'))
+            );
 
-        $addAction = new GridField_FormAction(
+        $find_action = new GridField_FormAction(
+            $gridField,
+            'gridfield_relationfind',
+			_t('GridField.Find', "Find"), 'find', 'find'
+        );
+		$find_action->setAttribute('data-icon', 'relationfind');
+
+        $add_action = new GridField_FormAction(
             $gridField,
             'gridfield_orderitemadd',
             _t("GridFieldAddOrderItem.Add", "Add"),
             'add',
             'add'
         );
-        $addAction->setAttribute('data-icon', 'add');
+        $add_action->setAttribute('data-icon', 'add');
 
         // Start thinking about rending this back to the GF
-        $forTemplate = new ArrayData(array());
-        $forTemplate->Fields = new ArrayList();
+        $fields = new ArrayList();
 
-        $forTemplate->Fields->push($textField);
-        $forTemplate->Fields->push($addAction);
+        $fields->push($text_field);
+        $fields->push($find_action);
+        $fields->push($add_action);
+        
+        $forTemplate = new ArrayData(array());
+        $forTemplate->Fields = $fields;
 
         return array(
             $this->targetFragment => $forTemplate->renderWith("GridFieldAddOrderItem")
