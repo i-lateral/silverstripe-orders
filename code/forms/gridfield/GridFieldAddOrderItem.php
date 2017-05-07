@@ -54,6 +54,37 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
     }
     
     /**
+     * When we check for existing items, should we check based on all
+     * filters or any of the chosen (setting this to true uses 
+     * $list->filter() where as false uses $list->filterAny())
+     * 
+     * @var boolean
+     */
+    protected $strict_filter = true;
+
+    /**
+     * Getter for strict_filter param
+     *
+     * @return boolean
+     */
+    public function getStrictFilter()
+    {
+        return $this->strict_filter;
+    }
+    
+    /**
+     * Setter for strict_filter param
+     *
+     * @param boolean $bool
+     * @return void
+     */
+    public function setStrictFilter($bool)
+    {
+        $this->strict_filter = $bool;
+        return $this;
+    }
+
+    /**
      * Fields that we try and find our source object based on
      *
      * @var array
@@ -247,10 +278,17 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             
             // First check if we already have an object or if we need to
             // create one
-            $existing_obj = $gridField
-                ->getList()
-                ->filterAny($filter)
-                ->first();
+            if ($this->getStrictFilter()) {
+                $existing_obj = $gridField
+                    ->getList()
+                    ->filter($filter)
+                    ->first();
+            } else {
+                $existing_obj = $gridField
+                    ->getList()
+                    ->filterAny($filter)
+                    ->first();
+            }
             
             if ($existing_obj) {
                 $obj = $existing_obj;
