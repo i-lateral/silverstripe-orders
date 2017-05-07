@@ -338,10 +338,11 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
             ->setAttribute(
                 "placeholder",
                 _t(
-                    "GridFieldAddOrderItem.Add",
-                    "Add by {Filters} or {Title}",
+                    "GridFieldAddOrderItem.TypeToAdd",
+                    "Type to add by {Filters} or {Title}",
+                    "Inform the user what to add based on",
                     array(
-                        "Filters" => implode(",", $this->getFilterFields()),
+                        "Filters" => implode(", ", $this->getFilterFields()),
                         "Title" => $this->getCreateField()
                     )
                 )
