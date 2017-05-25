@@ -17,6 +17,7 @@ class MemberAddress extends DataObject
         'Address1'          => 'Varchar',
         'Address2'          => 'Varchar',
         'City'              => 'Varchar',
+        'State'             => 'Varchar',
         'PostCode'          => 'Varchar',
         'Country'           => 'Varchar',
         'Default'           => 'Boolean'
@@ -31,6 +32,7 @@ class MemberAddress extends DataObject
         "Surname",
         "Address1",
         "City",
+        "State",
         "PostCode",
         "Default"
     );

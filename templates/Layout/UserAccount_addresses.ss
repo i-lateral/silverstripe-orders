@@ -16,6 +16,7 @@
                             $Address1<br/>
                             <% if $Address2 %>$Address2<br/><% end_if %>
                             $City<br/>
+                            <% if $State %>$State<br/><% end_if %>
                             $PostCode<br/>
                             $Country<br/>
                             <% if not $Address2 %><br/><% end_if %>
