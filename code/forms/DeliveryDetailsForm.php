@@ -31,6 +31,7 @@ class DeliveryDetailsForm extends Form
             TextField::create('DeliveryAddress2', _t('Checkout.Address2', 'Address Line 2'))
                 ->setRightTitle(_t("Checkout.Optional", "Optional")),
             TextField::create('DeliveryCity', _t('Checkout.City', 'City')),
+            TextField::create('DeliveryState', _t('Checkout.StateCounty', 'State/County')),
             TextField::create('DeliveryPostCode', _t('Checkout.PostCode', 'Post Code')),
             CountryDropdownField::create(
                 'DeliveryCountry',

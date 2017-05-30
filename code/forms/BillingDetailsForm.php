@@ -34,6 +34,7 @@ class BillingDetailsForm extends Form
             TextField::create('Address2', _t('Checkout.Address2', 'Address Line 2'))
                 ->setRightTitle(_t("Checkout.Optional", "Optional")),
             TextField::create('City', _t('Checkout.City', 'City')),
+            TextField::create('State', _t('Checkout.StateCounty', 'State/County')),
             TextField::create('PostCode', _t('Checkout.PostCode', 'Post Code')),
             CountryDropdownField::create(
                 'Country',
@@ -88,6 +89,7 @@ class BillingDetailsForm extends Form
             'Surname',
             'Address1',
             'City',
+            'State',
             'PostCode',
             'Country',
             'Email',
