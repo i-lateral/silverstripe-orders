@@ -549,6 +549,25 @@ class Order extends DataObject implements PermissionProvider
     }
 
 
+    /**
+     * Mark this order as "complete" which generally is intended
+     * to mean "paid for, ready for processing".
+     *
+     * @param string $reference the unique reference from the gateway
+     * @return Order
+     */
+    public function markComplete($reference = null)
+    {
+        $this->Status = $this->config()->completion_status;
+        
+        if ($reference) {
+            $this->PaymentNo = $reference;
+        }
+
+        return $this;
+    }
+
+
     public function hasDiscount()
     {
         return (ceil($this->DiscountAmount)) ? true : false;
