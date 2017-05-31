@@ -110,7 +110,7 @@ class Checkout_Controller extends Controller
     public function billing()
     {
         $form = $this->BillingForm();
-        
+
         // If we are using simple checkout, skip
         if (Checkout::config()->simple_checkout) {
             return $this->redirect($this->Link('finish'));
@@ -225,6 +225,7 @@ class Checkout_Controller extends Controller
             $data["Address1"]   = $address->Address1;
             $data["Address2"]   = $address->Address2;
             $data["City"]       = $address->City;
+            $data["State"]      = $address->State;
             $data["PostCode"]   = $address->PostCode;
             $data["Country"]    = $address->Country;
             $data["Email"]      = $member->Email;
@@ -242,6 +243,7 @@ class Checkout_Controller extends Controller
             $data['DeliveryAddress1']   = $address->Address1;
             $data['DeliveryAddress2']   = $address->Address2;
             $data['DeliveryCity']       = $address->City;
+            $data['DeliveryState']      = $address->State;
             $data['DeliveryPostCode']   = $address->PostCode;
             $data['DeliveryCountry']    = $address->Country;
 
