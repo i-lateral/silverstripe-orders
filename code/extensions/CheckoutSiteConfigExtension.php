@@ -15,30 +15,11 @@ class CheckoutSiteConfigExtension extends DataExtension
 
     private static $has_many = array(
         'PostageAreas'      => 'PostageArea',
-        'Discounts'         => 'Discount',
-        'PaymentMethods'    => 'PaymentMethod',
+        'Discounts'         => 'Discount'
     );
 
     public function updateCMSFields(FieldList $fields)
     {
-        
-        // Payment Methods
-        $payment_table = GridField::create(
-            'PaymentMethods',
-            _t("CheckoutAdmin.PaymentMethods", "Payment Methods"),
-            $this->owner->PaymentMethods(),
-            GridFieldConfig::create()->addComponents(
-                new GridFieldToolbarHeader(),
-                new GridFieldAddNewButton('toolbar-header-right'),
-                new GridFieldSortableHeader(),
-                new GridFieldDataColumns(),
-                new GridFieldPaginator(20),
-                new GridFieldEditButton(),
-                new GridFieldDeleteAction(),
-                new GridFieldDetailForm()
-            )
-        );
-
         // setup compressed payment options
         $payment_fields = ToggleCompositeField::create(
             'PaymentSettings',
@@ -66,9 +47,7 @@ class CheckoutSiteConfigExtension extends DataExtension
                     _t("CheckoutAdmin.PaymentFailerContent", "Payment failer content")
                 )->setRows(4)
                 ->setColumns(30)
-                ->addExtraClass('stacked'),
-                
-                $payment_table
+                ->addExtraClass('stacked')
             )
         );
 
