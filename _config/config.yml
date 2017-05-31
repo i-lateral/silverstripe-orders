@@ -14,3 +14,9 @@ Member:
 Group:
   extensions:
     - CheckoutGroupExtension
+Order:
+  extensions:
+    - Payable
+Payment:
+  extensions:
+    - CheckoutPaymentExtension
