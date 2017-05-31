@@ -1,5 +1,9 @@
 <?php
 
+use SilverStripe\Omnipay\GatewayInfo;
+use SilverStripe\Omnipay\GatewayFieldsFactory;
+use SilverStripe\Omnipay\Service\ServiceFactory;
+
 /**
  * Summary Controller is responsible for displaying all order data before posting
  * to the final payment gateway.
@@ -32,8 +36,8 @@ class Payment_Controller extends Controller
 
     private static $allowed_actions = array(
         "index",
-        "callback",
-        "complete"
+        "complete",
+        "Form",
     );
 
     /**
@@ -45,27 +49,9 @@ class Payment_Controller extends Controller
     private static $url_handlers = array(
         '$Action/$ID' => 'handleAction',
     );
-    
-    /**
-     * Name of the payment handler we are using
-     * 
-     * @var string
-     */
-    protected $payment_handler;
-
-    public function getPaymentHandler()
-    {
-        return $this->payment_handler;
-    }
-
-    public function setPaymentHandler($handler)
-    {
-        $this->payment_handler = $handler;
-        return $this;
-    }
 
     /**
-     * Name of the payment method we are using
+     * ID of the payment method we are using
      * 
      * @var string
      */
@@ -116,22 +102,21 @@ class Payment_Controller extends Controller
     {
         parent::init();
 
-        // Check if payment ID set and corresponds 
-        if ($this->request->param('ID') && $method = PaymentMethod::get()->byID($this->request->param('ID'))) {
-            $this->payment_method = $method;
-        }
-        // Then check session
-        elseif ($method = PaymentMethod::get()->byID(Session::get('Checkout.PaymentMethodID'))) {
-            $this->payment_method = $method;
-        }
+        // Check if payment ID set and corresponds
+        try {
+            $cart = ShoppingCart::get();
+            $payment_methods = GatewayInfo::getSupportedGateways();
+            $payment_session = Session::get('Checkout.PaymentMethodID');
 
-        // Setup payment handler
-        if ($this->payment_method && $this->payment_method !== null) {
-            $handler = $this->payment_method->ClassName;
-            $handler = $handler::$handler;
+            if (array_key_exists($payment_session, $payment_methods)) {
+                $this->payment_method = $payment_session;
+            }
 
-            $this->payment_handler = $handler::create();
-            $this->payment_handler->setPaymentGateway($this->getPaymentMethod());
+        } catch (Exception $e) {
+            return $this->httpError(
+                400,
+                $e->getMessage()
+            );
         }
     }
     
@@ -152,10 +137,9 @@ class Payment_Controller extends Controller
         $cart = ShoppingCart::get();
         $data = array();
         $payment_data = array();
-        $handler = $this->payment_handler;
 
         // If shopping cart doesn't exist, redirect to base
-        if (!$cart->getItems()->exists() || $this->getPaymentHandler() === null) {
+        if (!$cart->getItems()->exists()) {
             return $this->redirect($cart->Link());
         }
 
@@ -220,40 +204,21 @@ class Payment_Controller extends Controller
                 }
             }
         }
-        
-        // Set our order data as a generic object
-        $handler->setOrderData(ArrayData::array_to_object($payment_data));
-        
-        return $handler->handleRequest($request, $this->model);
-    }
 
+        $order_data = ArrayData::array_to_object($payment_data);
 
-    /**
-     * This method can be called by a payment gateway to provide
-     * automated integration.
-     * 
-     * This action performs some basic setup then hands control directly
-     * to the payment handler's "callback" action.
-     * 
-     * @param $request Current Request Object
-     */
-    public function callback($request)
-    {
-        // If post data exists, process. Otherwise provide error
-        if ($this->payment_handler === null) {
-            // Redirect to error page
-            return $this->redirect(Controller::join_links(
-                Director::BaseURL(),
-                $this->config()->url_segment,
-                'complete',
-                'error'
-            ));
-        }
-        
-        // Hand the request over to the payment handler
-        return $this
-            ->payment_handler
-            ->handleRequest($request, $this->model);
+        $this->extend("onBeforeIndex", $order_data);
+
+        Session::set("Checkout.OrderData", serialize($order_data));
+
+        $this->customise(array(
+            "Order" => $order_data
+        ));
+
+        return $this->renderWith(array(
+            "Payment",
+            "Page"
+        ));
     }
 
     /*
@@ -322,5 +287,70 @@ class Payment_Controller extends Controller
             'Title'     => _t('Checkout.OrderProblem', 'There was a problem with your order'),
             'Content'   => ($site->FailerCopy) ? nl2br(Convert::raw2xml($site->FailerCopy), true) : false
         );
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function Form()
+    {
+        $factory = new GatewayFieldsFactory($this->getPaymentMethod());
+
+        $submit_btn = FormAction::create(
+            "doSubmit",
+            _t("Checkout.PayNow", "Pay Now")
+        )->addExtraClass("btn btn-success btn-block");
+
+        return Form::create(
+            $this,
+            "Form",
+            $factory->getFields(),
+            FieldList::create($submit_btn)
+        );
+    }
+
+    public function doSubmit($data, $form)
+    {
+        $order_data = unserialize(Session::get("Checkout.OrderData"));
+        $cart = ShoppingCart::get();
+
+        // Map our order data to an array to omnipay
+        $omnipay_data = array();
+        $omnipay_map = Checkout::config()->omnipay_map;
+
+        foreach ($order_data as $key => $value) {
+            if (array_key_exists($key, $omnipay_map)) {
+                $omnipay_data[$omnipay_map[$key]] = $value;
+            }
+        }
+
+        $omnipay_data = array_merge($omnipay_data, $data);
+
+        // Create the payment object. We pass the desired success and failure URLs as parameter to the payment
+        $payment = Payment::create()
+            ->init(
+                $this->getPaymentMethod(),
+                $cart->TotalCost,
+                Checkout::config()->currency_code
+            )->setSuccessUrl($this->Link('complete'))
+            ->setFailureUrl(Controller::join_links(
+                $this->Link('complete'),
+                "error"
+            ));
+
+        // Save it to the database to generate an ID
+        $payment->write();
+
+        // Add an extension before we finalise the payment
+        // so we can overwrite our data
+        $this->extend("onBeforeSubmit", $payment, $order_data, $data);
+
+        $response = ServiceFactory::create()
+            ->getService($payment, ServiceFactory::INTENT_PAYMENT)
+            ->initiate($omnipay_data);
+
+        return $response->redirectOrRespond();
     }
 }

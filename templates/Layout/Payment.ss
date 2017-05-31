@@ -49,6 +49,7 @@
                     $Address1<br/>
                     <% if $Address2 %>$Address2<br/><% end_if %>
                     $City<br/>
+                    <% if $State %>$State<br/><% end_if %>
                     <strong><%t Checkout.PostCode "Post Code" %>:</strong> $PostCode<br/>
                     <strong><%t Checkout.Country "Country" %>:</strong> <% if $CountryFull %>$CountryFull<% else %>$Country<% end_if %>
                 </p>
@@ -69,6 +70,7 @@
                             $DeliveryAddress1<br/>
                             <% if $DeliveryAddress2 %>$DeliveryAddress2<br/><% end_if %>
                             $DeliveryCity<br/>
+                            <% if $DeliveryState %>$DeliveryState<br/><% end_if %>
                             <strong><%t Checkout.PostCode "Post Code" %>:</strong> $DeliveryPostCode<br/>
                             <strong><%t Checkout.Country "Country" %>:</strong> <% if $DeliveryCountryFull %>$DeliveryCountryFull<% else %>$DeliveryCountry<% end_if %>
                         </p>
@@ -76,12 +78,15 @@
                 </div>
             <% end_if %>
         <% end_with %>
+
+        <div class="col-xs-12 col-md-3">
+            <h2><%t Checkout.Payment "Payment" %></h2>
+            <% if $PaymentInfo %>
+                <hr/>
+                $PaymentInfo
+            <% end_if %>
+
+            $Form
+        </div>
     </div>
-
-    <% if $PaymentInfo %>
-        <hr/>
-        $PaymentInfo
-    <% end_if %>
-
-    $Form
 </div>

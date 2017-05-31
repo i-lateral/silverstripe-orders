@@ -1,4 +1,7 @@
 <?php
+
+use SilverStripe\Omnipay\GatewayInfo;
+
 /**
  * Description of CheckoutForm
  *
@@ -86,28 +89,29 @@ class PostagePaymentForm extends Form
             $postage_field = null;
         }
 
-        // Get available payment methods and setup payment
-        $payment_methods = ArrayList::create();
-        
-        foreach (SiteConfig::current_site_config()->PaymentMethods() as $payment_method) {
-            if ($payment_method->canView()) {
-                $payment_methods->add($payment_method);
-            }
-        }
+        $fields = FieldList::create();
+        $actions = FieldList::create();
 
-        // Deal with payment methods
-        if ($payment_methods->exists()) {
+        try {
+            // Get available payment methods and setup payment
+            $payment_methods = GatewayInfo::getSupportedGateways();
+
             $payment_field = OptionsetField::create(
                 'PaymentMethodID',
                 _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
-                $payment_methods->map('ID', 'Label'),
-                $payment_methods->filter('Default', 1)->first()->ID
+                $payment_methods
             )->setTemplate("PaymentsOptionsetField");
-        } else {
+
+            $actions
+                ->add(FormAction::create(
+                    'doContinue',
+                    _t('Checkout.PaymentDetails', 'Enter Payment Details')
+                )->addExtraClass('checkout-action-next'));
+        } catch (Exception $e) {
             $payment_field = ReadonlyField::create(
                 "PaymentMethodID",
                 _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
-                _t('Checkout.NoPaymentMethods', 'You cannot pay at this time, if you feel there has been an error please contact us.')
+                $e->getMessage()
             );
         }
 
@@ -116,7 +120,7 @@ class PostagePaymentForm extends Form
             $payment_field
         )->setName("PaymentFields");
 
-        $fields = FieldList::create(
+        $fields->add(
             CompositeField::create(
                 $postage_field,
                 $payment_field
@@ -124,21 +128,18 @@ class PostagePaymentForm extends Form
             ->setColumnCount(2)
         );
 
-        if ($payment_methods->exists()) {
-            $actions = FieldList::create(
-                FormAction::create('doContinue', _t('Checkout.PaymentDetails', 'Enter Payment Details'))
-                    ->addExtraClass('checkout-action-next')
-            );
-        } else {
-            $actions = FieldList::create();
-        }
-
         $validator = RequiredFields::create(array(
             "PostageID",
-            "PaymentMethod"
+            "PaymentMethodID"
         ));
 
-        parent::__construct($controller, $name, $fields, $actions, $validator);
+        parent::__construct(
+            $controller,
+            $name,
+            $fields,
+            $actions,
+            $validator
+        );
         
         $this->setTemplate($this->ClassName);
     }
