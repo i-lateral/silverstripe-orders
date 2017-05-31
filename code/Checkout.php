@@ -227,4 +227,23 @@ class Checkout extends ViewableData
     {
         return substr(md5(time() * rand() * $int), 0, $length);
     }
+
+    /**
+     * Rounds up a float to a specified number of decimal places
+     * (basically acts like ceil() but allows for decimal places)
+     *
+     * @param float $value Float to round up
+     * @param int $places the number of decimal places to round to
+     * @return void
+     */
+    function round_up ($value, $places = 0)
+    {
+        if ($places < 0) {
+            $places = 0;
+        }
+    
+        $mult = pow(10, $places);
+    
+        return ceil($value * $mult) / $mult;
+    }
 }
