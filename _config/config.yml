@@ -8,7 +8,7 @@ LeftAndMain:
 ## Extensions
 Controller:
   extensions:
-    - CheckoutControllerExtension
+    - OrdersControllerExtension
 SiteConfig:
   extensions:
     - CheckoutSiteConfigExtension

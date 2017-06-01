@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Extension for Content Controller that provide methods such as cart link and category list
- * to templates
+ * Extension for Content Controller that provide methods such as cart
+ * link and category list to templates
  *
  * @author i-lateral (http://www.i-lateral.com)
- * @package checkout
+ * @package orders
  */
-class CheckoutControllerExtension extends Extension
+class OrdersControllerExtension extends Extension
 {
     
     /**
