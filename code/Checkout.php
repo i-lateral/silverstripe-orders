@@ -236,7 +236,7 @@ class Checkout extends ViewableData
      * @param int $places the number of decimal places to round to
      * @return void
      */
-    function round_up ($value, $places = 0)
+    public static function round_up ($value, $places = 0)
     {
         if ($places < 0) {
             $places = 0;
