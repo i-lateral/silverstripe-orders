@@ -11,7 +11,7 @@ Controller:
     - OrdersControllerExtension
 SiteConfig:
   extensions:
-    - CheckoutSiteConfigExtension
+    - OrdersSiteConfigExtension
 Member:
   extensions:
     - OrdersMemberExtension
