@@ -3,7 +3,7 @@
   "description": "Silverstripe module for creating and managing generic 'Order' objects",
     "type": "silverstripe-module",
     "homepage": "http://github.com/i-lateral/silverstripe-orders",
-    "keywords": ["silverstripe", "commerce", "ecommerce", "orders"],
+    "keywords": ["silverstripe", "commerce", "ecommerce", "orders", "checkout", "payment"],
     "license": "BSD-3-Clause",
     "authors": [
         {
@@ -15,7 +15,8 @@
         "issues": "http://github.com/i-lateral/silverstripe-orders/issues"
     },
     "require": {
-        "silverstripe/framework": ">=3.1",
+        "silverstripe/framework": ">=3.2",
+        "silverstripe/siteconfig": ">=3.2",
         "colymba/gridfield-bulk-editing-tools": "~2.1",
         "silverstripe-australia/gridfieldextensions": "*"
     },

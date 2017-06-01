@@ -61,4 +61,125 @@ de:
   Users:
     NotVerified: 'You have not verified your email address'
     Send: 'Send now'
-
+  Checkout:
+    Add: Eingeben
+    AddAddress: 'Adresse eingeben'
+    Address: Adresse
+    Address1: 'Adresszeile 1'
+    Address2: 'Adresszeile 2'
+    AddressRemoved: 'Adresse gelöscht wurde'
+    AddressSaved:  'Adresse gescheichert wurde'
+    Addresses: Adressen
+    Back: Zurück
+    BillingDetails: Rechnungsanschrift
+    CartEmpty: 'Warenkorb leeren'
+    CartIsEmpty: 'Ihr Warenkorb ist derzeit leer'
+    CartName: Warenkorb
+    CartProceed: 'Zur Kasse gehen'
+    CartTotal: Gesamt
+    City: Stadt
+    Company: Firma
+    Confirm: Bestätigen
+    ConfirmPay: 'Bestätigen und zahlen'
+    ContinueAsGuest: 'Weiter als Gast'
+    Country: Land
+    DeliverThisAddress: 'An dieser Adresse liefern'
+    DeliveryDetails: Lieferanschrift
+    DeliverySavedAddress: 'An einer gespeicherten Adresse liefern'
+    Description: Beschreibung
+    Discount: Rabatt
+    DiscountAdded: 'Rabatt hinzugefügt wurde'
+    DiscountCode: 'Rabatt-Code'
+    DiscountFixedText: '{title} wird bei Ihrer nächste Bestellung abgezogen'
+    DiscountNotValid: 'ungultigen Rabatt-Code'
+    DiscountNotValidText: 'Diese Rabatt-Code ist ungültig'
+    DiscountPercentText: 'Ein Gutschein zu EUR{amount} wird auf Ihrer nächste Bestellung angerechnet'
+    DontHaveAccount: 'Sie haben noch kein Konto?'
+    Edit: bearbeiten
+    EditAddress: 'Adresse bearbeiten'
+    Email: E-Mail
+    EnterDifferentAddress: 'Geben Sie eine neue Adresse ein'
+    EnterDiscountCode: 'Enter a discount code'
+    Error: 'Ein Fehler passiert ist'
+    EstimateShipping: 'Versandkosten abschätzen'
+    FirstName: 'Vorname(n)'
+    Name: Name
+    NoPaymentMethods: 'You cannot pay at this time, if you feel there has been an error please contact us.'
+    NoSavedAddresses: 'You have no saved addresses.'
+    Optional: Fakultativ
+    Or: Oder
+    Order: 'Der Status ihres Auftrages'
+    OrderProblem: 'There was a problem with your order'
+    Payment: Zahlung
+    PaymentDetails: 'Zahlungsangaben eingeben'
+    PaymentSelection: 'Bitte wählen Sie, wie Sie bezahlen möchten'
+    PersonalDetails: 'Persoenlichen Angaben'
+    Phone: Telefonnummer
+    PostCode: Postleitzahl
+    PostTo: 'Post to'
+    Postage: Versand
+    PostageDetails: 'Wählen Sie eine Versandart'
+    PostageSelection: 'Bitte wählen Sie eine Versandart'
+    Price: Preis
+    Processing: Bearbeitung
+    Qty: Menge
+    RedirectingToStore: 'Umleitung. Wenn Sie sich nicht automatisch umgeleitet wurden, klicken Sie auf den Link unten.'
+    Register: 'Anmelden'
+    Remove: 'Löschen'
+    Save: 'Speichern'
+    SaveAddress: 'Diese Adresse speichern'
+    Search: Versuch
+    SeelctPostagePayment: 'Select Postage and Payment Method'
+    SelectPaymentMethod: 'Select Payment Method'
+    SelectPostage: 'Versand wählen'
+    SetDeliveryAddress: 'An andere Adresse liefern'
+    Shipping: Versand
+    SignIn: 'Einloggen'
+    StartShopping: 'Fangen Sie Das Einkauf an'
+    SubTotal: 'Zwischensumme'
+    Summary: Zusammenfassung
+    SummaryCopy: 'Bitte Überprüfen Sie ihre persönlichen Angaben, bevor Sie fortfahren und Ihre Zahlungsangaben eingeben'
+    Surname: Familienname
+    Tax: Steuer
+    ThankYouForOrder: 'Thank you for your order'
+    Total: Summe
+    Update: 'aktualisieren'
+    UpdateCart: 'Aktualisierung'
+    UseBillingSavedAddress: 'Eine gespeicherte Rechnungsadresse auswählen'
+    UseThisAddress: 'An diese Adresse senden'
+    ViewCart: Warenkorb
+    YourAddresses: 'Ihren Adressen'
+    ZipCode: 'Postleitzahl'
+  CheckoutAdmin:
+    AddDiscountURL: 'Add discount URL'
+    OrderPrefix: 'Add prefix to order numbers'
+    OrderPrefixPlaceholder: 'EG ''abc'''
+    PaymentFailerContent: 'Payment failer content'
+    PaymentMethods: 'Payment Methods'
+    PaymentSuccessContent: 'Payment successfull content'
+    Payments: 'Payment Settings'
+  CheckoutUsers:
+    Company: Firma
+    PhoneNumber: 'Telefon'
+  Discount:
+    PLURALNAME: Discounts
+    SINGULARNAME: Discount
+  Form:
+    FIELDISREQUIRED: '%s is required'
+  MemberAddress:
+    PLURALNAME: 'Member Addresss'
+    SINGULARNAME: 'Member Address'
+  NumericField:
+    VALIDATION: '''{value}'' is not a number, only numbers can be accepted for this field'
+  PayPal:
+    PLURALNAME: 'Pay Pal'
+    SINGULARNAME: 'Pay Pal'
+  PaymentMethod:
+    PLURALNAME: 'Payment Methods'
+    SINGULARNAME: 'Payment Method'
+  PostageArea:
+    PLURALNAME: 'Postage Areas'
+    SINGULARNAME: 'Postage Area'
+  WorldPay:
+    PLURALNAME: 'World Pay'
+    SINGULARNAME: 'World Pay'

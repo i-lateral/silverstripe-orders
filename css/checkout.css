@@ -1,0 +1,73 @@
+/* Shopping Cart Items
+----------------------------------------- */
+.checkout-cart form,
+.checkout-cart .checkout-cart-items table {
+    width: 100%;
+    max-width: none;
+}
+    .checkout-cart .checkout-cart-items .image {
+        width: 12%;
+    }
+    .checkout-cart .checkout-cart-items .description {
+        width: 63%;
+    }
+    .checkout-cart .checkout-cart-items .quantity input {
+        width: 30px;
+    }
+    .checkout-cart .checkout-cart-items .remove a {
+        font-size: 1.5em;
+        line-height: 1.2em;
+        padding: 0 0.5em 0.05em 0.5em;
+    }
+    
+    .checkout-cart .checkout-cart-items .subtotal strong {
+        text-align: right;
+    }
+
+    .checkout-cart .checkout-cart-discounts {
+        padding: 0;
+    }
+    .checkout-cart .checkout-cart-discounts form fieldset {
+        width: 49%;
+        float: left;
+    }
+    .checkout-cart .checkout-cart-discounts form .Actions {
+        width: 49%;
+        float: right;
+    }
+    .checkout-cart .checkout-cart-discounts form label {
+        display: none;
+    }
+
+/* Shopping Cart Total
+----------------------------------------- */
+.checkout-cart .checkout-total-table {
+    width: 100%;
+}
+    .checkout-cart .checkout-total-table td {
+        text-align: right;
+        padding: 0.5em;
+    }
+    
+    .checkout-cart .checkout-total-table .total td {
+        color: #b80000;
+        font-size: 1.5em;
+        padding: 0.5em 0.25em;
+    }
+
+/* Checkout
+---------------------------------------- */
+.checkout-checkout form {
+    width: auto;
+    max-width: none;
+}
+
+/* Proceed Button
+--------------------------------------------------------------------- */
+.checkout-cart-proceed .btn {
+    display: block;
+    float: none;
+    text-align: center;
+    line-height: 2em;
+    margin: 1em 0;
+}

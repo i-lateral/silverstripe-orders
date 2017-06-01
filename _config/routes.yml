@@ -5,3 +5,6 @@ After: framework/routes#rootroutes
 Director:
   rules:
     'orders/front//$Action/$ID/$OtherID': 'OrdersFront_Controller'
+    'checkout/cart//$Action/$ID/$Quantity': 'ShoppingCart'
+    'checkout/checkout//$Action/$ID/$OtherID': 'Checkout_Controller'
+    'checkout/payment//$Action/$ID': 'Payment_Controller'

@@ -4,3 +4,23 @@ Name: orderconfig
 LeftAndMain:
   extra_requirements_css:
     - orders/css/admin.css
+
+## Extensions
+Controller:
+  extensions:
+    - CheckoutControllerExtension
+SiteConfig:
+  extensions:
+    - CheckoutSiteConfigExtension
+Member:
+  extensions:
+    - CheckoutMemberExtension
+Group:
+  extensions:
+    - CheckoutGroupExtension
+Order:
+  extensions:
+    - Payable
+Payment:
+  extensions:
+    - CheckoutPaymentExtension
