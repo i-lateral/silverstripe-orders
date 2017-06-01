@@ -8,6 +8,9 @@
  */
 class OrdersGroupExtension extends DataExtension
 {
+    private static $belongs_many_many = array(
+        "Discounts" => "Discount"
+    );
 
     public function requireDefaultRecords()
     {
