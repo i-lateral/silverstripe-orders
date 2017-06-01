@@ -14,7 +14,7 @@ SiteConfig:
     - CheckoutSiteConfigExtension
 Member:
   extensions:
-    - CheckoutMemberExtension
+    - OrdersMemberExtension
 Group:
   extensions:
     - OrdersGroupExtension
