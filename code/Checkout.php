@@ -147,7 +147,7 @@ class Checkout extends ViewableData
         "DeliveryCity" => "shippingCity",
         "DeliveryState" => "shippingState",
         "DeliveryPostCode" => "shippingPostcode",
-        "DeliveryContry" => "shippingCountry",
+        "DeliveryCountry" => "shippingCountry",
         "PhoneNumber" => "shippingPhone"
     );
     
