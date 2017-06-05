@@ -205,14 +205,57 @@ class Payment_Controller extends Controller
             }
         }
 
-        $order_data = ArrayData::array_to_object($payment_data);
+        // Setup an order based on the data from the shopping cart and load data
+        $order = new Estimate();
+        $order->update($payment_data);
 
-        $this->extend("onBeforeIndex", $order_data);
+        // Use this to generate a new order number
+        $order->OrderNumber = "";
+        
+        // If we are using collection, track it here
+        if ($cart->isCollection()) {
+            $order->Action = "collect";
+        }
 
-        Session::set("Checkout.OrderData", serialize($order_data));
+        // If user logged in, track it against an order
+        if (Member::currentUserID()) {
+            $order->CustomerID = Member::currentUserID();
+        }
+
+        // Write so we can setup our foreign keys
+        $order->write();
+
+        // Loop through each session cart item and add that item to the order
+        foreach ($cart->getItems() as $cart_item) {
+            $order_item = new OrderItem();
+            
+            $order_item->Title          = $cart_item->Title;
+            $order_item->Customisation  = serialize($cart_item->Customisations);
+            $order_item->Quantity       = $cart_item->Quantity;
+            
+            if ($cart_item->StockID) {
+                $order_item->StockID = $cart_item->StockID;
+            }
+
+            if ($cart_item->Price) {
+                $order_item->Price = $cart_item->Price;
+            }
+
+            if ($cart_item->TaxRate) {
+                $order_item->TaxRate = $cart_item->TaxRate;
+            }
+
+            $order_item->write();
+
+            $order->Items()->add($order_item);
+        }
+
+        $this->extend("onBeforeIndex", $order);
+
+        Session::set("Checkout.OrderData", serialize($order));
 
         $this->customise(array(
-            "Order" => $order_data
+            "Order" => $order
         ));
 
         return $this->renderWith(array(
@@ -313,14 +356,14 @@ class Payment_Controller extends Controller
 
     public function doSubmit($data, $form)
     {
-        $order_data = unserialize(Session::get("Checkout.OrderData"));
+        $order = unserialize(Session::get("Checkout.OrderData"));
         $cart = ShoppingCart::get();
 
         // Map our order data to an array to omnipay
         $omnipay_data = array();
         $omnipay_map = Checkout::config()->omnipay_map;
 
-        foreach ($order_data as $key => $value) {
+        foreach ($order as $key => $value) {
             if (array_key_exists($key, $omnipay_map)) {
                 $omnipay_data[$omnipay_map[$key]] = $value;
             }
@@ -339,13 +382,18 @@ class Payment_Controller extends Controller
                 $this->Link('complete'),
                 "error"
             ));
+        
+        // Map order ID
+        if ($order && $order->ID) {
+            $payment->OrderID = $order->ID;
+        }
 
         // Save it to the database to generate an ID
         $payment->write();
 
         // Add an extension before we finalise the payment
         // so we can overwrite our data
-        $this->extend("onBeforeSubmit", $payment, $order_data, $data);
+        $this->extend("onBeforeSubmit", $payment, $order, $data);
 
         $response = ServiceFactory::create()
             ->getService($payment, ServiceFactory::INTENT_PAYMENT)
