@@ -132,7 +132,7 @@ class Payment_Controller extends Controller
      *
      * @param $request Current request object
      */
-    public function index($request)
+        public function index($request)
     {
         $cart = ShoppingCart::get();
         $data = array();
@@ -252,7 +252,7 @@ class Payment_Controller extends Controller
 
         $this->extend("onBeforeIndex", $order);
 
-        Session::set("Checkout.OrderData", serialize($order));
+        Session::set("Checkout.OrderID", $order->ID);
 
         $this->customise(array(
             "Order" => $order
@@ -356,14 +356,15 @@ class Payment_Controller extends Controller
 
     public function doSubmit($data, $form)
     {
-        $order = unserialize(Session::get("Checkout.OrderData"));
+        $order = Order::get()
+            ->byID(Session::get("Checkout.OrderID"));
         $cart = ShoppingCart::get();
 
         // Map our order data to an array to omnipay
-        $omnipay_data = array();
+        $omnipay_data = [];
         $omnipay_map = Checkout::config()->omnipay_map;
 
-        foreach ($order as $key => $value) {
+        foreach ($order->toMap() as $key => $value) {
             if (array_key_exists($key, $omnipay_map)) {
                 $omnipay_data[$omnipay_map[$key]] = $value;
             }
