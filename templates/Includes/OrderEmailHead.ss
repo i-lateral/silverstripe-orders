@@ -21,7 +21,7 @@
         </style>
     </head>
     
-    <body style="width:100% !important; -webkit-text-size-adjust:none;margin:0; padding:0; background-color:#E6E6E6;" leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0">
+    <body style="width:100% !important; margin:0; padding:0; background-color:#E6E6E6;" leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0">
 		<center>
 			<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="backgroundTable" style="height:100% !important; margin:0; padding:0; width:100% !important; background-color:#E6E6E6; font-family:'Lucida Sans Unicode',Verdana,Arial,sans-serif;">
 				<tr>
