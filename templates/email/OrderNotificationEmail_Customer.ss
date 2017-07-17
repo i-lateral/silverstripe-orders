@@ -34,7 +34,7 @@
                 <% end_loop %></tbody>
                 
                 <tfoot>
-                    <tr><td colspan="2">&nbsp;</td></tr>
+                    <tr><td colspan="3">&nbsp;</td></tr>
                     
                     <% if $DiscountAmount.RAW > 0 || $Discount %><tr>
                         <td colspan="2" style="text-align: right;">
