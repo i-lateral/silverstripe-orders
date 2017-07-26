@@ -19,7 +19,8 @@
         "silverstripe/siteconfig": ">=3.2",
         "colymba/gridfield-bulk-editing-tools": "~2.1",
         "silverstripe-australia/gridfieldextensions": "*",
-        "silverstripe/silverstripe-omnipay": ">=2.2"
+        "silverstripe/silverstripe-omnipay": ">=2.2",
+        "i-lateral/silverstripe-sessionmessenger": ">=1.0"
     },
     "suggest": {
         "silverstripe/cms": "Add full content management support to your site",
