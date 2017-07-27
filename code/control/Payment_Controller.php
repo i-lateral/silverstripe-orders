@@ -329,7 +329,7 @@ class Payment_Controller extends Controller
 
         return array(
             'Title' => _t('Checkout.ThankYouForOrder', 'Thank you for your order'),
-            'Content' => ($site->SuccessCopy) ? nl2br(Convert::raw2xml($site->SuccessCopy), true) : false
+            'Content' => ($site->PaymentSuccessContent) ? nl2br(Convert::raw2xml($site->PaymentSuccessContent), true) : ""
         );
     }
 
@@ -344,7 +344,7 @@ class Payment_Controller extends Controller
 
         return array(
             'Title'     => _t('Checkout.OrderProblem', 'There was a problem with your order'),
-            'Content'   => ($site->FailerCopy) ? nl2br(Convert::raw2xml($site->FailerCopy), true) : false
+            'Content'   => ($site->PaymentFailerContent) ? nl2br(Convert::raw2xml($site->PaymentFailerContent), true) : ""
         );
     }
 
