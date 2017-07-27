@@ -37,7 +37,7 @@ class Payment_Controller extends Controller
     private static $allowed_actions = array(
         "index",
         "complete",
-        "Form",
+        "PaymentForm",
     );
 
     /**
@@ -254,7 +254,23 @@ class Payment_Controller extends Controller
 
         Session::set("Checkout.OrderID", $order->ID);
 
+        $form = $this->PaymentForm();
+
+        // Generate a map of payment data and load into form.
+        // This way we can add users to a form
+        $omnipay_data = [];
+        $omnipay_map = Checkout::config()->omnipay_map;
+
+        foreach ($payment_data as $key => $value) {
+            if (array_key_exists($key, $omnipay_map)) {
+                $omnipay_data[$omnipay_map[$key]] = $value;
+            }
+        }
+
+        $form->loadDataFrom($omnipay_data);
+
         $this->customise(array(
+            "Form" => $form,
             "Order" => $order
         ));
 
@@ -333,25 +349,29 @@ class Payment_Controller extends Controller
     }
 
     /**
-     * Undocumented function
+     * Generate a payment form using omnipay scafold
      *
-     * @return void
+     * @return Form
      */
-    public function Form()
+    public function PaymentForm()
     {
         $factory = new GatewayFieldsFactory($this->getPaymentMethod());
 
-        $submit_btn = FormAction::create(
-            "doSubmit",
-            _t("Checkout.PayNow", "Pay Now")
-        )->addExtraClass("btn btn-success btn-block");
-
-        return Form::create(
+        $form = Form::create(
             $this,
-            "Form",
+            "PaymentForm",
             $factory->getFields(),
-            FieldList::create($submit_btn)
+            FieldList::create(
+                FormAction::create(
+                    "doSubmit",
+                    _t("Checkout.PayNow", "Pay Now")
+                )->addExtraClass("btn btn-success btn-block")
+            )
         );
+
+        $this->extend("updatePaymentForm", $form);
+
+        return $form;
     }
 
     public function doSubmit($data, $form)
