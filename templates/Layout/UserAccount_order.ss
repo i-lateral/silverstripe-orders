@@ -32,97 +32,108 @@
             <hr/>
 
             <% if $Items.exists %>
-                <table class="width-100">
-                    <thead>
-                        <tr>
-                            <th class="width-50"><%t Orders.Item "Item" %></th>
-                            <th><%t Orders.Qty "Qty" %></th>
-                            <th><%t Orders.Price "Price" %></th>
-                            <% if $Top.SiteConfig.TaxRate > 0 %>
-                                <th class="tax">
-                                    <% if $Top.SiteConfig.TaxName %>{$Top.SiteConfig.TaxName}
-                                    <% else %><%t Orders.Tax 'Tax' %><% end_if %>
-                                </th>
-                            <% end_if %>
-                            <th><%t Orders.Reorder "Reorder" %></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% loop $Items %>
-                            <tr>
-                                <td>$Title</td>
-                                <td>$Quantity</td>
-                                <td>$Price.Nice</td>
-                                <% if $Top.SiteConfig.TaxRate > 0 %>
-                                    <td class="total">
-                                        {$TaxTotal.Nice}
-                                    </td>
-                                <% end_if %>
-                                <td><% if $MatchProduct %>
-                                    <a href="$MatchProduct.Link">
-                                        <%t Orders.AddToCart "Add to cart" %>
-                                    </a>
-                                <% end_if %></td>
-                            </tr>
-                        <% end_loop %>
-
-                        <tr>
-                            <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>5<% else %>4<% end_if %>">&nbsp;</td>
-                        </tr>
-
-                        <% if $Top.SiteConfig.TaxRate > 0 %>
-                            <tr>
-                                <td colspan="3" class="text-right">
-                                    <%t Orders.SubTotal "Sub Total" %>
-                                </td>
-                                <td class="text-right">$SubTotal.Nice</td>
-                                <td></td>
-                            </tr>
-
-                            <tr>
-                                <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>3<% else %>2<% end_if %>" class="text-right">
-                                    <%t Orders.Postage "Postage" %>
-                                </td>
-                                <td class="text-right">$PostageCost.Nice</td>
-                                <td></td>
-                            </tr>
-
-                            <tr>
-                                <td colspan="3" class="text-right">
-                                    <% if $Top.SiteConfig.TaxName %>
-                                        {$Top.SiteConfig.TaxName}
-                                    <% else %>
-                                        <%t Orders.Tax 'Tax' %>
+                    <div class="table-responsive">
+                        <table class="table width-100 table-hovered">
+                            <thead>
+                                <tr>
+                                    <th class="width-50"><%t Orders.Item "Item" %></th>
+                                    <th><%t Orders.Qty "Qty" %></th>
+                                    <th><%t Orders.Price "Price" %></th>
+                                    <% if $Top.SiteConfig.TaxRate > 0 %>
+                                        <th class="tax">
+                                            <% if $Top.SiteConfig.TaxName %>{$Top.SiteConfig.TaxName}
+                                            <% else %><%t Orders.Tax 'Tax' %><% end_if %>
+                                        </th>
                                     <% end_if %>
-                                </td>
-                                <td class="text-right">$TaxTotal.Nice</td>
-                                <td></td>
-                            </tr>
-                        <% else %>
-                            <tr>
-                                <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>3<% else %>2<% end_if %>" class="text-right">
-                                    <%t Orders.Postage "Postage" %>
-                                </td>
-                                <td class="text-right">$PostageCost.Nice</td>
-                                <td></td>
-                            </tr>
-                        <% end_if %>
+                                    <th><%t Orders.Reorder "Reorder" %></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% loop $Items %>
+                                    <tr>
+                                        <td>$Title</td>
+                                        <td>$Quantity</td>
+                                        <td>$Price.Nice</td>
+                                        <% if $Top.SiteConfig.TaxRate > 0 %>
+                                            <td class="total">
+                                                {$TaxTotal.Nice}
+                                            </td>
+                                        <% end_if %>
+                                        <td><% if $MatchProduct %>
+                                            <a href="$MatchProduct.Link">
+                                                <%t Orders.AddToCart "Add to cart" %>
+                                            </a>
+                                        <% end_if %></td>
+                                    </tr>
+                                <% end_loop %>
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <tr>
-                            <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>5<% else %>4<% end_if %>">&nbsp;</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="<% if $Top.SiteConfig.TaxRate > 0 %>3<% else %>2<% end_if %>" class="text-right bold">
-                                <%t Orders.Total "Total" %>
-                            </td>
-                            <td class="text-right">$Total.Nice</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            <% end_if %>
+                    <div class="row">
+                        <div class="col-md-4 col-md-offset-8">
+                            <table class="table">
+                                <tbody>
+                                    <% if $Top.SiteConfig.TaxRate > 0 %>
+                                        <tr>
+                                            <th class="text-right">
+                                                <%t Orders.SubTotal "Sub Total" %>
+                                            </th>
+                                            <td class="text-right">
+                                                $SubTotal.Nice
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="text-right">
+                                                <%t Orders.Postage "Postage" %>
+                                            </th>
+                                            <td class="text-right">
+                                                $PostageCost.Nice
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="text-right">
+                                                <% if $Top.SiteConfig.TaxName %>
+                                                    {$Top.SiteConfig.TaxName}
+                                                <% else %>
+                                                    <%t Orders.Tax 'Tax' %>
+                                                <% end_if %>
+                                            </th>
+                                            <td class="text-right">
+                                                $TaxTotal.Nice
+                                            </td>
+                                        </tr>
+                                    <% else %>
+                                        <tr>
+                                            <th class="text-right">
+                                                <%t Orders.Postage "Postage" %>
+                                            </th>
+                                            <td class="text-right">
+                                                $PostageCost.Nice
+                                            </td>
+                                        </tr>
+                                    <% end_if %>
+
+                                    <tr>
+                                        <td colspan="3">&nbsp;</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th class="text-right bold">
+                                            <%t Orders.Total "Total" %>
+                                        </th>
+                                        <td class="text-right">
+                                            $Total.Nice
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                <% end_if %>
 
         <% end_with %><% else %>
             <p class="message message-error">
