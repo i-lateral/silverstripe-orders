@@ -177,17 +177,15 @@ class ShippingCalculator extends Object
         $config = SiteConfig::current_site_config();
         $cart = ShoppingCart::get();
         $discount = $cart->getDiscount();
-        $filter_zipcode = strtolower(substr($this->zipcode, 0, 2));
+        $pc_match = "";
         
         if ($this->include_wildcards) {
             $filter = array(
                 "Country:PartialMatch" => array($this->country_code, "*"),
-                "ZipCode:PartialMatch" => array($filter_zipcode, "*")
             );
         } else {
             $filter = array(
-                "Country:PartialMatch" => $this->country_code,
-                "ZipCode:PartialMatch" => $filter_zipcode
+                "Country:PartialMatch" => $this->country_code
             );
         }
         
@@ -195,6 +193,37 @@ class ShippingCalculator extends Object
         $postage_areas = $config
             ->PostageAreas()
             ->filter($filter);
+
+        // Next perform a check to look for the closest match to the
+        // current zip/postal code (so we can correctly filter).
+        foreach ($postage_areas as $item) {
+            $postal_codes = explode(",", $item->ZipCode);
+
+            foreach ($postal_codes as $code) {
+                $code = strtolower($code);
+                $new_pc_match = substr(strtolower($this->zipcode), 0, strlen($code));
+
+                if ($code && $code == $new_pc_match && strlen($new_pc_match) > strlen($pc_match)) {
+                    $pc_match = $new_pc_match;
+                }
+            }
+        }
+
+        // Now perform a zip/postal code comparision against our list
+        // and add some 
+        foreach ($postage_areas as $item) {
+            $postal_codes = explode(",", $item->ZipCode);
+
+            foreach ($postal_codes as $code) {
+                $code = strtolower($code);
+
+                if ($code && $code == substr(strtolower($this->zipcode), 0, strlen($pc_match))) {
+                    $return->add($item);
+                } elseif (!$pc_match && $item->ZipCode == "*" && $this->include_wildcards) {
+                    $return->add($item);
+                }
+            }
+        }
             
         // Check if any discounts are set with free postage
         // This is a little hacky at the moment, need to find a nicer
@@ -202,11 +231,6 @@ class ShippingCalculator extends Object
         if ($discount && $discount->Type == "Free Shipping" && ((strpos($discount->Country, $this->country_code) !== false) || $discount->Country == "*")) {
             $postage = Checkout::CreateFreePostageObject();
             $return->add($postage);
-        }
-        
-        // Make sure we don't effect any associations
-        foreach ($postage_areas as $item) {
-            $return->add($item);
         }
         
         // Before doing anything else, remove any wildcards (if needed)
