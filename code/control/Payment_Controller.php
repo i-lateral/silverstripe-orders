@@ -296,6 +296,12 @@ class Payment_Controller extends Controller
         } else {
             $return = $this->success_data();
         }
+
+        // Add the paid order data to our completed page
+        $order = Order::get()
+            ->byID(Session::get("Checkout.OrderID"));
+
+        $return["Order"] = $order;
             
         $this->customise($return);
         
@@ -308,6 +314,7 @@ class Payment_Controller extends Controller
             ShoppingCart::get()->clear();
             unset($_SESSION['Checkout.PostageID']);
             unset($_SESSION['Checkout.PaymentMethod']);
+            unset($_SESSION['Checkout.OrderID']);
         }
 
         return $this->renderWith(array(
