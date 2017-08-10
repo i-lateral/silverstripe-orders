@@ -271,6 +271,12 @@ class Order extends DataObject implements PermissionProvider
 
     private static $default_sort = "Created DESC";
     
+    /**
+     * Generate a link to view the associated front end quote
+     * for this order
+     *
+     * @return string
+     */
     public function QuoteLink() {
         return Controller::join_links(
             OrdersFront_Controller::create()->AbsoluteLink("quote"),
@@ -278,13 +284,46 @@ class Order extends DataObject implements PermissionProvider
             $this->AccessKey
         );
     }
-    
+
+    /**
+     * Generate a link to view an assocaited front end invoice for
+     * this order
+     *
+     * @return string
+     */
     public function InvoiceLink() {
         return Controller::join_links(
             OrdersFront_Controller::create()->AbsoluteLink(),
             $this->ID,
             $this->AccessKey
         );
+    }   
+
+    /**
+     * Generate a link to view the payment associated with this
+     * order (if one is set)
+     *
+     * @return string
+     */
+    public function PaymentLink() {
+        $payment = $this->getPayment();
+        $return = "";
+
+        if ($payment) {
+            $return = Controller::join_links(
+                Injector::inst()
+                    ->get("OrderAdmin")
+                    ->Link("Payment"),
+                "EditForm",
+                "field",
+                "Payment",
+                "item",
+                $payment->ID,
+                "edit"
+            );
+        }
+
+        return $return;
     }
     
     public function populateDefaults()
@@ -692,6 +731,18 @@ class Order extends DataObject implements PermissionProvider
         $this->extend("updateItemSummary", $html);
 
         return $html;
+    }
+
+    /**
+     * Get the payment object associated with this order
+     *
+     * @return Payment
+     */
+    public function getPayment()
+    {   
+        return Payment::get()
+            ->filter("OrderID", $this->ID)
+            ->first();
     }
 
     protected function generate_order_number()
