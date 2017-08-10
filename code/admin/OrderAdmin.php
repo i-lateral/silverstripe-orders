@@ -15,7 +15,8 @@ class OrderAdmin extends ModelAdmin
 
     private static $managed_models = array(
         'Order' => array("title" => "Orders"),
-        'Estimate' => array("title" => "Estimates")
+        'Estimate' => array("title" => "Estimates"),
+        'Payment' => array("title" => "Payments")
     );
 
     private static $model_importers = array();
