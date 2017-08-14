@@ -615,7 +615,7 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Total values of items in this order (without any tax)
      *
-     * @return Decimal
+     * @return Currency
      */
     public function getSubTotal()
     {
@@ -638,7 +638,7 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Get the postage cost for this order
      *
-     * @return Decimal
+     * @return Currency
      */
     public function getPostage()
     {
@@ -656,7 +656,7 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Total values of items in this order
      *
-     * @return Decimal
+     * @return Currency
      */
     public function getTaxTotal()
     {
@@ -667,14 +667,20 @@ class Order extends DataObject implements PermissionProvider
         
         // Calculate total from items in the list
         foreach ($items as $item) {
-            $tax = (($item->Price - ($this->DiscountAmount / $items->count())) / 100) * $item->TaxRate;
-            
+            if ($this->DiscountAmount > 0) {
+                $discount = (($item->Price - ($this->DiscountAmount / $items->count())) / 100);
+                $tax = $discount * $item->TaxRate;
+            } else {
+                $tax = $item->Tax();
+            }
             $total += $tax * $item->Quantity;
         }
         
         if ($this->PostageTax) {
             $total += $this->PostageTax;
         }
+
+        $total = Checkout::round_up($total, 2);
 
         $return->setValue($total);
         
@@ -686,7 +692,7 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Total of order including postage
      *
-     * @return Decimal
+     * @return Currency
      */
     public function getTotal()
     {
@@ -720,7 +726,7 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Return a list string summarising each item in this order
      *
-     * @return string
+     * @return HTMLText
      */
     public function getItemSummaryHTML()
     {

@@ -680,7 +680,7 @@ class ShoppingCart extends Controller
             $total += ($this->postage->Cost / 100) * $this->postage->Tax;
         }
         
-        return $total;
+        return Checkout::round_up($total, 2);
     }
 
     /**
