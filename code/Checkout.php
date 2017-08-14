@@ -238,13 +238,12 @@ class Checkout extends ViewableData
      */
     public static function round_up($value, $places = 0)
     {
-        if ($places < 0) {
-            $places = 0;
-        }
-    
-        $value = $value;
-        $mult = pow(10, $places);
-    
-        return ceil((int)($value * $mult)) / $mult;
+        // Make our "places" number more human friendly (0 = whole numbers,
+        // 1= 1 decimal place, etc).
+        $places = $places + 1;
+        $number = (float)$value;
+        $fig = (int) str_pad('1', $places, '0');
+
+        return (ceil($number * $fig) / $fig);
     }
 }
