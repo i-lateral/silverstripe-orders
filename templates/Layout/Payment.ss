@@ -3,15 +3,15 @@
     <p><%t Checkout.SummaryCopy "Please review your personal information before proceeding and entering your payment details." %></p>
 
     <div class="checkout-payment-summary row units-row line">
-        <% with $ShoppingCart %>
-            <div class="unit col-m-4 col-xs-12 size1of3 unit-33">
+        <% with $Order %>
+            <div class="col-md-3 col-xs-12">
                 <h2><%t Checkout.Order "Order" %></h2>
                 <p>
                     <strong><%t Checkout.SubTotal "Sub Total" %>:</strong>
-                    $SubTotalCost.Nice
+                    $SubTotal.Nice
                     <br/>
 
-                    <% if $Discount %>
+                    <% if $hasDiscount %>
                         <strong><%t Checkout.Discount "Discount" %>:</strong>
                         $DiscountAmount.Nice
                         <br/>
@@ -23,19 +23,16 @@
                         <br/>
                     <% end_if %>
 
-                    <% if $ShowTax %>
-                        <strong><%t Checkout.Tax "Tax" %>:</strong>
-                        $TaxCost.Nice
-                        <br/>
-                    <% end_if %>
+                    <strong><%t Checkout.Tax "Tax" %>:</strong>
+                    $TaxTotal.Nice
+                    <br/>
 
                     <strong><%t Checkout.Total "Total" %>:</strong>
-                    $TotalCost.Nice
+                    $Total.Nice
                 </p>
             </div>
-        <% end_with %>
-    
-        <% with $Order %>
+
+
             <div class="unit-33 unit size1of2 col-xs-12 col-m-4">
                 <h2><%t Checkout.BillingDetails "Billing Details" %></h2>
                 <p>
