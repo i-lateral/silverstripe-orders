@@ -385,7 +385,16 @@ class Payment_Controller extends Controller
     {
         $order = Order::get()
             ->byID(Session::get("Checkout.OrderID"));
-        $cart = ShoppingCart::get();
+
+        // If an error with order, redirect back
+        if (!$order) {
+            $form->sessionMessage(
+                "Orders.ErrorCreatingOrder",
+                "Error creating order, please try again"
+            );
+            
+            return $this->redirectBack();
+        }
 
         // Map our order data to an array to omnipay
         $omnipay_data = [];
@@ -403,7 +412,7 @@ class Payment_Controller extends Controller
         $payment = Payment::create()
             ->init(
                 $this->getPaymentMethod(),
-                Checkout::round_up($cart->TotalCost, 2),
+                Checkout::round_up($order->Total->Value, 2),
                 Checkout::config()->currency_code
             )->setSuccessUrl($this->Link('complete'))
             ->setFailureUrl(Controller::join_links(
@@ -411,12 +420,8 @@ class Payment_Controller extends Controller
                 "error"
             ));
         
-        // Map order ID
-        if ($order && $order->ID) {
-            $payment->OrderID = $order->ID;
-        }
-
-        // Save it to the database to generate an ID
+        // Map order ID & save to generate an ID
+        $payment->OrderID = $order->ID;
         $payment->write();
 
         // Add an extension before we finalise the payment
