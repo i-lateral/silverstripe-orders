@@ -74,19 +74,21 @@ class Order extends DataObject implements PermissionProvider
         "dispatched",
         "canceled"
     );
-    
+
     /**
-     * Actions on an order are to determine what will happen on
-     * completion (the defaults are post or collect).
+     * What statuses are considered "paid for". Meaning
+     * they are complete, ready for processing, etc.
      * 
      * @var array
      * @config
      */
-    private static $actions = array(
-        "post" => "Post",
-        "collect" => "Collect"
+    private static $paid_statuses = array(
+        "paid",
+        "processing",
+        "dispatched",
+        "collected"
     );
-    
+
     /**
      * List of statuses that allow editing of an order. We can use this
      * to fix certain orders in the CMS 
@@ -129,6 +131,18 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $incomplete_status = "incomplete";
+
+    /**
+     * Actions on an order are to determine what will happen on
+     * completion (the defaults are post or collect).
+     * 
+     * @var array
+     * @config
+     */
+    private static $actions = array(
+        "post" => "Post",
+        "collect" => "Collect"
+    );
     
     /**
      * Set the default action on our order. If we were using this module
@@ -246,7 +260,8 @@ class Order extends DataObject implements PermissionProvider
         'ItemSummaryHTML'   => 'HTMLText',
         'TranslatedStatus'  => 'Varchar',
         "QuoteLink"         => 'Varchar',
-        "InvoiceLink"       => 'Varchar'
+        "InvoiceLink"       => 'Varchar',
+        "Paid"              => "Boolean"
     );
 
     private static $defaults = array(
@@ -337,7 +352,7 @@ class Order extends DataObject implements PermissionProvider
     {
         $member = Member::currentUser();
         $existing_customer = $this->config()->existing_customer_class;
-        
+
         // Manually inject HTML for totals as Silverstripe refuses to
         // render Currency.Nice any other way.
         $subtotal_html = '<div id="SubTotal" class="field readonly">';
@@ -587,6 +602,26 @@ class Order extends DataObject implements PermissionProvider
         }
     }
 
+    /**
+     * Has thie order been paid for? We determine this
+     * by checking one of the pre-defined "paid_statuses"
+     * in the config variable:
+     * 
+     *   # Order.paid_statuses
+     *
+     * @return boolean
+     */
+    public function getPaid()
+    {
+        $statuses = $this->Config()->paid_statuses;
+
+        if (!is_array($statuses)) {
+            return $this->Status == $statuses;
+        } else {
+            return in_array($this->Status, $statuses);
+        }
+    }
+
 
     /**
      * Mark this order as "complete" which generally is intended
@@ -607,6 +642,11 @@ class Order extends DataObject implements PermissionProvider
     }
 
 
+    /**
+     * Has this order got a discount applied?
+     *
+     * @return boolean
+     */
     public function hasDiscount()
     {
         return (ceil($this->DiscountAmount)) ? true : false;
