@@ -3,6 +3,38 @@
     background-position: 0 0;
 }
 
+/** Order Admin */
+#Root.orders-root {
+  width: 100%;
+  height: 100%;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding-right: 225px;
+}
+
+/** Order admin items tab */
+#Root .order-admin-items {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+/** Order admin Items Gridfield */
+.cms .ss-gridfield .add-existing-autocompleter button#action_gridfield_relationfind {
+    display: none;
+}
+
+.cms .ss-gridfield .add-existing-autocompleter button#action_gridfield_orderitemadd {
+    height: 32px;
+    margin-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}
+
+/** Order Admin items Sidebar */
 .order-admin-sidebar {
   border-right: none;
   border-left: 1px solid #C0C0C2;
@@ -13,37 +45,28 @@
 }
 
 .order-items-sidebar {
-  width: 280px;
+  width: 225px;
 }
+    .order-items-sidebar .cms-panel-content {
+        -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+        padding: 5px 12px 8px 8px;
+        width: 230px;
+    }
+        .order-items-sidebar .cms-panel-content .field label.left {
+            float: left;
+            font-weight: bold;
+            padding: 8px 8px 8px 0;
+        }
+        .order-items-sidebar .cms-panel-content .field .middleColumn {
+            margin: 0;
+            text-align: right;
+        }
+        .order-items-sidebar .cms-panel-content .dropdown .middleColumn {
+            text-align: left;
+        }
 
-.order-items-sidebar .cms-panel-content {
-    box-sizing: border-box;
-    padding: 5px 12px 8px 8px;
-}
 
-.order-items-sidebar .cms-panel-content .field label.left {
-    float: left;
-    padding: 8px 8px 8px 0;
-}
-
-.order-items-sidebar .cms-panel-content .field .middleColumn {
-    margin: 0;
-    text-align: right;
-}
-
-#Root.orders-root {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  padding-right: 280px;
-}
-
-#Root .order-admin-items {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  box-sizing: border-box;
-}
 .cms-content-fields.orders-center > fieldset {
 	width: 100%;
 	height: 100%;
@@ -52,6 +75,7 @@
 	min-width: 0;
 }
 
+/** Order admin customer tab */
 .order-customer-sidebar .cms-panel-content {
     width: 550px;
 }
@@ -67,7 +91,8 @@
   height: 100%;
   overflow-y: hidden;
   overflow-x: hidden;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
     .order-admin-customer .field label.left { 
         width: 135px;
@@ -75,11 +100,3 @@
     .order-admin-customer .field .middleColumn {
         margin-left: 145px;
     }
-    
-.cms .ss-gridfield .add-existing-autocompleter button#action_gridfield_orderitemadd {
-    height: 32px;
-    margin-left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-left: none;
-}

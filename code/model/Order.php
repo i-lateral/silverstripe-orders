@@ -530,12 +530,12 @@ class Order extends DataObject implements PermissionProvider
                 ->setMapFields($this->config()->existing_customer_map);
         }
         
+
+		$tab_root->addextraClass('orders-root');
         $tab_main->addExtraClass("order-admin-items");
         $tab_customer->addExtraClass("order-admin-customer");
 
         $this->extend("updateCMSFields", $fields);
-
-		$fields->fieldByName('Root')->addextraClass('orders-root');
 
         return $fields;
     }
