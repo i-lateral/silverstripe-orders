@@ -44,6 +44,7 @@ class Order extends DataObject implements PermissionProvider
         "pending" => "Pending",
         "paid" => "Paid",
         "processing" => "Processing",
+        "ready" => "Ready",
         "dispatched" => "Dispatched",
         "collected" => "Collected",
         "refunded" => "Refunded"
@@ -72,6 +73,7 @@ class Order extends DataObject implements PermissionProvider
      */
     private static $historic_statuses = array(
         "dispatched",
+        "collected",
         "canceled"
     );
 
@@ -85,6 +87,7 @@ class Order extends DataObject implements PermissionProvider
     private static $paid_statuses = array(
         "paid",
         "processing",
+        "ready",
         "dispatched",
         "collected"
     );
