@@ -93,7 +93,8 @@ class OrderNotification extends DataObject
             
             $email->populateTemplate(array(
                 "Order" => $order,
-                "SiteConfig" => $this->Parent()
+                "SiteConfig" => $this->Parent(),
+                "Notification" => $this
             ));
             
             $this->extend("augmentEmailCustomer", $email, $order);
@@ -120,7 +121,8 @@ class OrderNotification extends DataObject
             $email->setTemplate("OrderNotificationEmail_Vendor");
             
             $email->populateTemplate(array(
-                "Order" => $order
+                "Order" => $order,
+                "Notification" => $this
             ));
             
             $this->extend("augmentEmailVendor", $email, $order);
