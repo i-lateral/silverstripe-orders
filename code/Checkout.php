@@ -234,16 +234,22 @@ class Checkout extends ViewableData
      *
      * @param float $value Float to round up
      * @param int $places the number of decimal places to round to
-     * @return void
+     * @return float
      */
     public static function round_up($value, $places = 0)
     {
-        // Make our "places" number more human friendly (0 = whole numbers,
-        // 1= 1 decimal place, etc).
-        $places = $places + 1;
-        $number = (float)$value;
-        $fig = (int) str_pad('1', $places, '0');
+        $offset = 0.5;
 
-        return (ceil($number * $fig) / $fig);
+        if ($places !== 0) {
+            $offset /= pow(10, $places);
+        }
+        
+        $return = round(
+            $value + $offset,
+            $places,
+            PHP_ROUND_HALF_DOWN
+        );
+        
+        return $return;
     }
 }
