@@ -2,7 +2,7 @@
 /**
  * Postage objects list available postage costs and destination locations
  *
- * @author morven
+ * @author Mo <morven@ilateral.co.uk>
  */
 class PostageArea extends DataObject
 {
@@ -22,8 +22,23 @@ class PostageArea extends DataObject
     );
     
     private static $casting = array(
-        "Total"          => "Currency"
+        "TaxAmount"     => "Currency",
+        "Total"         => "Currency"
     );
+
+    /**
+     * Get the amount of tax for this postage object.
+     *
+     * @return Float
+     */
+    public function getTaxAmount()
+    {   
+        if ($this->Cost && $this->Tax) {
+            return (($this->Cost / 100) * $this->Tax);
+        } else {
+            return 0;
+        }
+    }
 
     /**
      * Get the total cost including tax
@@ -35,7 +50,7 @@ class PostageArea extends DataObject
     public function Total($decimal_size = null)
     {
         if ($this->Cost && $this->Tax) {
-            $cost = $this->Cost + (($this->Cost / 100) * $this->Tax);
+            $cost = $this->Cost + $this->getTaxAmount();
         } else {
             $cost = $this->Cost;
         }
