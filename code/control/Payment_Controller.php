@@ -132,7 +132,7 @@ class Payment_Controller extends Controller
      *
      * @param $request Current request object
      */
-        public function index($request)
+    public function index($request)
     {
         $cart = ShoppingCart::get();
         $data = array();
@@ -226,28 +226,16 @@ class Payment_Controller extends Controller
         $order->write();
 
         // Loop through each session cart item and add that item to the order
-        foreach ($cart->getItems() as $cart_item) {
-            $order_item = new OrderItem();
-            
-            $order_item->Title          = $cart_item->Title;
-            $order_item->Customisation  = serialize($cart_item->Customisations);
-            $order_item->Quantity       = $cart_item->Quantity;
-            
-            if ($cart_item->StockID) {
-                $order_item->StockID = $cart_item->StockID;
-            }
+        foreach ($cart->getItems() as $order_item) {
+            $new_item = $order_item->duplicate();
+            $new_item->write();
 
-            if ($cart_item->Price) {
-                $order_item->Price = $cart_item->Price;
-            }
-
-            if ($cart_item->TaxRate) {
-                $order_item->TaxRate = $cart_item->TaxRate;
-            }
-
-            $order_item->write();
-
-            $order->Items()->add($order_item);
+            $cart
+                ->getItems()
+                ->remove($new_item);
+            $order
+                ->Items()
+                ->add($new_item);
         }
 
         $this->extend("onBeforeIndex", $order);
@@ -312,7 +300,6 @@ class Payment_Controller extends Controller
         // Clear our session data
         if (isset($_SESSION)) {
             ShoppingCart::get()->clear();
-            unset($_SESSION['Checkout.PostageID']);
             unset($_SESSION['Checkout.PaymentMethod']);
             unset($_SESSION['Checkout.OrderID']);
         }

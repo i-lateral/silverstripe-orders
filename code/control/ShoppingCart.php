@@ -10,7 +10,7 @@
  */
 class ShoppingCart extends Controller
 {
-
+    
     /**
      * URL Used to access this controller
      *
@@ -18,7 +18,7 @@ class ShoppingCart extends Controller
      * @config
      */
     private static $url_segment = 'checkout/cart';
-
+    
     /**
      * Name of the current controller. Mostly used in templates.
      *
@@ -28,23 +28,49 @@ class ShoppingCart extends Controller
     private static $class_name = "ShoppingCart";
     
     /**
-     * Name of the current controller. Mostly used in templates.
+     * Overwrite the default title for this controller which is taken
+     * from the translation files. This is used for Title and MetaTitle
+     * variables in templates.
      *
      * @var string
      * @config
      */
-    private static $item_class = "ShoppingCartItem";
-
+    private static $title;
+    
+    /**
+     * Class Name of object we use as an assotiated estimate.
+     * This defaults to Estimate
+     *
+     * @var string
+     * @config
+     */
+    private static $estimate_class = "Estimate";
+    
+    /**
+     * Class Name of item we add to the shopping cart/an estimate.
+     * This defaults to OrderItem
+     *
+     * @var string
+     * @config
+     */
+    private static $item_class = "OrderItem";
+    
     /**
      * Should the cart globally check for stock levels on items added?
-     * Using this settings will ignore individual "Stocked" settings
+     * Using this setting will ignore individual "Stocked" settings
      * on Shopping Cart Items.
      *
      * @var string
      * @config
      */
     private static $check_stock_levels = false;
-
+    
+    /**
+     * These methods are mapped to sub URLs of this
+     * controller.
+     *
+     * @var array
+     */
     private static $allowed_actions = array(
         "remove",
         "emptycart",
@@ -56,24 +82,25 @@ class ShoppingCart extends Controller
         "PostageForm",
         "DiscountForm"
     );
-
-    /**
-     * Overwrite the default title for this controller which is taken
-     * from the translation files. This is used for Title and MetaTitle
-     * variables in templates.
-     *
-     * @var string
-     * @config
-     */
-    private static $title;
-
+    
     /**
      * Track all items stored in the current shopping cart
      *
      * @var ArrayList
      */
     protected $items;
-
+    
+    /**
+     * An estimate object that this shopping cart is associated
+     * with.
+     *
+     * This estimate is used to calculate things such as Total,
+     * Tax, etc.
+     *
+     * @var Estimate
+     */
+    protected $estimate;
+    
     /**
      * Track a discount object placed against this cart
      *
@@ -83,11 +110,11 @@ class ShoppingCart extends Controller
     
     /**
      * Track the currently selected postage (if available)
-     * 
+     *
      * @var Postage
      */
-     protected $postage;
-
+    protected $postage;
+    
     /**
      * Show the discount form on the shopping cart
      *
@@ -105,7 +132,7 @@ class ShoppingCart extends Controller
         "PostageCost" => "Currency",
         "TotalCost" => "Currency"
     );
-
+    
     /**
      * Getters and setters
      *
@@ -114,40 +141,50 @@ class ShoppingCart extends Controller
     {
         return self::config()->class_name;
     }
-
+    
     public function getTitle()
     {
         return ($this->config()->title) ? $this->config()->title : _t("Checkout.CartName", "Shopping Cart");
     }
-
+    
     public function getMetaTitle()
     {
         return $this->getTitle();
     }
-
+    
     public function getShowDiscountForm()
     {
         return $this->config()->show_discount_form;
     }
-
+    
+    public function getEstimate()
+    {
+        return $this->estimate;
+    }
+    
+    public function setEstimate($estimate)
+    {
+        $this->estimate = $estimate;
+    }
+    
     public function getItems()
     {
-        return $this->items;
+        return $this->estimate->Items();
     }
-
+    
     public function getDiscount()
     {
         return $this->discount;
     }
-
+    
     public function setDiscount(Discount $discount)
     {
         $this->discount = $discount;
     }
-        
+    
     /**
      * Get the link to this controller
-     * 
+     *
      * @return string
      */
     public function Link($action = null)
@@ -158,7 +195,7 @@ class ShoppingCart extends Controller
             $action
         );
     }
-
+    
     /**
      * Set postage that is available to the shopping cart based on the
      * country and zip code submitted
@@ -175,11 +212,11 @@ class ShoppingCart extends Controller
             ->setCost($this->SubTotalCost)
             ->setWeight($this->TotalWeight)
             ->setItems($this->TotalItems);
-            
+        
         $postage_areas = $postage_areas->getPostageAreas();
         
         Session::set("Checkout.AvailablePostage", $postage_areas);
-
+        
         return $this;
     }
     
@@ -187,7 +224,7 @@ class ShoppingCart extends Controller
      * Are we collecting the current cart? If click and collect is
      * disabled then this returns false, otherwise checks if the user
      * has set this via a session.
-     * 
+     *
      * @return Boolean
      */
     public function isCollection()
@@ -200,7 +237,7 @@ class ShoppingCart extends Controller
             return false;
         }
     }
-
+    
     /**
      * Determine if the current cart contains delivereable items.
      * This is used to determine setting and usage of delivery and
@@ -208,19 +245,19 @@ class ShoppingCart extends Controller
      *
      * @return Boolean
      */
-     public function isDeliverable()
-     {
-         $deliverable = false;
-
-         foreach ($this->getItems() as $item) {
-             if ($item->Deliverable) {
-                 $deliverable = true;
-             }
-         }
-
-         return $deliverable;
-     }
-
+    public function isDeliverable()
+    {
+        $deliverable = false;
+        
+        foreach ($this->getItems() as $item) {
+            if ($item->Deliverable) {
+                $deliverable = true;
+            }
+        }
+        
+        return $deliverable;
+    }
+    
     /**
      * Shortcut for ShoppingCart::create, exists because create()
      * doesn't seem quite right.
@@ -231,35 +268,103 @@ class ShoppingCart extends Controller
     {
         return ShoppingCart::create();
     }
-
-
+    
+    /**
+     * Build the shopping cart, either from session based items and a temporary
+     * estimate or from a saved estimate against a user.
+     *
+     * If a user has logged in and also has items in a session, then
+     * push these items into a saved estimate.
+     *
+     */
     public function __construct()
     {
         parent::__construct();
+
+        $member = Member::currentUser();
+        $estimate_class = self::config()->estimate_class;
         
-        // If items are stored in a session, get them now
-        if (Session::get('Checkout.ShoppingCart.Items')) {
-            $this->items = unserialize(Session::get('Checkout.ShoppingCart.Items'));
+        // If the current member doesn't have a cart, set one
+        // up, else get their estimate or create a blank one
+        // (if no member).
+        if($member && !$member->getCart()) {
+            $estimate = $estimate_class::create();
+            $estimate->Cart = true;
+            $estimate->write();
+            $member->Estimates()->add($estimate);
+        } elseif($member && $member->getCart()) {
+            $estimate = $member->getCart();
         } else {
-            $this->items = ArrayList::create();
+            $estimate = Estimate::create();
+            $estimate->Cart = true;
         }
         
-        // If discounts stored in a session, get them, else create new list
-        if (Session::get('Checkout.ShoppingCart.Discount')) {
-            $this->discount = unserialize(Session::get('Checkout.ShoppingCart.Discount'));
+        // Get any saved items from a session
+        if (Session::get('ShoppingCart.Items')) {
+            $session_items = unserialize(Session::get('ShoppingCart.Items'));
+            
+            // If the current member has an estimate, but also session items
+            // add to the order
+            foreach ($session_items as $item) {
+                $existing = $estimate
+                    ->Items()
+                    ->find("Key", $item->Key);
+                
+                if (!$existing) {
+                    if ($member) {
+                        $item->write();
+                    }
+                    $estimate
+                        ->Items()
+                        ->add($item);
+                }
+            }
+
+            // Finally, if user logged in a member, clear the session items
+            if ($member) {
+                Session::clear('ShoppingCart.Items');
+            }
         }
 
+        // Set our estimate to this cart
+        $this->setEstimate($estimate);
+        
+        // If discount stored in a session, get it
+        if (Session::get('ShoppingCart.Discount')) {
+            $this->discount = unserialize(Session::get('ShoppingCart.Discount'));
+            $this
+                ->getEstimate()
+                ->setDiscount(
+                    $this->discount->Title,
+                    $this->getDiscountAmount()
+                );
+        }
+        
         // If we don't have any discounts, a user is logged in and he has
         // access to discounts through a group, add the discount here
-        if (!$this->discount && Member::currentUserID()) {
-            $member = Member::currentUser();
+        if (!$this->discount && $member && $member->getDiscount()) {
             $this->discount = $member->getDiscount();
-            Session::set('Checkout.ShoppingCart.Discount', serialize($this->discount));
+            Session::set('ShoppingCart.Discount', serialize($this->discount));
+            $this
+                ->getEstimate()
+                ->setDiscount(
+                    $this->discount->Title,
+                    $this->getDiscountAmount()
+                );
         }
         
         // Setup postage
-        if ($postage = PostageArea::get()->byID(Session::get("Checkout.PostageID"))) {
+        $postage_id = Session::get("Checkout.PostageID");
+
+        if ($postage_id && $postage = PostageArea::get()->byID($postage_id)) {
             $this->postage = $postage;
+            $this
+                ->getEstimate()
+                ->setPostage(
+                    $postage->Title,
+                    $postage->Cost,
+                    $postage->obj("TaxAmount")->RAW()
+                );
         }
         
         // Allow extension of the shopping cart after initial setup
@@ -275,25 +380,21 @@ class ShoppingCart extends Controller
     {
         return $this->renderWith('ViewCartButton');
     }
-
-    /**
-     * Actions for this controller
-     */
-
+    
     /**
      * Default acton for the shopping cart
      */
     public function index()
     {
         $this->extend("onBeforeIndex");
-
+        
         return $this->renderWith(array(
             'ShoppingCart',
             'Checkout',
             'Page'
         ));
     }
-
+    
     /**
      * Remove a product from ShoppingCart Via its ID. This action
      * expects an ID to be sent through the URL that matches a specific
@@ -305,15 +406,15 @@ class ShoppingCart extends Controller
     {
         $key = $this->request->param('ID');
         $title = "";
-
+        
         if (!empty($key)) {
-            foreach ($this->items as $item) {
+            foreach ($this->getItems() as $item) {
                 if ($item->Key == $key) {
                     $title = $item->Title;
-                    $this->items->remove($item);
+                    $this->getItems()->remove($item);
                 }
             }
-
+            
             $this->save();
             
             if ($title) {
@@ -328,10 +429,10 @@ class ShoppingCart extends Controller
                 );
             }
         }
-
+        
         return $this->redirectBack();
     }
-
+    
     /**
      * Action that will clear shopping cart and associated sessions
      *
@@ -341,16 +442,16 @@ class ShoppingCart extends Controller
         $this->extend("onBeforeEmpty");
         $this->removeAll();
         $this->save();
-                
+        
         $this->setSessionMessage(
             "bad",
             _t("Checkout.EmptiedCart", "Shopping cart emptied")
         );
-
+        
         return $this->redirectBack();
     }
-
-
+    
+    
     /**
      * Action used to add a discount to the users session via a URL.
      * This is preferable to using the dicount form as disount code
@@ -360,21 +461,21 @@ class ShoppingCart extends Controller
     public function usediscount()
     {
         $this->extend("onBeforeUseDiscount");
-
+        
         $code_to_search = $this->request->param("ID");
         $code = false;
-
+        
         if (!$code_to_search) {
             return $this->httpError(404, "Page not found");
         }
-
+        
         // First check if the discount is already added (so we don't
         // query the DB if we don't have to).
         if (!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
             $codes = Discount::get()
                 ->filter("Code", $code_to_search)
                 ->exclude("Expires:LessThan", date("Y-m-d"));
-
+            
             if ($codes->exists()) {
                 $code = $codes->first();
                 $this->discount = $code;
@@ -383,7 +484,7 @@ class ShoppingCart extends Controller
         } elseif ($this->discount && $this->discount->Code == $code_to_search) {
             $code = $this->discount;
         }
-
+        
         return $this
             ->customise(array(
                 "Discount" => $code
@@ -397,13 +498,13 @@ class ShoppingCart extends Controller
     
     /**
      * Set the current session to click and collect (meaning no shipping)
-     * 
+     *
      * @return Redirect
      */
     public function setdeliverytype()
     {
         $this->extend("onBeforeSetDeliveryType");
-
+        
         $type = $this->request->param("ID");
         
         if ($type && in_array($type, array("deliver", "collect"))) {
@@ -415,36 +516,52 @@ class ShoppingCart extends Controller
         
         $this->redirectBack();
     }
-
+    
     /**
      * Add an item to the shopping cart. To make this process as generic
-     * as possible, we require that an object is submitted. This object
-     * can have any params, but by default we usually use:
-     * 
-     * "Title": The Title to appear in the cart
-     * "Content": A description of the item
-     * "Price": Our item's base price
-     * "Image": Image to display in cart
-     * "Customisations": array of customisations
-     * "ID": Unique identifier for this object
-     * 
-     * @param $object Object that we will add to the shopping cart
-     * @param $quantity Number of these objects to add
+     * as possible, we require that an array of data is submitted.
+     *
+     * This data is then converted to an @link OrderItem, or used to update
+     * an existing order item.
+     *
+     * @param $data An array of data that we will be added to the cart
+     * @param $quantity Number of these items to add
      */
     public function add($data, $quantity = 1)
     {
-        if (array_key_exists("Key", $data)) {
+        if (!array_key_exists("Key", $data)) {
+            throw new Exception(_t("Checkout.NoKeyOnItem", "No valid Key set on item"));
+        } else {
             $added = false;
             $item_key = $data['Key'];
-
+            
+            // If using the old ClassName variable, update to the
+            // new ProductClass variable and wipe
+            if (array_key_exists("ClassName", $data)) {
+                $data["ProductClass"] = $data["ClassName"];
+                unset($data["ClassName"]);
+            }
+            
+            // If using the old BasePrice variable, update to the
+            // new Price variable and wipe
+            if (array_key_exists("BasePrice", $data)) {
+                $data["Price"] = $data["BasePrice"];
+                unset($data["BasePrice"]);
+            }
+            
+            // Ensure we don't alllow any object ID's to be set
+            if (array_key_exists("ID", $data)) {
+                unset($data["ID"]);
+            }
+            
             // Check if object already in the cart and update quantity
-            foreach ($this->items as $item) {
+            foreach ($this->getItems() as $item) {
                 if ($item->Key == $item_key) {
                     $this->update($item->Key, ($item->Quantity + $quantity));
                     $added = true;
                 }
             }
-
+            
             // If no update was sucessfull then add to cart items
             if (!$added) {
                 $cart_item = self::config()->item_class;
@@ -453,23 +570,34 @@ class ShoppingCart extends Controller
                 foreach ($data as $key => $value) {
                     $cart_item->$key = $value;
                 }
-
+                
                 // If we need to track stock, do it now
                 if ($cart_item->Stocked || $this->config()->check_stock_levels) {
-                    $cart_item->checkStockLevel($quantity);
+                    if (!$cart_item->checkStockLevel($quantity)) {
+                        throw new ValidationException(_t(
+                        "Checkout.NotEnoughStock",
+                        "There are not enough '{title}' in stock",
+                        "Message to show that an item hasn't got enough stock",
+                        array('title' => $cart_item->Title)
+                        ));
+                    }
                 }
                 
                 $cart_item->Key = $item_key;
                 $cart_item->Quantity = $quantity;
                 
                 $this->extend("onBeforeAdd", $cart_item);
-
-                $this->items->add($cart_item);
+                
+                $this
+                    ->getEstimate()
+                    ->Items()
+                    ->add($cart_item);
+                
                 $this->save();
             }
         }
     }
-
+    
     /**
      * Find an existing item and update its quantity
      *
@@ -479,7 +607,7 @@ class ShoppingCart extends Controller
     public function update($item_key, $quantity)
     {
         $item = $this
-            ->items
+            ->getItems()
             ->find("Key", $item_key);
         
         if ($item && !$item->Locked) {
@@ -487,61 +615,83 @@ class ShoppingCart extends Controller
             if ($item->Stocked || $this->config()->check_stock_levels) {
                 $item->checkStockLevel($quantity);
             }
-
+            
             $item->Quantity = floor($quantity);
             
             $this->extend("onBeforeUpdate", $item);
+
+            // If the current item is in the DB, update
+            if ($item->ID) {
+                $item->write();
+            }
             
             $this->save();
         } else {
             throw new Exception(_t("Checkout.UnableToEditItem", "Unable to change item's quantity"));
         }
-
+        
         return false;
     }
-
+    
     /**
      * Empty the shopping cart object of all items.
      *
      */
     public function removeAll()
     {
-        foreach ($this->items as $item) {
-            $this->items->remove($item);
+        foreach ($this->getItems() as $item) {
+            $item->delete();
         }
     }
-
+    
     /**
      * Save the current products list and postage to a session.
      *
      */
     public function save()
     {
-        Session::clear("Checkout.PostageID");
-        
         // Extend our save operation
         $this->extend("onBeforeSave");
-
-        // Save cart items
-        Session::set(
-            "Checkout.ShoppingCart.Items",
-            serialize($this->items)
-        );
-
+        
+        $member = Member::currentUser();
+        
+        // Clear any currently set postage
+        Session::clear("Checkout.PostageID");
+        
+        // Save cart items, either to a session or to
+        // the current user's estimate
+        if ($member && $estimate = $member->getCart()) {
+            $estimate->write();
+        } else {
+            // Generate a new list of items and dump into session
+            $list = ArrayList::create();
+            
+            foreach($this->getItems() as $item) {
+                $list->add($item);
+            }
+            
+            Session::set("ShoppingCart.Items", serialize($list));
+        }
+        
         // Save cart discounts
-        Session::set(
-            "Checkout.ShoppingCart.Discount",
-            serialize($this->discount)
-        );
-
+        if ($this->discount) {
+            Session::set(
+                "ShoppingCart.Discount",
+                serialize($this->discount)
+            );
+        }
+        
         // Update available postage
         if ($data = Session::get("Form.Form_PostageForm.data")) {
             $country = $data["Country"];
             $code = $data["ZipCode"];
             $this->setAvailablePostage($country, $code);
         }
+        
+        // Extend our save operation
+        $this->extend("onAfterSave");
     }
-
+    
     /**
      * Clear the shopping cart object and destroy the session. Different to
      * empty, as that retains the session.
@@ -549,22 +699,26 @@ class ShoppingCart extends Controller
      */
     public function clear()
     {
-        Session::clear('Checkout.ShoppingCart.Items');
-        Session::clear('Checkout.ShoppingCart.Discount');
+        // First tear down any objects in our estimate
+        $this->removeAll();
+
+        // Now remove any sessions        
+        Session::clear('ShoppingCart.Items');
+        Session::clear('ShoppingCart.Discount');
         Session::clear("Checkout.PostageID");
     }
     
     /**
      * Shortcut to checkout config, to allow us to access it via
      * templates
-     * 
+     *
      * @return boolean
      */
     public function ShowTax()
     {
         return Checkout::config()->show_tax;
     }
-
+    
     /**
      * Find the total weight of all items in the shopping cart
      *
@@ -572,33 +726,23 @@ class ShoppingCart extends Controller
      */
     public function getTotalWeight()
     {
-        $total = 0;
-
-        foreach ($this->items as $item) {
-            if ($item->Weight && $item->Quantity) {
-                $total = $total + ($item->Weight * $item->Quantity);
-            }
-        }
-        
-        return $total;
+        return $this
+            ->getEstimate()
+            ->getTotalWeight();
     }
-
+    
     /**
      * Find the total quantity of items in the shopping cart
      *
      * @return Int
      */
     public function getTotalItems()
-    {
-        $total = 0;
-        
-        foreach ($this->items as $item) {
-            $total += ($item->Quantity) ? $item->Quantity : 1;
-        }
-
-        return $total;
+    {   
+        return $this
+            ->getEstimate()
+            ->getTotalItems();
     }
-
+    
     /**
      * Find the cost of all items in the cart, without any tax.
      *
@@ -606,17 +750,11 @@ class ShoppingCart extends Controller
      */
     public function getSubTotalCost()
     {
-        $total = 0;
-
-        foreach ($this->items as $item) {
-            if ($item->SubTotal) {
-                $total += $item->SubTotal;
-            }
-        }
-        
-        return $total;
+        return $this
+            ->getEstimate()
+            ->getSubTotal();
     }
-
+    
     /**
      * Get the cost of postage
      *
@@ -632,34 +770,42 @@ class ShoppingCart extends Controller
         
         return $total;
     }
-
+    
     /**
      * Find the total discount based on discount items added.
      *
-     * @return Currency
+     * @return Float
      */
     public function getDiscountAmount()
     {
+        $discount = $this->getDiscount();
         $total = 0;
-        $discount = 0;
+        $discount_amount = 0;
+        $items = $this->TotalItems;
         
-        foreach ($this->items as $item) {
+        foreach ($this->getItems() as $item) {
             if ($item->Price) {
                 $total += ($item->Price * $item->Quantity);
             }
             
-            if ($item->Discount) {
-                $discount += ($item->TotalDiscount);
+            if ($item->Price && $discount && $discount->Amount) {
+                if ($discount->Type == "Fixed") {
+                    $discount_amount = $discount_amount + ($discount->Amount / $items) * $item->Quantity;
+                } elseif ($discount->Type == "Percentage") {
+                    $discount_amount = $discount_amount + (($item->Price / 100) * $discount->Amount) * $item->Quantity;
+                }
             }
         }
-        
-        if ($discount > $total) {
-            $discount = $total;
+
+        if ($discount_amount > $total) {
+            $discount_amount = $total;
         }
 
-        return $discount;
+        $this->extend("updateDiscountAmount", $discount_amount);
+        
+        return $discount_amount;
     }
-
+    
     /**
      * Find the total cost of tax for the items in the cart, as well as shipping
      * (if set)
@@ -668,21 +814,12 @@ class ShoppingCart extends Controller
      */
     public function getTaxCost()
     {
-        $total = 0;
-
-        foreach ($this->items as $item) {
-            if ($item->TotalTax) {
-                $total += $item->TotalTax;
-            }
-        }
-
-        if ($this->postage && $this->postage->Cost && $this->postage->Tax) {
-            $total += ($this->postage->Cost / 100) * $this->postage->Tax;
-        }
-        
-        return Checkout::round_up($total, 2);
+        return $this
+            ->getEstimate()
+            ->getTaxTotal()
+            ->getValue();
     }
-
+    
     /**
      * Find the total cost of for all items in the cart, including tax and
      * shipping (if applicable)
@@ -691,14 +828,11 @@ class ShoppingCart extends Controller
      */
     public function getTotalCost()
     {
-        $subtotal = $this->SubTotalCost;
-        $discount = $this->DiscountAmount;
-        $postage = $this->PostageCost;
-        $tax = $this->TaxCost;
-
-        return ($subtotal - $discount) + $postage + $tax;
+        return $this
+            ->getEstimate()
+            ->getTotal()
+            ->getValue();
     }
-
 
     /**
      * Form responsible for listing items in the shopping cart and
@@ -709,22 +843,22 @@ class ShoppingCart extends Controller
     public function CartForm()
     {
         $fields = new FieldList();
-
+        
         $actions = new FieldList(
             FormAction::create('doUpdate', _t('Checkout.UpdateCart', 'Update Cart'))
                 ->addExtraClass('btn')
                 ->addExtraClass('btn-blue btn-info')
         );
-
+        
         $form = Form::create($this, "CartForm", $fields, $actions)
             ->addExtraClass("forms")
             ->setTemplate("ShoppingCartForm");
-
+        
         $this->extend("updateCartForm", $form);
-
+        
         return $form;
     }
-
+    
     /**
      * Form that allows you to add a discount code which then gets added
      * to the cart's list of discounts.
@@ -742,21 +876,21 @@ class ShoppingCart extends Controller
                 _t("Checkout.EnterDiscountCode", "Enter a discount code")
             )
         );
-
+        
         $actions = new FieldList(
             FormAction::create('doAddDiscount', _t('Checkout.Add', 'Add'))
                 ->addExtraClass('btn')
                 ->addExtraClass('btn-blue btn-info')
         );
-
+        
         $form = Form::create($this, "DiscountForm", $fields, $actions)
             ->addExtraClass("forms");
-
+        
         $this->extend("updateDiscountForm", $form);
-
+        
         return $form;
     }
-
+    
     /**
      * Form responsible for estimating shipping based on location and
      * postal code
@@ -797,7 +931,6 @@ class ShoppingCart extends Controller
             ->addExtraClass('forms-inline')
             ->setLegend(_t("Checkout.EstimateShipping", "Estimate Shipping"));
 
-
             // If we have stipulated a search, then see if we have any results
             // otherwise load empty fieldsets
             if ($available_postage && $available_postage->exists()) {
@@ -809,34 +942,34 @@ class ShoppingCart extends Controller
                     $area_currency->setValue($area->Cost);
                     $postage_array[$area->ID] = $area->Title . " (" . $area_currency->Nice() . ")";
                 }
-
+                
                 $fields->add(OptionsetField::create(
                     "PostageID",
                     _t('Checkout.SelectPostage', "Select Postage"),
                     $postage_array
                 ));
-
+                
                 $actions
                     ->dataFieldByName("action_doSetPostage")
                     ->setTitle(_t('Checkout.Update', "Update"));
             }
-
+            
             // Check if the form has been re-posted and load data
             $data = Session::get("Form.{$form->FormName()}.data");
             if (is_array($data)) {
                 $form->loadDataFrom($data);
             }
-
+            
             // Check if the postage area has been set, if so, Set Postage ID
             $data = array();
             $data["PostageID"] = Session::get("Checkout.PostageID");
             if (is_array($data)) {
                 $form->loadDataFrom($data);
             }
-
+            
             // Extension call
             $this->extend("updatePostageForm", $form);
-
+            
             return $form;
         }
     }
@@ -849,7 +982,7 @@ class ShoppingCart extends Controller
      */
     public function doUpdate($data, $form)
     {
-        foreach ($this->items as $cart_item) {
+        foreach ($this->getItems() as $cart_item) {
             foreach ($data as $key => $value) {
                 $sliced_key = explode("_", $key);
                 if ($sliced_key[0] == "Quantity") {
@@ -885,12 +1018,12 @@ class ShoppingCart extends Controller
                 }
             }
         }
-
+        
         $this->save();
-
+        
         return $this->redirectBack();
     }
-
+    
     /**
      * Action that will find a discount based on the code
      *
@@ -900,7 +1033,7 @@ class ShoppingCart extends Controller
     public function doAddDiscount($data, $form)
     {
         $code_to_search = $data['DiscountCode'];
-
+        
         // First check if the discount is already added (so we don't
         // query the DB if we don't have to).
         if (!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
@@ -908,17 +1041,17 @@ class ShoppingCart extends Controller
                 ->filter("Code", $code_to_search)
                 ->exclude("Expires:LessThan", date("Y-m-d"))
                 ->first();
-
+            
             if ($code) {
                 $this->discount = $code;
             }
         }
-
+        
         $this->save();
-
+        
         return $this->redirectBack();
     }
-
+    
     /**
      * Method that deals with get postage details and setting the
      * postage
@@ -930,11 +1063,11 @@ class ShoppingCart extends Controller
     {
         $country = $data["Country"];
         $code = $data["ZipCode"];
-
+        
         $this->setAvailablePostage($country, $code);
         
         $postage = Session::get("Checkout.AvailablePostage");
-
+        
         // Check that postage is set, if not, see if we can set a default
         if (array_key_exists("PostageID", $data) && $data["PostageID"]) {
             
@@ -945,7 +1078,7 @@ class ShoppingCart extends Controller
             } else {
                 $id = $postage->first()->ID;
             }
-                
+            
             $data["PostageID"] = $id;
             Session::set("Checkout.PostageID", $id);
         } else {
@@ -955,12 +1088,12 @@ class ShoppingCart extends Controller
                 Session::set("Checkout.PostageID", $postage->first()->ID);
             }
         }
-
+        
         // Set the form pre-populate data before redirecting
         Session::set("Form.{$form->FormName()}.data", $data);
         
         $url = Controller::join_links($this->Link(), "#{$form->FormName()}");
-
+        
         return $this->redirect($url);
     }
 }

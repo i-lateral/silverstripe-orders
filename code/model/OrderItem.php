@@ -1,26 +1,65 @@
 <?php
 /**
- * OrderItem is a physical component of an order, that describes a product
+ * OrderItem is a single line item on an order, extimate or even in
+ * the shopping cart.
+ * 
+ * An item has a number of fields that describes a product:
+ * 
+ * - Key: ID used to detect this item
+ * - Title: Title of the item
+ * - Content: Description of this object
+ * - Quantity: Number or items in this order
+ * - Weight: Weight of this item (unit of measurment is defined globally)
+ * - TaxRate: Rate of tax for this item (e.g. 20.00 for 20%)
+ * - ProductClass: ClassName of product that this item is matched against
+ * - StockID: Unique identifier of this item (used with ProductClass
+ *            match to a product)
+ * - Locked: Is this a locked item? Locked items cannot be changed in the
+ *           shopping cart
+ * - Deliverable: Is this a product that can be delivered? This can effect
+ *                delivery options in the checkout
  *
- * @author morven
+ * @author Mo <morven@ilateral.co.uk>
  */
 class OrderItem extends DataObject
 {
-    
     /**
+     * The name of the param used on a related product to
+     * track Stock Levels.
+     * 
+     * Defaults to StockLevel
+     *
+     * @var string
+     * @config
+     */
+    private static $stock_param = "StockLevel";
+
+    /**
+     * Standard database columns
+     * 
+     * @var array
      * @config
      */
     private static $db = array(
+        "Key"           => "Varchar(255)",
         "Title"         => "Varchar",
-        "StockID"       => "Varchar(100)",
-        "Type"          => "Varchar",
-        "Customisation" => "Text",
+        "Content"       => "HTMLText",
         "Quantity"      => "Int",
+        "Weight"        => "Decimal",
+        "StockID"       => "Varchar(100)",
+        "ProductClass"  => "Varchar",
+        "Customisation" => "Text",
         "Price"         => "Currency",
-        "TaxRate"       => "Decimal"
+        "TaxRate"       => "Decimal",
+        "Locked"        => "Boolean",
+        "Stocked"       => "Boolean",
+        "Deliverable"   => "Boolean"
     );
 
     /**
+     * Foreign key associations in DB
+     * 
+     * @var array
      * @config
      */
     private static $has_one = array(
@@ -28,6 +67,23 @@ class OrderItem extends DataObject
     );
 
     /**
+     * Specify default values of a field
+     *
+     * @var array
+     * @config
+     */
+    private static $defaults = array(
+        "Quantity"      => 1,
+        "ProductClass"  => "Product",
+        "Locked"        => false,
+        "Stocked"       => false,
+        "Deliverable"   => true
+    );
+
+    /**
+     * Fields to display in list tables
+     * 
+     * @var array
      * @config
      */
     private static $summary_fields = array(
@@ -40,6 +96,9 @@ class OrderItem extends DataObject
     );
     
     /**
+     * Function to DB Object conversions
+     * 
+     * @var array
      * @config
      */
     private static $casting = array(
@@ -54,6 +113,25 @@ class OrderItem extends DataObject
     public function Tax()
     {
         return ($this->Price / 100) * $this->TaxRate;
+    }
+
+    /**
+     * Get an image object associated with this line item.
+     * By default this is retrieved from the base product.
+     * 
+     * @return Image | null
+     */
+    public function Image()
+    {
+        $product = $this->FindStockItem();
+
+        if ($product && method_exists($product, "SortedImages")) {
+            return  $product->SortedImages()->first();
+        } elseif ($product && method_exists($product, "Images")) {
+            return $product->Images()->first();
+        } elseif ($product && method_exists($product, "Image") && $product->Image()->exists()) {
+            return $product->Image();
+        }
     }
 
     /**
@@ -124,11 +202,32 @@ class OrderItem extends DataObject
      * @param $match_col = The column we use to match the two objects
      * @return DataObject
      */
-    public function Match($relation_name = "Product", $relation_col = "StockID", $match_col = "StockID")
+    public function Match($relation_name = null, $relation_col = "StockID", $match_col = "StockID")
     {
+        // Try to determine relation name
+        if (!$relation_name && !$this->ProductClass) {
+            $relation_name = "Product";
+        } elseif(!$relation_name && $this->ProductClass) {
+            $relation_name = $this->ProductClass;
+        }
+        
         return $relation_name::get()
-            ->filter($relation_col, $this->owner->$match_col)
+            ->filter($relation_col, $this->$match_col)
             ->first();
+    }
+
+    /**
+     * Find our original stock item (useful for adding links back to the
+     * original product).
+     * 
+     * This function is a synonym for @Link Match (as a result of) merging
+     * OrderItem and ShoppingCartItem
+     * 
+     * @return DataObject
+     */
+    public function FindStockItem()
+    {
+        return $this->Match();
     }
     
     public function getCMSFields()
@@ -138,6 +237,23 @@ class OrderItem extends DataObject
         $fields->removeByName("Customisation");
         
         return $fields;
+    }
+
+    /**
+     * Check stock levels for this item, will return the actual number
+     * of remaining stock after removing the current quantity
+     * 
+     * @param $qty The quantity we want to check against
+     * @return Int
+     */
+    public function checkStockLevel($qty)
+    {
+        $stock_param = $this->config()->stock_param;
+        $item = $this->Match();
+        $stock = ($item->$stock_param) ? $item->$stock_param : 0;
+        
+        // Return remaining stock
+        return $stock - $qty;
     }
 
     /**

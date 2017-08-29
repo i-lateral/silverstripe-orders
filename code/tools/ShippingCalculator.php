@@ -105,9 +105,10 @@ class ShippingCalculator extends Object
     }
     
     /**
-     * The total numbers of items to check against
+     * Should we also check for wildcards when doing location/
+     * postcode searches
      * 
-     * @var Float
+     * @var Boolean
      */
     private $include_wildcards = true;
     
@@ -249,7 +250,6 @@ class ShippingCalculator extends Object
                 $return->remove($location);
             }
         }
-        
 
         // Now we have a list of locations, start checking for additional
         // rules an remove if not applicable.
@@ -263,7 +263,7 @@ class ShippingCalculator extends Object
 
         // First loop through and find items that are invalid
         foreach ($return as $location) {
-            if ($location->Calculation == "Price" && ($total_cost < $location->Unit)) {
+            if ($location->Calculation == "Price" && ($total_cost->RAW() < $location->Unit)) {
                 $return->remove($location);
             }
 

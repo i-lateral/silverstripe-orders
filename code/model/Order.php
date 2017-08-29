@@ -259,6 +259,8 @@ class Order extends DataObject implements PermissionProvider
         'Postage'           => 'Currency',
         'TaxTotal'          => 'Currency',
         'Total'             => 'Currency',
+        'TotalItems'        => 'Int',
+        'TotalWeight'       => 'Decimal',
         'ItemSummary'       => 'Text',
         'ItemSummaryHTML'   => 'HTMLText',
         'TranslatedStatus'  => 'Varchar',
@@ -295,7 +297,8 @@ class Order extends DataObject implements PermissionProvider
      *
      * @return string
      */
-    public function QuoteLink() {
+    public function QuoteLink()
+    {
         return Controller::join_links(
             OrdersFront_Controller::create()->AbsoluteLink("quote"),
             $this->ID,
@@ -309,7 +312,8 @@ class Order extends DataObject implements PermissionProvider
      *
      * @return string
      */
-    public function InvoiceLink() {
+    public function InvoiceLink()
+    {
         return Controller::join_links(
             OrdersFront_Controller::create()->AbsoluteLink(),
             $this->ID,
@@ -323,7 +327,8 @@ class Order extends DataObject implements PermissionProvider
      *
      * @return string
      */
-    public function PaymentLink() {
+    public function PaymentLink()
+    {
         $payment = $this->getPayment();
         $return = "";
 
@@ -543,6 +548,11 @@ class Order extends DataObject implements PermissionProvider
         return $fields;
     }
 
+    /**
+     * Get the complete billing address for this order
+     *
+     * @return string
+     */
     public function getBillingAddress()
     {
         $address = ($this->Address1) ? $this->Address1 . ",\n" : '';
@@ -557,7 +567,7 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Get the rendered name of the billing country, based on the local
      * 
-     * @return String 
+     * @return string
      */
     public function getCountryFull()
     {
@@ -574,6 +584,11 @@ class Order extends DataObject implements PermissionProvider
         }
     }
 
+    /**
+     * Get the complete delivery address for this order
+     *
+     * @return string
+     */
     public function getDeliveryAddress()
     {
         $address = ($this->DeliveryAddress1) ? $this->DeliveryAddress1 . ",\n" : '';
@@ -588,7 +603,7 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Get the rendered name of the delivery country, based on the local
      * 
-     * @return String 
+     * @return string 
      */
     public function getDeliveryCountryFull()
     {
@@ -644,7 +659,6 @@ class Order extends DataObject implements PermissionProvider
         return $this;
     }
 
-
     /**
      * Has this order got a discount applied?
      *
@@ -653,6 +667,21 @@ class Order extends DataObject implements PermissionProvider
     public function hasDiscount()
     {
         return (ceil($this->DiscountAmount)) ? true : false;
+    }
+    
+    /**
+     * Setup the discount available on this order, you need to
+     * pass a Title (that will be rendered on the order) and an
+     * amount (that will be removed from the order).
+     *
+     * @param $title Title of the discount
+     * @param $amount The value of the discount
+     * @return void
+     */
+    public function setDiscount($title, $amount = 0)
+    {
+        $this->Discount = $title;
+        $this->DiscountAmount = $amount;
     }
 
     /**
@@ -694,6 +723,24 @@ class Order extends DataObject implements PermissionProvider
         $this->extend("updatePostage", $return);
         
         return $return;
+    }
+
+    /**
+     * Setup the postage selected on this order, you need to
+     * pass a Title (that will be rendered on the order) an
+     * amount (that will be removed from the order) and any
+     * tax that applies
+     *
+     * @param $title Title of the postage
+     * @param $amount The value of the postage
+     * @param $tav The value of the tax for this postage
+     * @return void
+     */
+    public function setPostage($title, $amount = 0, $tax = 0)
+    {
+        $this->PostageType = $title;
+        $this->PostageCost = $amount;
+        $this->PostageTax = $tax;
     }
     
     /**
@@ -741,6 +788,7 @@ class Order extends DataObject implements PermissionProvider
     {
         $return = new Currency();
         $return->setName("Total");
+        
         $total = (($this->getSubTotal()->RAW() + $this->getPostage()->RAW()) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
         
         $return->setValue($total);
@@ -748,6 +796,40 @@ class Order extends DataObject implements PermissionProvider
         $this->extend("updateTotal", $return);
         
         return $return;
+    }
+
+    /**
+     * Find the total quantity of items in the shopping cart
+     *
+     * @return Int
+     */
+    public function getTotalItems()
+    {
+        $total = 0;
+        
+        foreach ($this->Items() as $item) {
+            $total += ($item->Quantity) ? $item->Quantity : 1;
+        }
+
+        return $total;
+    }
+
+    /**
+    * Find the total weight of all items in the shopping cart
+    *
+    * @return Decimal
+    */
+    public function getTotalWeight()
+    {
+        $total = 0;
+        
+        foreach ($this->Items() as $item) {
+            if ($item->Weight && $item->Quantity) {
+                $total = $total + ($item->Weight * $item->Quantity);
+            }
+        }
+        
+        return $total;
     }
 
     /**
