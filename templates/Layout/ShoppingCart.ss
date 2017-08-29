@@ -14,15 +14,8 @@ $SessionMessage
 
         <div class="units-row row line">
             <div class="unit-66 unit size2of3 col-xs-12 col-md-8">
-                <% if $Discount || $ShowDiscountForm %>
+                <% if $ShowDiscountForm %>
                     <div class="checkout-cart-discounts line units-row end">
-                        <% if $Discount %>
-                            <h2>
-                                <%t Checkout.Discount "Discount" %>
-                                $Discount.Title
-                            </h2>
-                        <% end_if %>
-
                         <% if $ShowDiscountForm %>
                             $DiscountForm
                         <% end_if %>
@@ -79,7 +72,8 @@ $SessionMessage
                             <td class="text-right">
                                 <strong>
                                     <%t Checkout.Discount 'Discount' %>
-                                </strong>
+                                </strong><br/>
+                                ($Discount.Title)
                             </td>
                             <td class="text-right">
                                 {$DiscountAmount.Nice}
