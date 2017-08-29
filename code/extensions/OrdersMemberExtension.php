@@ -16,6 +16,7 @@ class OrdersMemberExtension extends DataExtension
 
     private static $has_many = array(
         "Orders"        => "Order",
+        "Estimates"     => "Estimate",
         "Addresses"     => "MemberAddress"
     );
     
@@ -44,6 +45,21 @@ class OrdersMemberExtension extends DataExtension
         );
 
         return $fields;
+    }
+
+    /**
+     * Get the estimate from this user that is designated as a
+     * "Cart" estimate (a shopping cart that has not been
+     *  converted to an order).
+     * 
+     * @return Estimate
+     */
+    public function getCart()
+    {
+        return $this
+            ->owner
+            ->Estimates()
+            ->find("Cart", "1");
     }
 
     /**

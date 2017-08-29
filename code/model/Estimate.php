@@ -2,7 +2,23 @@
 
 class Estimate extends Order
 {
-    
+
+    /**
+     * Standard DB columns
+     *
+     * @var array
+     * @config
+     */
+    private static $db = array(
+        "Cart"      => "Boolean"
+    );
+
+    /**
+     * Fields to show in summary views
+     *
+     * @var array
+     * @config
+     */
     private static $summary_fields = array(
         "ID"        => "#",
         'Company'   => 'Company',
