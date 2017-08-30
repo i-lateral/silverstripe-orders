@@ -19,7 +19,7 @@
  */
 class Order extends DataObject implements PermissionProvider
 {
-    
+
     /**
      * Add a string to the start of an order number (can be useful for
      * exporting orders).
@@ -28,7 +28,7 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $order_prefix = "";
-    
+
     /**
      * List of possible statuses this order can have. Rather than using
      * an enum, we load this as a config variable that can be changed
@@ -49,8 +49,7 @@ class Order extends DataObject implements PermissionProvider
         "collected" => "Collected",
         "refunded" => "Refunded"
     );
-    
-    
+
     /**
      * What statuses does an order need to be marked as "outstanding".
      * At the moment this is only used against an @Member.
@@ -62,8 +61,7 @@ class Order extends DataObject implements PermissionProvider
         "paid",
         "processing"
     );
-    
-    
+
     /**
      * What statuses does an order need to be marked as "historic".
      * At the moment this is only used against an @Member.
@@ -107,7 +105,7 @@ class Order extends DataObject implements PermissionProvider
         "failed",
         "cancelled"
     );
-    
+
     /**
      * Set the default status for a new order, if this is set to null or
      * blank, it will not be used.
@@ -146,7 +144,7 @@ class Order extends DataObject implements PermissionProvider
         "post" => "Post",
         "collect" => "Collect"
     );
-    
+
     /**
      * Set the default action on our order. If we were using this module
      * for a more POS type solution, we would probably change this to
@@ -156,7 +154,7 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $default_action = "post";
-    
+
     /**
      * This is the class that can be auto mapped to an order/estimate.
      * This is used to generate the gridfield under the customer details
@@ -165,7 +163,7 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $existing_customer_class = "Member";
-    
+
     /**
      * The list of fields that will show in the existing customer
      * gridfield.
@@ -175,7 +173,7 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $existing_customer_fields;
-    
+
     /**
      * Select the fields that will be copied from the source object to
      * our order. We add these here so they can be easily altered 
@@ -290,7 +288,7 @@ class Order extends DataObject implements PermissionProvider
     );
 
     private static $default_sort = "Created DESC";
-    
+
     /**
      * Generate a link to view the associated front end quote
      * for this order
@@ -319,7 +317,7 @@ class Order extends DataObject implements PermissionProvider
             $this->ID,
             $this->AccessKey
         );
-    }   
+    }
 
     /**
      * Generate a link to view the payment associated with this
@@ -348,7 +346,7 @@ class Order extends DataObject implements PermissionProvider
 
         return $return;
     }
-    
+
     public function populateDefaults()
     {
         parent::populateDefaults();
@@ -563,7 +561,7 @@ class Order extends DataObject implements PermissionProvider
 
         return $address;
     }
-    
+
     /**
      * Get the rendered name of the billing country, based on the local
      * 
@@ -599,7 +597,7 @@ class Order extends DataObject implements PermissionProvider
 
         return $address;
     }
-    
+
     /**
      * Get the rendered name of the delivery country, based on the local
      * 
@@ -621,7 +619,7 @@ class Order extends DataObject implements PermissionProvider
     }
 
     /**
-     * Has thie order been paid for? We determine this
+     * Has this order been paid for? We determine this
      * by checking one of the pre-defined "paid_statuses"
      * in the config variable:
      * 
@@ -639,7 +637,6 @@ class Order extends DataObject implements PermissionProvider
             return in_array($this->Status, $statuses);
         }
     }
-
 
     /**
      * Mark this order as "complete" which generally is intended
@@ -660,6 +657,38 @@ class Order extends DataObject implements PermissionProvider
     }
 
     /**
+     * Return a list string summarising each item in this order
+     *
+     * @return string
+     */
+    public function getItemSummary()
+    {
+        $return = '';
+
+        foreach ($this->Items() as $item) {
+            $return .= "{$item->Quantity} x {$item->Title};\n";
+        }
+
+        return $return;
+    }
+
+    /**
+     * Return a list string summarising each item in this order
+     *
+     * @return HTMLText
+     */
+    public function getItemSummaryHTML()
+    {
+        $html = new HTMLText("ItemSummary");
+        
+        $html->setValue(nl2br($this->ItemSummary));
+        
+        $this->extend("updateItemSummary", $html);
+
+        return $html;
+    }
+
+    /**
      * Has this order got a discount applied?
      *
      * @return boolean
@@ -668,7 +697,7 @@ class Order extends DataObject implements PermissionProvider
     {
         return (ceil($this->DiscountAmount)) ? true : false;
     }
-    
+
     /**
      * Setup the discount available on this order, you need to
      * pass a Title (that will be rendered on the order) and an
@@ -682,29 +711,6 @@ class Order extends DataObject implements PermissionProvider
     {
         $this->Discount = $title;
         $this->DiscountAmount = $amount;
-    }
-
-    /**
-     * Total values of items in this order (without any tax)
-     *
-     * @return Currency
-     */
-    public function getSubTotal()
-    {
-        $return = new Currency();
-        $return->setName("SubTotal");
-        $total = 0;
-
-        // Calculate total from items in the list
-        foreach ($this->Items() as $item) {
-            $total += ($item->Price) ? $item->Price * $item->Quantity : 0;
-        }
-        
-        $return->setValue($total);
-        
-        $this->extend("updateSubTotal", $return);
-
-        return $return;
     }
 
     /**
@@ -742,7 +748,64 @@ class Order extends DataObject implements PermissionProvider
         $this->PostageCost = $amount;
         $this->PostageTax = $tax;
     }
-    
+
+    /**
+     * Find the total quantity of items in the shopping cart
+     *
+     * @return Int
+     */
+    public function getTotalItems()
+    {
+        $total = 0;
+        
+        foreach ($this->Items() as $item) {
+            $total += ($item->Quantity) ? $item->Quantity : 1;
+        }
+
+        return $total;
+    }
+
+    /**
+    * Find the total weight of all items in the shopping cart
+    *
+    * @return Decimal
+    */
+    public function getTotalWeight()
+    {
+        $total = 0;
+        
+        foreach ($this->Items() as $item) {
+            if ($item->Weight && $item->Quantity) {
+                $total = $total + ($item->Weight * $item->Quantity);
+            }
+        }
+        
+        return $total;
+    }
+
+    /**
+     * Total values of items in this order (without any tax)
+     *
+     * @return Currency
+     */
+    public function getSubTotal()
+    {
+        $return = new Currency();
+        $return->setName("SubTotal");
+        $total = 0;
+
+        // Calculate total from items in the list
+        foreach ($this->Items() as $item) {
+            $total += ($item->Price) ? $item->Price * $item->Quantity : 0;
+        }
+        
+        $return->setValue($total);
+        
+        $this->extend("updateSubTotal", $return);
+
+        return $return;
+    }
+
     /**
      * Total values of items in this order
      *
@@ -758,7 +821,7 @@ class Order extends DataObject implements PermissionProvider
         // Calculate total from items in the list
         foreach ($items as $item) {
             if ($this->DiscountAmount > 0) {
-                $discount = (($item->Price - ($this->DiscountAmount / $items->count())) / 100);
+                $discount = (($item->Price - ($this->DiscountAmount / $this->TotalItems)) / 100);
                 $tax = $discount * $item->TaxRate;
             } else {
                 $tax = $item->Tax();
@@ -799,78 +862,12 @@ class Order extends DataObject implements PermissionProvider
     }
 
     /**
-     * Find the total quantity of items in the shopping cart
-     *
-     * @return Int
-     */
-    public function getTotalItems()
-    {
-        $total = 0;
-        
-        foreach ($this->Items() as $item) {
-            $total += ($item->Quantity) ? $item->Quantity : 1;
-        }
-
-        return $total;
-    }
-
-    /**
-    * Find the total weight of all items in the shopping cart
-    *
-    * @return Decimal
-    */
-    public function getTotalWeight()
-    {
-        $total = 0;
-        
-        foreach ($this->Items() as $item) {
-            if ($item->Weight && $item->Quantity) {
-                $total = $total + ($item->Weight * $item->Quantity);
-            }
-        }
-        
-        return $total;
-    }
-
-    /**
-     * Return a list string summarising each item in this order
-     *
-     * @return string
-     */
-    public function getItemSummary()
-    {
-        $return = '';
-
-        foreach ($this->Items() as $item) {
-            $return .= "{$item->Quantity} x {$item->Title};\n";
-        }
-
-        return $return;
-    }
-    
-    /**
-     * Return a list string summarising each item in this order
-     *
-     * @return HTMLText
-     */
-    public function getItemSummaryHTML()
-    {
-        $html = new HTMLText("ItemSummary");
-        
-        $html->setValue(nl2br($this->ItemSummary));
-        
-        $this->extend("updateItemSummary", $html);
-
-        return $html;
-    }
-
-    /**
      * Get the payment object associated with this order
      *
      * @return Payment
      */
     public function getPayment()
-    {   
+    {
         return Payment::get()
             ->filter("OrderID", $this->ID)
             ->first();
@@ -891,7 +888,7 @@ class Order extends DataObject implements PermissionProvider
 
         return $guidText;
     }
-    
+
     protected function generate_random_string($length = 20)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -901,7 +898,7 @@ class Order extends DataObject implements PermissionProvider
         }
         return $randomString;
     }
-    
+
     protected function validAccessKey()
     {
         $existing = Order::get()
@@ -910,7 +907,7 @@ class Order extends DataObject implements PermissionProvider
         
         return !($existing);
     }
-    
+
     protected function validOrderNumber()
     {
         $existing = Order::get()
@@ -919,7 +916,7 @@ class Order extends DataObject implements PermissionProvider
         
         return !($existing);
     }
-    
+
     /**
      * Create a duplicate of this order/estimate as well as duplicating
      * associated items
@@ -963,7 +960,7 @@ class Order extends DataObject implements PermissionProvider
         
         $this->extend("onBeforeDelete");
     }
-    
+
     /**
      * API Callback after this object is written to the DB
      *
@@ -999,7 +996,7 @@ class Order extends DataObject implements PermissionProvider
         
         $this->extend("onBeforeWrite");
     }
-    
+
     /**
      * API Callback after this object is written to the DB
      *
@@ -1143,7 +1140,7 @@ class Order extends DataObject implements PermissionProvider
 
         return false;
     }
-    
+
     /**
      * Only users with EDIT admin rights can view an order
      *
