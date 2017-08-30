@@ -1,0 +1,60 @@
+OrderItem:
+    notaxitem:
+        Title: "A cheap item"
+        Quantity: 2
+        Weight: 0.5
+        Price: 5.99
+        TaxRate: 0
+    taxitem:
+        Title: "A cheap item"
+        Quantity: 1
+        Weight: 0.75
+        Price: 5.99
+        TaxRate: 20
+    discounttaxitem1:
+        Title: "An item to discount"
+        Quantity: 2
+        Weight: 0.5
+        Price: 5.99
+        TaxRate: 20
+    discounttaxitem2:
+        Title: "Another item to discount"
+        Quantity: 1
+        Weight: 0.75
+        Price: 3.99
+        TaxRate: 20
+Order:
+    addressdetails:
+        Status: incomplete
+        Address1: "123 Street Name"
+        Address2: "A Place"
+        City: "A City"
+        PostCode: "AB12 3AB"
+        Country: "GB"
+        DeliveryAddress1: "321 Street Name"
+        DeliveryCity: "Delivery City"
+        DeliveryPostCode: "ZX98 9XZ"
+        DeliveryCountry: "GB"
+    standardnotax:
+        Status: paid
+        OrderNumber: 123456
+        PostageType: "Standard Postage"
+        PostageCost: 2.00
+        PostageTax: 0
+        Items: =>OrderItem.notaxitem
+    standardtax:
+        Status: paid
+        OrderNumber: 123456
+        PostageType: "Standard Postage"
+        PostageCost: 2.00
+        PostageTax: 0.40
+        Items: =>OrderItem.taxitem
+    discount:
+        Status: incomplete
+        OrderNumber: 123456
+        PostageType: "Standard Postage"
+        PostageCost: 2.00
+        PostageTax: 0.40
+        Discount: "£5 Off"
+        DiscountAmount: 3.00
+        Items: =>OrderItem.discounttaxitem1,=>OrderItem.discounttaxitem2
