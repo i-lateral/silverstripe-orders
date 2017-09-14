@@ -287,12 +287,12 @@ class ShoppingCart extends Controller
         // If the current member doesn't have a cart, set one
         // up, else get their estimate or create a blank one
         // (if no member).
-        if($member && !$member->getCart()) {
+        if ($member && !$member->getCart()) {
             $estimate = $estimate_class::create();
             $estimate->Cart = true;
             $estimate->write();
             $member->Estimates()->add($estimate);
-        } elseif($member && $member->getCart()) {
+        } elseif ($member && $member->getCart()) {
             $estimate = $member->getCart();
         } else {
             $estimate = Estimate::create();
@@ -640,7 +640,13 @@ class ShoppingCart extends Controller
     public function removeAll()
     {
         foreach ($this->getItems() as $item) {
-            $item->delete();
+            // If we are dealing with a session object,
+            // unset, otherwise delete
+            if ($item->ID) {
+                $item->delete();
+            } else {
+                unset($item);
+            }
         }
     }
     
@@ -666,7 +672,7 @@ class ShoppingCart extends Controller
             // Generate a new list of items and dump into session
             $list = ArrayList::create();
             
-            foreach($this->getItems() as $item) {
+            foreach ($this->getItems() as $item) {
                 $list->add($item);
             }
             
@@ -702,7 +708,7 @@ class ShoppingCart extends Controller
         // First tear down any objects in our estimate
         $this->removeAll();
 
-        // Now remove any sessions        
+        // Now remove any sessions
         Session::clear('ShoppingCart.Items');
         Session::clear('ShoppingCart.Discount');
         Session::clear("Checkout.PostageID");
@@ -737,7 +743,7 @@ class ShoppingCart extends Controller
      * @return Int
      */
     public function getTotalItems()
-    {   
+    {
         return $this
             ->getEstimate()
             ->getTotalItems();
@@ -1070,7 +1076,6 @@ class ShoppingCart extends Controller
         
         // Check that postage is set, if not, see if we can set a default
         if (array_key_exists("PostageID", $data) && $data["PostageID"]) {
-            
             // First is the current postage ID in the list of postage
             // areas
             if ($postage && $postage->exists() && $postage->find("ID", $data["PostageID"])) {
