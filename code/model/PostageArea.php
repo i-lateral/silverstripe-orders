@@ -34,7 +34,7 @@ class PostageArea extends DataObject
     public function getTaxAmount()
     {   
         if ($this->Cost && $this->Tax) {
-            return (($this->Cost / 100) * $this->Tax);
+            return Checkout::round_up((($this->Cost / 100) * $this->Tax), 2);
         } else {
             return 0;
         }

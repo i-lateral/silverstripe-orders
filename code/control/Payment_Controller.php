@@ -181,7 +181,7 @@ class Payment_Controller extends Controller
             if (!$cart->isCollection()) {
                 $data['PostageType'] = $postage->Title;
                 $data['PostageCost'] = $postage->Cost;
-                $data['PostageTax'] = ($postage->Tax) ? ($postage->Cost / 100) * $postage->Tax : 0;
+                $data['PostageTax'] = ($postage->Tax) ? Checkout::round_up(($postage->Cost / 100) * $postage->Tax, 2) : 0;
             }
             
             if ($cart->getDiscount()) {
