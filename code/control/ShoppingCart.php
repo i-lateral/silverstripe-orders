@@ -548,6 +548,17 @@ class ShoppingCart extends Controller
                 $data["Price"] = $data["BasePrice"];
                 unset($data["BasePrice"]);
             }
+
+            // Convert customisation into  
+            if (array_key_exists("Customisation", $data) && is_array($data["Customisation"])) {
+                $list = ArrayList::create();
+
+                foreach ($data["Customisation"] as $custom_item) {
+                    $list->push(ArrayData::create($custom_item));
+                }
+                
+                $data["Customisation"] = serialize($list);
+            }
             
             // Ensure we don't alllow any object ID's to be set
             if (array_key_exists("ID", $data)) {
