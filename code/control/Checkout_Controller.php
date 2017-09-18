@@ -64,9 +64,11 @@ class Checkout_Controller extends Controller
     {
         parent::init();
 
+        $cart = ShoppingCart::get();
+
         // If no shopping cart doesn't exist, redirect to base
-        if (!ShoppingCart::create()->getItems()->exists()) {
-            return $this->redirect(ShoppingCart::config()->url_segment);
+        if (!$cart->getItems()->exists()) {
+            return $this->redirect($cart->Link());
         }
     }
 
@@ -202,6 +204,7 @@ class Checkout_Controller extends Controller
         $data = array();
         $member = Member::currentUser();
         $address = MemberAddress::get()->byID($id);
+        $cart = ShoppingCart::get();
         $action = "billing";
 
         // If our required details are not set, return a server error
@@ -236,7 +239,7 @@ class Checkout_Controller extends Controller
             $action = "delivery";
         }
 
-        if ($otherid == "delivery" || !ShoppingCart::get()->isDeliverable()) {
+        if ($otherid == "delivery" || !$cart->isDeliverable()) {
             $data['DeliveryCompany']  = $address->Company;
             $data['DeliveryFirstnames']  = $address->FirstName;
             $data['DeliverySurname']    = $address->Surname;

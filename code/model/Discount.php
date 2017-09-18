@@ -59,14 +59,12 @@ class Discount extends DataObject
      */
     public function AddLink()
     {
-        $link = Controller::join_links(
-            Director::absoluteBaseURL(),
-            ShoppingCart::config()->url_segment,
-            "usediscount",
+        $cart = ShoppingCart::get();
+        
+        return Controller::join_links(
+            $cart->AbsoluteLink("usediscount"),
             $this->Code
         );
-
-        return $link;
     }
 
     public function getCMSFields()

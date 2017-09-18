@@ -104,7 +104,6 @@ class Payment_Controller extends Controller
 
         // Check if payment ID set and corresponds
         try {
-            $cart = ShoppingCart::get();
             $payment_methods = GatewayInfo::getSupportedGateways();
             $payment_session = Session::get('Checkout.PaymentMethodID');
 
@@ -276,6 +275,7 @@ class Payment_Controller extends Controller
     public function complete()
     {
         $site = SiteConfig::current_site_config();
+        $cart = ShoppingCart::get();
 
         $id = $this->request->param('ID');
 
@@ -299,7 +299,7 @@ class Payment_Controller extends Controller
 
         // Clear our session data
         if (isset($_SESSION)) {
-            ShoppingCart::get()->clear();
+            $cart->clear();
             unset($_SESSION['Checkout.PaymentMethod']);
             unset($_SESSION['Checkout.OrderID']);
         }

@@ -185,14 +185,40 @@ class ShoppingCart extends Controller
     /**
      * Get the link to this controller
      *
+     * @param string $action The action you want to add to the link
      * @return string
      */
     public function Link($action = null)
     {
         return Controller::join_links(
-            Director::BaseURL(),
             $this->config()->url_segment,
             $action
+        );
+    }
+
+    /**
+     * Get an absolute link to this controller
+     *
+     * @param string $action The action you want to add to the link
+     * @return string
+     */
+    public function AbsoluteLink($action = null)
+    {
+        return Director::absoluteURL($this->Link($action));
+    }
+
+    /**
+     * Get a relative (to the root url of the site) link to this
+     * controller
+     *
+     * @param string $action The action you want to add to the link
+     * @return string
+     */
+    public function RelativeLink($action = null)
+    {
+        return Controller::join_links(
+            Director::baseURL(),
+            $this->Link($action)
         );
     }
     

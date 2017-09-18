@@ -101,16 +101,14 @@ class BillingDetailsForm extends Form
         $this->setTemplate($this->ClassName);
     }
     
-    public function getShoppingCart() {
+    public function getShoppingCart()
+    {
         return ShoppingCart::get();
     }
     
     public function getBackURL()
     {
-        return Controller::join_links(
-            BASE_URL,
-            ShoppingCart::config()->url_segment
-        );
+        return ShoppingCart::get()->Link();
     }
 
     /**
