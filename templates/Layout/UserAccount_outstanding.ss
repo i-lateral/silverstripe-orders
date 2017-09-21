@@ -1,4 +1,4 @@
-<div class="units-row row users-account line">
+<div class="units-row row users-account line container">
     <% include Users_Profile_SideBar %>
 
     <div class="users-content-container typography col-xs-12 col-sm-9 unit-75 unit size3of4 lastUnit">

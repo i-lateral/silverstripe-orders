@@ -1,4 +1,4 @@
-<div class="content-container checkout-payment typography">
+<div class="content-container container checkout-payment typography">
     <h1><%t Checkout.Summary "Summary" %></h1>
     <p><%t Checkout.SummaryCopy "Please review your personal information before proceeding and entering your payment details." %></p>
 

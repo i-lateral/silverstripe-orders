@@ -1,4 +1,4 @@
-<div class="content-container typography checkout-cart">
+<div class="content-container container typography checkout-cart">
 
     <% if $Discount %>
         <h1><%t Checkout.DiscountAdded 'Discount Added' %></h1>

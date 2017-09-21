@@ -1,4 +1,4 @@
-<div class="content-container typography">
+<div class="content-container container typography">
     <div class="units-row row">
         <div class="unit-66 col-xs-12 col-sm-8">
             &nbsp;
