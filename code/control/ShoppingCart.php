@@ -285,6 +285,22 @@ class ShoppingCart extends Controller
     }
     
     /**
+     * Determine if the current cart contains only locked items.
+     *
+     * @return Boolean
+     */
+    public function isLocked()
+    {
+        foreach ($this->getItems() as $item) {
+            if ($item->Locked) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
      * Shortcut for ShoppingCart::create, exists because create()
      * doesn't seem quite right.
      *
