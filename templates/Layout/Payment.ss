@@ -4,7 +4,7 @@
 
     <div class="checkout-payment-summary row units-row line">
         <% with $Order %>
-            <div class="col-md-3 col-xs-12">
+            <div class="unit-25 unit size1of4 col-md-3 col-xs-12">
                 <h2><%t Checkout.Order "Order" %></h2>
                 <p>
                     <strong><%t Checkout.SubTotal "Sub Total" %>:</strong>
@@ -30,11 +30,8 @@
                     <strong><%t Checkout.Total "Total" %>:</strong>
                     $Total.Nice
                 </p>
-            </div>
 
-
-            <div class="unit-33 unit size1of2 col-xs-12 col-m-4">
-                <h2><%t Checkout.BillingDetails "Billing Details" %></h2>
+                <h3><%t Checkout.BillingDetails "Billing Details" %></h3>
                 <p>
                     <% if $Company %>
                         <strong><%t Checkout.Company "Company" %>:</strong> $Company<br/>
@@ -53,7 +50,7 @@
             </div>
 
             <% if $Top.ShoppingCart.isDeliverable %>
-                <div class="unit-33 unit size1of2 col-xs-12 col-m-4">
+                <div class="unit-25 unit size1of4 col-xs-12 col-md-3">
                     <h2><%t Checkout.DeliveryDetails "Delivery Details" %></h2>
                     <% if $Top.ShoppingCart.isCollection %>
                         <p><%t Checkout.ItemsReservedInstore "Your items will be held instore until you collect them" %></p>
@@ -76,7 +73,7 @@
             <% end_if %>
         <% end_with %>
 
-        <div class="col-xs-12 col-md-3">
+        <div class="unit-33 unit size1of3 col-xs-12 col-md-4">
             <h2><%t Checkout.Payment "Payment" %></h2>
             <% if $PaymentInfo %>
                 <hr/>
