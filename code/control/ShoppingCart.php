@@ -566,13 +566,18 @@ class ShoppingCart extends Controller
      * This data is then converted to an @link OrderItem, or used to update
      * an existing order item.
      *
-     * @param $data An array of data that we will be added to the cart
-     * @param $quantity Number of these items to add
+     * @param array $data An array of data that we will be added to the cart
+     * @param int $quantity Number of these items to add
+     * @throws ValidationException
+     * @return ShoppingCart
      */
     public function add($data, $quantity = 1)
     {
         if (!array_key_exists("Key", $data)) {
-            throw new Exception(_t("Checkout.NoKeyOnItem", "No valid Key set on item"));
+            throw new ValidationException(_t(
+                "Checkout.NoKeyOnItem",
+                "No valid Key set on item"
+            ));
         } else {
             $added = false;
             $item_key = $data['Key'];
@@ -626,18 +631,18 @@ class ShoppingCart extends Controller
                 
                 // If we need to track stock, do it now
                 if ($cart_item->Stocked || $this->config()->check_stock_levels) {
-                    if (!$cart_item->checkStockLevel($quantity)) {
+                    if ($cart_item->checkStockLevel($quantity) <= 0) {
                         throw new ValidationException(_t(
-                        "Checkout.NotEnoughStock",
-                        "There are not enough '{title}' in stock",
-                        "Message to show that an item hasn't got enough stock",
-                        array('title' => $cart_item->Title)
+                            "Checkout.NotEnoughStock",
+                            "There are not enough '{title}' in stock",
+                            "Message to show that an item hasn't got enough stock",
+                            array('title' => $cart_item->Title)
                         ));
                     }
                 }
                 
                 $cart_item->Key = $item_key;
-                $cart_item->Quantity = $quantity;
+                $cart_item->Quantity = floor($quantity);
                 
                 $this->extend("onBeforeAdd", $cart_item);
                 
@@ -649,6 +654,8 @@ class ShoppingCart extends Controller
                 $this->save();
             }
         }
+
+        return $this;
     }
     
     /**
@@ -656,34 +663,43 @@ class ShoppingCart extends Controller
      *
      * @param Item
      * @param Quantity
+     * @throws ValidationException
+     * @return ShoppingCart
      */
     public function update($item_key, $quantity)
     {
-        $item = $this
+        $cart_item = $this
             ->getItems()
             ->find("Key", $item_key);
         
-        if ($item && !$item->Locked) {
+        if ($cart_item && !$cart_item->Locked) {
             // If we need to track stock, do it now
-            if ($item->Stocked || $this->config()->check_stock_levels) {
-                $item->checkStockLevel($quantity);
+            if ($cart_item->Stocked || $this->config()->check_stock_levels) {
+                if ($cart_item->checkStockLevel($quantity) <= 0) {
+                    throw new ValidationException(_t(
+                        "Checkout.NotEnoughStock",
+                        "There are not enough '{title}' in stock",
+                        "Message to show that an item hasn't got enough stock",
+                        array('title' => $cart_item->Title)
+                    ));
+                }
             }
             
-            $item->Quantity = floor($quantity);
+            $cart_item->Quantity = floor($quantity);
             
-            $this->extend("onBeforeUpdate", $item);
+            $this->extend("onBeforeUpdate", $cart_item);
 
             // If the current item is in the DB, update
-            if ($item->ID) {
-                $item->write();
+            if ($cart_item->ID) {
+                $cart_item->write();
             }
             
             $this->save();
         } else {
-            throw new Exception(_t("Checkout.UnableToEditItem", "Unable to change item's quantity"));
+            throw new ValidationException(_t("Checkout.UnableToEditItem", "Unable to change item's quantity"));
         }
         
-        return false;
+        return $this;
     }
     
     /**
