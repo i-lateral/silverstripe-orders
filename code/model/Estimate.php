@@ -205,7 +205,5 @@ class Estimate extends Order
         parent::onBeforeWrite();
         
         $this->Status = $this->config()->default_status;
-        
-        $this->extend("onBeforeWrite");
     }
 }

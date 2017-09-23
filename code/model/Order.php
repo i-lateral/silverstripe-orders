@@ -957,8 +957,6 @@ class Order extends DataObject implements PermissionProvider
         foreach ($this->Items() as $item) {
             $item->delete();
         }
-        
-        $this->extend("onBeforeDelete");
     }
 
     /**
@@ -993,8 +991,6 @@ class Order extends DataObject implements PermissionProvider
         
         $this->Status = (!$this->Status) ? $this->config()->default_status : $this->Status;
         $this->Action = (!$this->Action) ? $this->config()->default_action :  $this->Action;
-        
-        $this->extend("onBeforeWrite");
     }
 
     /**
@@ -1026,8 +1022,6 @@ class Order extends DataObject implements PermissionProvider
                 $notification->sendNotification($this);
             }
         }
-        
-        $this->extend("onAfterWrite");
     }
 
     public function providePermissions()
