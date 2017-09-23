@@ -292,12 +292,12 @@ class ShoppingCart extends Controller
     public function isLocked()
     {
         foreach ($this->getItems() as $item) {
-            if ($item->Locked) {
-                return true;
+            if (!$item->Locked) {
+                return false;
             }
         }
         
-        return false;
+        return true;
     }
 
     /**
