@@ -10,7 +10,7 @@ class PostageArea extends DataObject
     private static $db = array(
         "Title"         => "Varchar",
         "Country"       => "Varchar(255)",
-        "ZipCode"       => "Varchar(255)",
+        "ZipCode"       => "Text",
         "Calculation"   => "Enum('Price,Weight,Items','Weight')",
         "Unit"          => "Decimal",
         "Cost"          => "Decimal",
