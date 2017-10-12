@@ -10,13 +10,37 @@
  */
 class OrderItemCustomisation extends DataObject
 {
+    /**
+     * Standard database columns
+     *
+     * @var array
+     * @config
+     */
     private static $db = array(
         "Title" => "Varchar",
         "Value" => "Text",
         "Price" => "Currency"
     );
 
+    /**
+     * DB foreign key associations
+     *
+     * @var array
+     * @config
+     */
     private static $has_one = array(
         "OrderItem" => "OrderItem"
+    );
+
+    /**
+     * Fields to display in gridfields
+     *
+     * @var array
+     * @config
+     */
+    private static $summary_fields = array(
+        "Title",
+        "Value",
+        "Price"
     );
 }

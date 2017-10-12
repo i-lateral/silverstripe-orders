@@ -45,15 +45,15 @@ class OrderItem extends DataObject
         "Title"         => "Varchar",
         "Content"       => "HTMLText",
         "Quantity"      => "Int",
+        "Price"         => "Currency",
+        "TaxRate"       => "Decimal",
         "Weight"        => "Decimal",
         "StockID"       => "Varchar(100)",
         "ProductClass"  => "Varchar",
-        "Customisation" => "Text",
-        "Price"         => "Currency",
-        "TaxRate"       => "Decimal",
         "Locked"        => "Boolean",
         "Stocked"       => "Boolean",
-        "Deliverable"   => "Boolean"
+        "Deliverable"   => "Boolean",
+        "Customisation" => "Text",
     );
 
     /**
@@ -114,6 +114,47 @@ class OrderItem extends DataObject
     private static $casting = array(
         "Tax" => "Currency"
     );
+
+    /**
+     * Modify default field scaffolding in admin
+     *
+     * @return FieldList
+     */
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+
+        $fields->removeByName("Customisation");
+
+        $fields->addFieldsToTab(
+            "Root.Main",
+            array(
+                ReadOnlyField::create("Key")
+            )
+        );
+
+        $fields->addFieldsToTab(
+            "Root.Description",
+            array(
+                HTMLEditorField::create("Content")
+                    ->addExtraClass("stacked")
+            )
+        );
+
+        // Change unlink button to remove on customisation
+        $custom_field = $fields->dataFieldByName("Customisations");
+
+        if ($custom_field) {
+            $config = $custom_field->getConfig();
+            $config
+                ->removeComponentsByType("GridFieldDeleteAction")
+                ->addComponent(new GridFieldDeleteAction());
+        }
+
+        $this->extend("updateCMSFields", $fields);
+
+        return $fields;
+    }
     
     /**
      * Get the amount of tax for a single unit of this item
@@ -228,15 +269,6 @@ class OrderItem extends DataObject
     {
         return $this->Match();
     }
-    
-    public function getCMSFields()
-    {
-        $fields = parent::getCMSFields();
-        
-        $fields->removeByName("Customisation");
-        
-        return $fields;
-    }
 
     /**
      * Check stock levels for this item, will return the actual number
@@ -328,5 +360,19 @@ class OrderItem extends DataObject
         }
 
         return $this->Parent()->canEdit($member);
+    }
+
+    /**
+     * Clean up DB on deletion
+     *
+     * @return void
+     */
+    public function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
+
+        foreach ($this->Customisations() as $customisation) {
+            $customisation->delete();
+        }
     }
 }

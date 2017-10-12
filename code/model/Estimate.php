@@ -106,6 +106,8 @@ class Estimate extends Order
                                 new GridFieldButtonRow('before'),
                                 new GridFieldTitleHeader(),
                                 new GridFieldEditableColumns(),
+                                new GridFieldEditButton(),
+                                new GridFieldDetailForm(),
                                 new GridFieldDeleteAction(),
                                 new GridFieldAddOrderItem()
                             )
