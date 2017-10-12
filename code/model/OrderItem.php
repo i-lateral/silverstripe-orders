@@ -65,6 +65,16 @@ class OrderItem extends DataObject
     private static $has_one = array(
         "Parent"        => "Order"
     );
+    
+    /**
+     * One to many associations
+     *
+     * @var array
+     * @config
+     */
+    private static $has_many = array(
+        "Customisations" => "OrderItemCustomisation"
+    );
 
     /**
      * Specify default values of a field
@@ -132,17 +142,6 @@ class OrderItem extends DataObject
         } elseif ($product && method_exists($product, "Image") && $product->Image()->exists()) {
             return $product->Image();
         }
-    }
-
-    /**
-     * Unserialise the list of customisations
-     *
-     * @return ArrayList
-     */
-    public function Customisations()
-    {
-        $customisations = unserialize($this->Customisation);
-        return ($customisations) ? $customisations : ArrayList::create();
     }
     
     /**
@@ -254,6 +253,21 @@ class OrderItem extends DataObject
         
         // Return remaining stock
         return $stock - $qty;
+    }
+
+    /**
+     * Add default recoprds when the database is built
+     * 
+     * @return void
+     */
+    public function requireDefaultRecords()
+    {
+        parent::requireDefaultRecords();
+        
+        if(OrderItemCustomisationMigrationTask::config()->run_during_dev_build) {
+            $task = new OrderItemCustomisationMigrationTask();
+            $task->up();
+        }
     }
 
     /**
