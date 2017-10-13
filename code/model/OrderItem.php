@@ -97,12 +97,12 @@ class OrderItem extends DataObject
      * @config
      */
     private static $summary_fields = array(
-        "Quantity",
-        "Title",
-        "StockID",
-        "CustomisationList",
-        "Price",
-        "TaxRate"
+        "Quantity" => "Quantity",
+        "Title" => "Title",
+        "StockID" => "Stock ID",
+        "Price" => "Item Price",
+        "TaxRate" => "Tax Rate (percentage)",
+        "CustomisationAndPriceList" => "Customisations"
     );
     
     /**
@@ -112,6 +112,9 @@ class OrderItem extends DataObject
      * @config
      */
     private static $casting = array(
+        "Total" => "Currency",
+        "UnitPrice" => "Currency",
+        "SubTotal" => "Currency",
         "Tax" => "Currency"
     );
 
@@ -148,7 +151,15 @@ class OrderItem extends DataObject
             $config = $custom_field->getConfig();
             $config
                 ->removeComponentsByType("GridFieldDeleteAction")
-                ->addComponent(new GridFieldDeleteAction());
+                ->removeComponentsByType("GridFieldAddNewButton")
+                ->removeComponentsByType("GridFieldDataColumns")
+                ->removeComponentsByType("GridFieldEditButton")
+                ->addComponents(
+                    new GridFieldEditableColumns(),
+                    new GridFieldAddNewInlineButton(),
+                    new GridFieldEditButton(),
+                    new GridFieldDeleteAction()
+                );
         }
 
         $this->extend("updateCMSFields", $fields);
@@ -157,13 +168,60 @@ class OrderItem extends DataObject
     }
     
     /**
+     * Get the price for a single line item (unit), minus any
+     * tax
+     * 
+     * @return Float
+     */
+    public function UnitPrice()
+    {
+        $price = $this->Price;
+
+        foreach ($this->Customisations() as $customisation) {
+            $price += $customisation->Price;
+        }
+
+        return $price;
+    }
+
+    /**
+     * Get the value of this item, minus any tax
+     * 
+     * @return Float
+     */
+    public function SubTotal()
+    {
+        $price = $this->obj("UnitPrice");
+
+        return $price->getValue() * $this->Quantity;
+    }
+
+    /**
+     * Get the value of this item, minus any tax
+     * 
+     * @return Float
+     */
+    public function Total()
+    {
+        $price = $this->obj("SubTotal");
+
+        if ($this->TaxRate > 0) {
+            $tax = $this->obj("Tax");
+        }
+
+        return $price->getValue() + $tax->getValue();
+    }
+
+    /**
      * Get the amount of tax for a single unit of this item
      * 
      * @return Float
      */
     public function Tax()
     {
-        return ($this->Price / 100) * $this->TaxRate;
+        $price = $this->obj("SubTotal");
+
+        return ($price->getValue() / 100) * $this->TaxRate;
     }
 
     /**
@@ -186,7 +244,8 @@ class OrderItem extends DataObject
     }
     
     /**
-     * Provide a string of customisations seperated by a comma
+     * Provide a string of customisations seperated by a comma but not
+     * including a price
      *
      * @return String
      */
@@ -196,16 +255,38 @@ class OrderItem extends DataObject
         $items = $this->Customisations();
         
         if ($items && $items->exists()) {
-            $i = 1;
+            $map = [];
 
             foreach ($items as $item) {
-                $return .= $item->Title . ': ' . $item->Value;
-
-                if ($i < $items->count()) {
-                    $return .= ", ";
-                }
-                $i++;
+                $map[] = $item->Title . ': ' . $item->Value;
             }
+
+            $return = implode(", ", $map);
+        }
+
+        
+        return $return;
+    }
+
+    /**
+     * Provide a string of customisations seperated by a comma and
+     * including a price
+     *
+     * @return String
+     */
+    public function CustomisationAndPriceList()
+    {
+        $return = "";
+        $items = $this->Customisations();
+        
+        if ($items && $items->exists()) {
+            $map = [];
+
+            foreach ($items as $item) {
+                $map[] = $item->Title . ': ' . $item->Value . ' (' . $item->dbObject("Price")->Nice() . ')';
+            }
+
+            $return = implode(", ", $map);
         }
 
         
@@ -360,6 +441,30 @@ class OrderItem extends DataObject
         }
 
         return $this->Parent()->canEdit($member);
+    }
+
+    /**
+     * Perform post-DB write functions
+     *
+     * @return void
+     */
+    public function onAfterWrite()
+    {
+        parent::onAfterWrite();
+
+        if ($this->Customisation) {
+            $data = unserialize($this->Customisation);
+
+            if ($data instanceof ArrayList) {
+                foreach ($data as $data_item) {
+                    $data_item->OrderItemID = $this->ID;
+                    $data_item->write();
+                }
+
+                $this->Customisation = null;
+                $this->write();
+            }
+        }
     }
 
     /**
