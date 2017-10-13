@@ -50,7 +50,7 @@
 								/>
 							</td>
 							<td class="price">
-								{$Price.Nice}
+								{$UnitPrice.Nice}
 							</td>
 							<td class="remove">
 								<a href="{$Top.Controller.Link('remove')}/{$Key}" class="btn btn-red btn-danger">
