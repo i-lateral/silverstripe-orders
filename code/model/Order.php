@@ -798,7 +798,7 @@ class Order extends DataObject implements PermissionProvider
 
         // Calculate total from items in the list
         foreach ($this->Items() as $item) {
-            $total += ($item->Price) ? $item->Price * $item->Quantity : 0;
+            $total += $item->obj("SubTotal")->getValue();
         }
         
         $return->setValue($total);
@@ -823,10 +823,10 @@ class Order extends DataObject implements PermissionProvider
         // Calculate total from items in the list
         foreach ($items as $item) {
             if ($this->DiscountAmount > 0) {
-                $discount = (($item->Price - ($this->DiscountAmount / $this->TotalItems)) / 100);
-                $tax = $discount * $item->TaxRate;
+                $discount = (($item->obj("UnitPrice")->getValue() - ($this->DiscountAmount / $this->TotalItems)) / 100);
+                $tax = $discount * $item->obj("Tax")->getValue();
             } else {
-                $tax = $item->Tax();
+                $tax = $item->obj("Tax")->getValue();
             }
             $total += $tax * $item->Quantity;
         }

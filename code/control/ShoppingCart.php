@@ -360,6 +360,17 @@ class ShoppingCart extends Controller
                         ->Items()
                         ->add($item);
                 }
+
+                if ($item->Customisation) {
+                    $data = unserialize($item->Customisation);
+                    if ($data instanceof ArrayList) {
+                        foreach ($data as $data_item) {
+                            $item
+                                ->Customisations()
+                                ->push($data_item);
+                        }
+                    }
+                }
             }
 
             // Finally, if user logged in a member, clear the session items
@@ -581,6 +592,7 @@ class ShoppingCart extends Controller
         } else {
             $added = false;
             $item_key = $data['Key'];
+            $custom_list = ArrayList::create();
             
             // If using the old ClassName variable, update to the
             // new ProductClass variable and wipe
@@ -596,15 +608,30 @@ class ShoppingCart extends Controller
                 unset($data["BasePrice"]);
             }
 
+            // Legacy support for old customisation calls
+            if (array_key_exists("CustomisationArray", $data)) {
+                $data["Customisation"] = $data["CustomisationArray"];
+            }
+
             // Convert customisation into  
             if (array_key_exists("Customisation", $data) && is_array($data["Customisation"])) {
-                $list = ArrayList::create();
-
                 foreach ($data["Customisation"] as $custom_item) {
-                    $list->push(ArrayData::create($custom_item));
+                    if (!array_key_exists("Title", $custom_item) || !array_key_exists("Value", $custom_item)) {
+                        throw new ValidationException(_t(
+                            "Checkout.NoValidCustomisation",
+                            "Customisation title or value incorrect"
+                        ));
+                        return;
+                    }
+
+                    $custom_list->push(OrderItemCustomisation::create(array(
+                        "Title" => $custom_item["Title"],
+                        "Value" => $custom_item["Value"],
+                        "Price" => (array_key_exists("Price", $custom_item)) ? $custom_item["Price"] : 0
+                    )));
                 }
                 
-                $data["Customisation"] = serialize($list);
+                $data["Customisation"] = serialize($custom_list);
             }
             
             // Ensure we don't alllow any object ID's to be set
