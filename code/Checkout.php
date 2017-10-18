@@ -28,7 +28,7 @@ class Checkout extends ViewableData
      * @var boolean
      * @config
      */
-    private static $login_form = false;
+    private static $login_form = true;
     
     /**
      * Set the checkout into "simple" mode, meaning that billing/
@@ -38,7 +38,7 @@ class Checkout extends ViewableData
      * @var Boolean
      * @config
      */
-    private static $simple_checkout = true;
+    private static $simple_checkout = false;
     
     /**
      * Allow users to checkout as a "guest" meaning they do not have to

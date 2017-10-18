@@ -30,13 +30,10 @@ class Checkout_Controller extends Controller
     
 
     private static $allowed_actions = array(
-        "billing",
-        "delivery",
         "usememberaddress",
         "finish",
         "LoginForm",
-        'BillingForm',
-        'DeliveryForm',
+        'CustomerForm',
         "PostagePaymentForm"
     );
 
@@ -85,103 +82,21 @@ class Checkout_Controller extends Controller
         }
         
         // If we have turned off login, or member logged in
-        if (!(Checkout::config()->login_form) || Member::currentUserID()) {
-            return $this->redirect($this->Link('billing'));
+        $login = false;
+        if (Checkout::config()->login_form && !Member::currentUserID()) {
+            Debug::show('true');
+            $login = true;
         }
-
+        
         $this->customise(array(
-            'Title'     => _t('Checkout.SignIn', "Sign in"),
-            "Login"     => true,
-            'LoginForm' => $this->LoginForm()
+            'Title'     => _t('Checkout.Checkout', "Checkout"),
+            "ShowLoginForm"     => $login,
+            "Form"      => $this->CustomerForm()
         ));
 
         $this->extend("onBeforeIndex");
 
         return $this->renderWith(array(
-            'Checkout',
-            'Page'
-        ));
-    }
-
-
-    /**
-     * Catch the default dilling information of the visitor
-     *
-     * @return array
-     */
-    public function billing()
-    {
-        $form = $this->BillingForm();
-
-        // If we are using simple checkout, skip
-        if (Checkout::config()->simple_checkout) {
-            return $this->redirect($this->Link('finish'));
-        }
-            
-        // Check permissions for guest checkout
-        if (!Member::currentUserID() && !Checkout::config()->guest_checkout) {
-            return $this->redirect($this->Link('index'));
-        }
-
-        // Pre populate form with member info
-        if (Member::currentUserID()) {
-            $form->loadDataFrom(Member::currentUser());
-        }
-
-        $this->customise(array(
-            'Title'     => _t('Checkout.BillingDetails', "Billing Details"),
-            'Form'      => $form
-        ));
-
-        $this->extend("onBeforeBilling");
-
-        return $this->renderWith(array(
-            'Checkout_billing',
-            'Checkout',
-            'Page'
-        ));
-    }
-
-
-    /**
-     * Use to catch the users delivery details, if different to their billing
-     * details
-     *
-     * @var array
-     */
-    public function delivery()
-    {
-        $cart = ShoppingCart::get();
-        
-        // If we are using simple checkout, skip
-        if (Checkout::config()->simple_checkout) {
-            return $this->redirect($this->Link('finish'));
-        }
-            
-        // If customer is collecting, skip
-        if ($cart->isCollection()) {
-            return $this->redirect($this->Link('finish'));
-        }
-            
-        // If cart is not deliverable, also skip
-        if (!$cart->isDeliverable()) {
-            return $this->redirect($this->Link('finish'));
-        }
-        
-        // Check permissions for guest checkout
-        if (!Member::currentUserID() && !Checkout::config()->guest_checkout) {
-            return $this->redirect($this->Link('index'));
-        }
-        
-        $this->customise(array(
-            'Title'     => _t('Checkout.DeliveryDetails', "Delivery Details"),
-            'Form'      => $this->DeliveryForm()
-        ));
-
-        $this->extend("onBeforeDelivery");
-
-        return $this->renderWith(array(
-            'Checkout_delivery',
             'Checkout',
             'Page'
         ));
@@ -313,11 +228,12 @@ class Checkout_Controller extends Controller
         $form
             ->Fields()
             ->add(HiddenField::create("BackURL")->setValue($this->Link()));
-
-        $form
+        $login_action = $form
             ->Actions()
-            ->dataFieldByName('action_dologin')
-            ->addExtraClass("btn btn-primary");
+            ->dataFieldByName('action_dologin');
+        if ($login_action) {
+            $login_action->addExtraClass("btn btn-primary");
+        }
 
         $this->extend("updateLoginForm", $form);
 
@@ -325,15 +241,15 @@ class Checkout_Controller extends Controller
     }
 
     /**
-     * Form to capture the users billing details
+     * Form to capture the customers details
      *
-     * @return BillingDetailsForm
+     * @return CustomerDetailsForm
      */
-    public function BillingForm()
+    public function CustomerForm()
     {
-        $form = BillingDetailsForm::create($this, 'BillingForm');
+        $form = CustomerDetailsForm::create($this, 'CustomerForm');
 
-        $data = Session::get("Checkout.BillingDetailsForm.data");
+        $data = Session::get("Checkout.CustomerDetailsForm.data");
         if (is_array($data)) {
             $form->loadDataFrom($data);
         } elseif($member = Member::currentUser()) {
@@ -346,7 +262,7 @@ class Checkout_Controller extends Controller
             }
         }
 
-        $this->extend("updateBillingForm", $form);
+        $this->extend("updateCustomerForm", $form);
 
         return $form;
     }

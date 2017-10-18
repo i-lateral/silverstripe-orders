@@ -9,6 +9,14 @@
  */
 class MemberAddress extends DataObject
 {
+    /**
+     * define fields to not include in the title format of the address
+     * @array
+     * @config
+     */
+    private static $ignore_from_title = array(
+        'Default'
+    );
 
     public static $db = array(
         'Company'            => 'Varchar',
@@ -36,6 +44,25 @@ class MemberAddress extends DataObject
         "PostCode",
         "Default"
     );
+
+    public static $casting = array(
+        'Title' => 'Varchar(255)'
+    );
+
+
+    public function getTitle() 
+    {
+        $title = [];
+
+        foreach ($this->config()->db as $key => $value) {
+            if ($this->{$key} && !in_array($key,$this->config()->ignore_from_title)) {
+                $title[] = $this->{$key};
+            }
+        }
+
+        return implode(',',$title);
+
+    }
 
     /**
      * Anyone logged in can create
