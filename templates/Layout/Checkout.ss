@@ -1,4 +1,5 @@
-<% require css('checkout/css/checkout.css') %>
+<% require css('orders/css/checkout.css') %>
+<% require javascript('orders/js/checkout.js') %>
 
 <div class="content-container container checkout-checkout typography">
     <h1>$Title</h1>

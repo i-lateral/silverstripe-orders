@@ -9,14 +9,31 @@ class CustomerDetailsForm extends Form
     public function __construct($controller, $name = "CustomerDetailsForm")
     {
         $member = Member::currentUser();
-        $cart = $this->getShoppingCart();
-
-        // set default form parameters
-        $new_billing = true;
-        $diff_shipping = false;
-        $new_shipping = false;
+        $cart = $this->getShoppingCart();     
         
-        $fields = FieldList::create();
+        parent::__construct(
+            $controller, 
+            $name, 
+            $fields = FieldList::create(),
+            $actions = FieldList::create()
+        );
+        
+        $data = Session::get("FormInfo.{$this->FormName()}.settings");        
+        // set default form parameters
+        $new_billing = false;
+        $same_shipping = 1;
+        $new_shipping = false;     
+        
+        if (isset($data['NewBilling'])) {
+            $new_billing = $data['NewBilling'];            
+        }
+        if (isset($data['DuplicateDelivery'])) {
+            $same_shipping = $data['DuplicateDelivery'];            
+        }
+        if (isset($data['NewShipping'])) {
+            $new_shipping = $data['NewShipping'];            
+        }
+
         if ($member && $member->Addresses()->count() > 1) {
             $saved_billing = CompositeField::create(
                 DropdownField::create(
@@ -27,7 +44,8 @@ class CustomerDetailsForm extends Form
                 FormAction::create(
                     'doAddNewBilling',
                     _t('Checkout.NewAddress', 'Use different address')
-                )->addextraClass('btn btn-default')
+                )->addextraClass('btn btn-primary')
+                ->setAttribute('formnovalidate',true)                
             )->setName('SavedBilling');
         } else {
             $saved_billing = null;
@@ -54,13 +72,18 @@ class CustomerDetailsForm extends Form
                 _t('Checkout.Country', 'Country'),
                 null,
                 'GB'
-            ),
-            CheckboxField::create(
-                'DuplicateDelivery',
-                _t('Checkout.DeliverHere', 'Deliver to this address?')
             )
         )->setName("AddressFields");
 
+        if ($member && $member->Addresses()->count() > 0) {
+            $address_fields->push(
+                FormAction::create(
+                    'doUseSavedBilling',
+                    _t('Checkout.SavedAddress', 'Use saved address')
+                )->addextraClass('btn btn-default')
+                ->setAttribute('formnovalidate',true)
+            );
+        }
         if ($member && $member->Addresses()->count() > 1) {
             $saved_shipping = CompositeField::create(
                 DropdownField::create(
@@ -72,33 +95,43 @@ class CustomerDetailsForm extends Form
                     'doAddNewShipping',
                     _t('Checkout.NewAddress', 'Use different address')
                 )->addextraClass('btn btn-default')
-            );
+                ->setAttribute('formnovalidate',true)
+            )->setName('SavedShipping');
         } else {
             $saved_shipping = null;
         }
 
-        $fields->add(
-            // Add default fields
-            $saved_billing,            
-            $billing_fields = CompositeField::create(
-                $personal_fields,
-                $address_fields
-            )->setName("BillingFields")
-            ->setColumnCount(2),
-            $saved_shipping            
-        );
-
-        // Add a save address for later checkbox if a user is logged in
-        if (Member::currentUserID()) {
+        if (!$new_billing) {
             $fields->add(
-                CompositeField::create(
-                    CheckboxField::create(
-                        "SaveBillingAddress",
-                        _t('Checkout.SaveBillingAddress', 'Save this address for later')
-                    )
-                )->setName("SaveBillingAddressHolder")
+                // Add default fields
+                $saved_billing
             );
+        } else {
+            $fields->add(           
+                $billing_fields = CompositeField::create(
+                    $personal_fields,
+                    $address_fields
+                )->setName("BillingFields")
+                ->setColumnCount(2)
+            );
+            // Add a save address for later checkbox if a user is logged in
+            if (Member::currentUserID()) {
+                $billing_fields->push(
+                    CompositeField::create(
+                        CheckboxField::create(
+                            "SaveBillingAddress",
+                            _t('Checkout.SaveBillingAddress', 'Save this address for later')
+                        )
+                    )->setName("SaveBillingAddressHolder")
+                );
+            }
         }
+        $fields->add(
+            CheckboxField::create(
+                'DuplicateDelivery',
+                _t('Checkout.DeliverHere', 'Deliver to this address?')
+            )->setValue($same_shipping)
+        );
 
         $dpersonal_fields = CompositeField::create(
             TextField::create('DeliveryCompany', _t('Checkout.Company', 'Company'))
@@ -120,25 +153,40 @@ class CustomerDetailsForm extends Form
             )
         )->setName("AddressFields");
 
-        $fields->add(
-            CompositeField::create(
-                $dpersonal_fields,
-                $daddress_fields
-            )->setName("DeliveryFields")
-            ->setColumnCount(2)
-        );
-
+        if ($member && $member->Addresses()->count() > 0) {
+            $daddress_fields->push(
+                FormAction::create(
+                    'doUseSavedShipping',
+                    _t('Checkout.SavedAddress', 'Use saved address')
+                )->addextraClass('btn btn-default')
+                ->setAttribute('formnovalidate',true)
+            );
+        }
+        if (!$same_shipping) {
+            if (!$new_shipping) {
+                $fields->add(
+                    $saved_shipping            
+                );
+            } else {
+                $fields->add(
+                    CompositeField::create(
+                        $dpersonal_fields,
+                        $daddress_fields
+                    )->setName("DeliveryFields")
+                    ->setColumnCount(2)
+                );
+            }
+        }
+        
         // Add a save address for later checkbox if a user is logged in
         if (Member::currentUserID()) {
             $member = Member::currentUser();
 
-            $fields->add(
-                CompositeField::create(
-                    CheckboxField::create(
-                        "SaveShippingAddress",
-                        _t('Checkout.SaveShippingAddress', 'Save this address for later')
-                    )
-                )->setName("SaveShippingAddressHolder")
+            $daddress_fields->push(
+                CheckboxField::create(
+                    "SaveShippingAddress",
+                    _t('Checkout.SaveShippingAddress', 'Save this address for later')
+                )
             );
         }
 
@@ -156,20 +204,18 @@ class CustomerDetailsForm extends Form
             );            
         }
 
-        $actions = FieldList::create();
-
         if(!$cart->isDeliverable() || $cart->isCollection()) {
 
         } else {
 
         }
-
-        $actions = FieldList::create(
+        
+        $actions->push(
             FormAction::create('doContinue', _t('Checkout.Continue', 'Continue'))
                 ->addExtraClass('checkout-action-next')
         );
 
-        $validator = new RequiredFields(
+        $validator = new CheckoutValidator(
             'FirstName',
             'Surname',
             'Address1',
@@ -186,8 +232,8 @@ class CustomerDetailsForm extends Form
             'DeliveryPostCode',
             'DeliveryCountry'
         );
-
-        parent::__construct($controller, $name, $fields, $actions, $validator);
+        
+        $this->setValidator($validator);
         
         $this->setTemplate($this->ClassName);
 
@@ -201,6 +247,40 @@ class CustomerDetailsForm extends Form
     public function getBackURL()
     {
         return ShoppingCart::get()->Link();
+    }
+
+    /** ## Form Processing ## **/
+    public function doAddNewBilling($data) 
+    {
+        $data['NewBilling'] = true;
+        return $this->doUpdateForm($data);        
+    }
+
+    public function doAddNewShipping($data) 
+    {
+        $data['NewShipping'] = true;
+        return $this->doUpdateForm($data);        
+    }
+
+    public function doUseSavedBilling($data) 
+    {
+        $data['NewBilling'] = false;
+        return $this->doUpdateForm($data);        
+    }
+
+    public function doUseSavedShipping($data) 
+    {
+        $data['NewShipping'] = false;
+        return $this->doUpdateForm($data);
+    }
+
+    public function doUpdateForm($data) 
+    {
+        if (!isset($data['DuplicateDelivery'])) {
+            $data['DuplicateDelivery'] = 0;
+        }
+        Session::set("FormInfo.{$this->FormName()}.settings", $data);
+        return $this->controller->redirectBack();        
     }
 
     /**
