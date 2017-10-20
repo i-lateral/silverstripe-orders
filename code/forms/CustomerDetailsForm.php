@@ -101,7 +101,7 @@ class CustomerDetailsForm extends Form
             $saved_shipping = null;
         }
 
-        if (!$new_billing) {
+        if (!$new_billing && $member && $member->Addresses()->count()) {
             $fields->add(
                 // Add default fields
                 $saved_billing
@@ -162,20 +162,19 @@ class CustomerDetailsForm extends Form
                 ->setAttribute('formnovalidate',true)
             );
         }
-        if (!$same_shipping) {
-            if (!$new_shipping) {
-                $fields->add(
-                    $saved_shipping            
-                );
-            } else {
-                $fields->add(
-                    CompositeField::create(
-                        $dpersonal_fields,
-                        $daddress_fields
-                    )->setName("DeliveryFields")
-                    ->setColumnCount(2)
-                );
-            }
+        
+        if (!$new_shipping && $member && $member->Addresses()->count()) {
+            $fields->add(
+                $saved_shipping            
+            );
+        } else {
+            $fields->add(
+                CompositeField::create(
+                    $dpersonal_fields,
+                    $daddress_fields
+                )->setName("DeliveryFields")
+                ->setColumnCount(2)
+            );
         }
         
         // Add a save address for later checkbox if a user is logged in
@@ -192,14 +191,19 @@ class CustomerDetailsForm extends Form
 
         // If we have turned off login, or member logged in
         if ((Checkout::config()->login_form) && !Member::currentUserID()) {
+            if (Config::inst()->get('Checkout', 'guest_checkout') == true) {
+                $register_title = _t('Checkout.CreateAccountOptional', 'Create Account (Optional)');
+            } else {
+                $register_title = _t('Checkout.CreateAccount', 'Create Account');                
+            }
             $fields->add(
                 CompositeField::create(
                     HeaderField::create(
                         'CreateAccount',
-                        _t('Checkout.CreateAccount', 'Create Account (Optional)'),
+                        $register_title,
                         3
                     ),
-                    ConfirmedPasswordField::create("Password")
+                    $pw_field = ConfirmedPasswordField::create("Password")->setAttribute('formnovalidate',true)
                 )->setName("PasswordFields")
             );            
         }
@@ -215,23 +219,42 @@ class CustomerDetailsForm extends Form
                 ->addExtraClass('checkout-action-next')
         );
 
-        $validator = new CheckoutValidator(
-            'FirstName',
-            'Surname',
-            'Address1',
-            'City',
-            'State',
-            'PostCode',
-            'Country',
-            'Email',
-            'PhoneNumber',
-            'DeliveryFirstnames',
-            'DeliverySurname',
-            'DeliveryAddress1',
-            'DeliveryCity',
-            'DeliveryPostCode',
-            'DeliveryCountry'
-        );
+        $validator = new CheckoutValidator();
+
+        if (Config::inst()->get('Checkout', 'guest_checkout') == false) {
+            $validator->addRequiredField('Password');
+        } else if ((Checkout::config()->login_form) && !Member::currentUserID()) {
+            $pw_field->setCanBeEmpty(true);
+        }
+
+        if (!$new_billing && $member && $member->Addresses()->count() > 1) {
+            $validator->addRequiredField('BillingAddress');
+        } else {
+            $validator->appendRequiredFields(new RequiredFields(
+                'FirstName',
+                'Surname',
+                'Address1',
+                'City',
+                'State',
+                'PostCode',
+                'Country',
+                'Email',
+                'PhoneNumber'
+            ));
+        }
+
+        if (!$new_shipping && $member && $member->Addresses()->count() > 1) {
+            $validator->addRequiredField('ShippingAddress');
+        } else {
+            $validator->appendRequiredFields(new RequiredFields(
+                'DeliveryFirstnames',
+                'DeliverySurname',
+                'DeliveryAddress1',
+                'DeliveryCity',
+                'DeliveryPostCode',
+                'DeliveryCountry'
+            ));
+        }
         
         $this->setValidator($validator);
         
@@ -293,22 +316,18 @@ class CustomerDetailsForm extends Form
      */
     public function doContinue($data)
     {
-        // Set delivery details based billing details
-        $delivery_data = array();
-        $delivery_data['DeliveryCompany']     = $data['Company'];
-        $delivery_data['DeliveryFirstnames'] = $data['FirstName'];
-        $delivery_data['DeliverySurname']    = $data['Surname'];
-        $delivery_data['DeliveryAddress1']   = $data['Address1'];
-        $delivery_data['DeliveryAddress2']   = $data['Address2'];
-        $delivery_data['DeliveryCity']       = $data['City'];
-        $delivery_data['DeliveryPostCode']   = $data['PostCode'];
-        $delivery_data['DeliveryCountry']    = $data['Country'];
+        if (!Member::currentUserID() && !Checkout::config()->guest_checkout || isset($data['Password'])) {
+            $this->registerUser($data);
+        }
 
-        // Save both sets of data to sessions
-        Session::set("Checkout.BillingDetailsForm.data", $data);
-        Session::set("Checkout.DeliveryDetailsForm.data", $delivery_data);
+        $cart = $reg_con = Injector::inst()->create('ShoppingCart');
 
-        $this->save_address($data);
+        if ($member = Member::currentUser()) {
+            $estimate = $cart->getEstimate();
+            $this->saveInto($estimate);
+        } else {
+            Session::set('Checkout.CustomerDetails.data',$data);
+        }
 
         $url = $this
             ->controller
@@ -317,6 +336,18 @@ class CustomerDetailsForm extends Form
         return $this
             ->controller
             ->redirect($url);
+    }
+
+    public function registerUser($data) 
+    {
+        $url = $this
+            ->controller
+            ->Link("finish");
+
+        Session::set('BackURL',$url);
+
+        $reg_con = Injector::inst()->create('Users_Register_Controller');
+        $reg_con->doRegister($data,$this);
     }
 
     /**
@@ -344,12 +375,26 @@ class CustomerDetailsForm extends Form
     }
 
     /**
+     * If the user is not logged in and wants to create an account
+     * save all details into the account
+     *
+     * @param $data
+     */
+    private function create_member($data) 
+    {
+        $member = Member::create();
+        $member->write();
+        $this->save_billing_address($data);
+        $member->logIn();
+    }
+
+    /**
      * If the flag has been set from the provided array, create a new
      * address and assign to the current user.
      *
      * @param $data Form data submitted
      */
-    private function save_address($data)
+    private function save_billing_address($data)
     {
         $member = Member::currentUser();
         
@@ -372,6 +417,34 @@ class CustomerDetailsForm extends Form
             $address->City = $data['City'];
             $address->PostCode = $data['PostCode'];
             $address->Country = $data['Country'];
+            $address->OwnerID = $member->ID;
+            $address->write();
+        }
+    }
+
+    private function save_shipping_address($data)
+    {
+        $member = Member::currentUser();
+        
+        // If the user ticked "save address" then add to their account
+        if ($member && array_key_exists('SaveAddress', $data) && $data['SaveAddress']) {
+            // First save the details to the users account if they aren't set
+            // We don't save email, as this is used for login
+            $member->FirstName = ($member->FirstName) ? $member->FirstName : $data['FirstName'];
+            $member->Surname = ($member->Surname) ? $member->Surname : $data['Surname'];
+            $member->Company = ($member->Company) ? $member->Company : $data['Company'];
+            $member->PhoneNumber = ($member->PhoneNumber) ? $member->PhoneNumber : $data['PhoneNumber'];
+            $member->write();
+            
+            $address = MemberAddress::create();
+            $address->Company = $data['DeliveryCompany'];
+            $address->FirstName = $data['DeliveryFirstName'];
+            $address->Surname = $data['DeliverySurname'];
+            $address->Address1 = $data['DeliveryAddress1'];
+            $address->Address2 = $data['DeliveryAddress2'];
+            $address->City = $data['DeliveryCity'];
+            $address->PostCode = $data['DeliveryPostCode'];
+            $address->Country = $data['DeliveryCountry'];
             $address->OwnerID = $member->ID;
             $address->write();
         }

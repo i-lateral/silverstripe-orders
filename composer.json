@@ -20,7 +20,8 @@
         "colymba/gridfield-bulk-editing-tools": "~2.1",
         "symbiote/silverstripe-gridfieldextensions": "~2.0",
         "silverstripe/silverstripe-omnipay": ">=2.2",
-        "i-lateral/silverstripe-sessionmessenger": ">=1.0"
+        "i-lateral/silverstripe-sessionmessenger": ">=1.0",
+        "i-lateral/silverstripe-users": "1.*"
     },
     "suggest": {
         "silverstripe/cms": "Add full content management support to your site",

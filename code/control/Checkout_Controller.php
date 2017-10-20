@@ -70,8 +70,6 @@ class Checkout_Controller extends Controller
     }
 
     /**
-     * If user logged in, redirect to billing info, else show login, register
-     * or "checkout as guest" options.
      *
      */
     public function index()
@@ -84,7 +82,6 @@ class Checkout_Controller extends Controller
         // If we have turned off login, or member logged in
         $login = false;
         if (Checkout::config()->login_form && !Member::currentUserID()) {
-            Debug::show('true');
             $login = true;
         }
         

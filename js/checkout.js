@@ -21,5 +21,5 @@ function switchDelivery() {
     }
 }
 
-switchDelivery;
+switchDelivery();
 
