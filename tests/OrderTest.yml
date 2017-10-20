@@ -5,24 +5,36 @@ OrderItem:
         Weight: 0.5
         Price: 5.99
         TaxRate: 0
-    taxitem:
-        Title: "A cheap item"
+    taxitemone:
+        Title: "A tax item"
         Quantity: 1
         Weight: 0.75
         Price: 5.99
-        TaxRate: 20
+        TaxRate: 20 # 1.198 tax per item
+    taxitemtwo:
+        Title: "Another tax item"
+        Quantity: 1
+        Weight: 0.75
+        Price: 5.99
+        TaxRate: 20 # 1.198 tax per item
+    taxitemthree:
+        Title: "Two cheap items"
+        Quantity: 2
+        Weight: 0.75
+        Price: 3.99
+        TaxRate: 20 # 0.798 tax per item
     discounttaxitem1:
         Title: "An item to discount"
         Quantity: 2
         Weight: 0.5
         Price: 5.99
-        TaxRate: 20
+        TaxRate: 20 # tax per item of 0.998 (after discount)
     discounttaxitem2:
         Title: "Another item to discount"
         Quantity: 1
         Weight: 0.75
         Price: 3.99
-        TaxRate: 20
+        TaxRate: 20 # tax per item of 0.598 (after discount)
 Order:
     addressdetails:
         Status: incomplete
@@ -48,13 +60,20 @@ Order:
         PostageType: "Standard Postage"
         PostageCost: 2.00
         PostageTax: 0.40
-        Items: =>OrderItem.taxitem
+        Items: =>OrderItem.taxitemone
+    complextax:
+        Status: paid
+        OrderNumber: 123456
+        PostageType: "Standard Postage"
+        PostageCost: 2.00
+        PostageTax: 0.40
+        Items: =>OrderItem.taxitemtwo,=>OrderItem.taxitemthree
     discount:
         Status: incomplete
         OrderNumber: 123456
         PostageType: "Standard Postage"
         PostageCost: 2.00
         PostageTax: 0.40
-        Discount: "£5 Off"
+        Discount: "£3 Off"
         DiscountAmount: 3.00
         Items: =>OrderItem.discounttaxitem1,=>OrderItem.discounttaxitem2

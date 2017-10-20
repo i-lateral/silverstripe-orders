@@ -154,6 +154,25 @@ class OrderTest extends SapphireTest
 	}
 
 	/**
+	 * test that functions for calculating tax monitary info on
+	 * an order are correct
+	 *
+	 * @return void
+	 */
+	public function testTaxCalculations()
+    {
+		$no_tax_order = $this->objFromFixture('Order', 'standardnotax');
+		$tax_order_one = $this->objFromFixture('Order', 'standardtax');
+		$tax_order_two = $this->objFromFixture('Order', 'complextax');
+		$discount_order = $this->objFromFixture('Order', 'discount');
+
+		$this->assertEquals(0, $no_tax_order->TaxTotal->RAW());
+		$this->assertEquals(1.60, $tax_order_one->TaxTotal->RAW());
+		$this->assertEquals(3.20, $tax_order_two->TaxTotal->RAW());
+		$this->assertEquals(3.0, $discount_order->TaxTotal->RAW());
+	}
+
+	/**
 	 * test that functions for calculating monitary info on
 	 * an order are correct (such as tax, total, etc)
 	 *
@@ -162,17 +181,17 @@ class OrderTest extends SapphireTest
 	public function testCurrencyCalculations()
     {
 		$no_tax_order = $this->objFromFixture('Order', 'standardnotax');
-		$tax_order = $this->objFromFixture('Order', 'standardtax');
+		$tax_order_one = $this->objFromFixture('Order', 'standardtax');
+		$tax_order_two = $this->objFromFixture('Order', 'complextax');
 		$discount_order = $this->objFromFixture('Order', 'discount');
 
 		$this->assertEquals(11.98, $no_tax_order->SubTotal->RAW());
-		$this->assertEquals(0, $no_tax_order->TaxTotal->RAW());
 		$this->assertEquals(13.98, $no_tax_order->Total->RAW());
-		$this->assertEquals(5.99, $tax_order->SubTotal->RAW());
-		$this->assertEquals(1.60, $tax_order->TaxTotal->RAW());
-		$this->assertEquals(9.59, $tax_order->Total->RAW());
+		$this->assertEquals(5.99, $tax_order_one->SubTotal->RAW());
+		$this->assertEquals(9.59, $tax_order_one->Total->RAW());
+		$this->assertEquals(13.97, $tax_order_two->SubTotal->RAW());
+		$this->assertEquals(19.17, $tax_order_two->Total->RAW());
 		$this->assertEquals(15.97, $discount_order->SubTotal->RAW());
-		$this->assertEquals(3.0, $discount_order->TaxTotal->RAW());
 		$this->assertEquals(17.97, $discount_order->Total->RAW());
 	}
 }
