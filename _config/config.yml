@@ -24,3 +24,6 @@ Order:
 Payment:
   extensions:
     - OrdersPaymentExtension
+Users_Register_Controller:
+  extensions:
+    - OrdersUsers_Register_ControllerExtension

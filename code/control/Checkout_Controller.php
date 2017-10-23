@@ -180,15 +180,16 @@ class Checkout_Controller extends Controller
     public function finish()
     {
         // Check the users details are set, if not, send them to the cart
-        $billing_data = Session::get("Checkout.BillingDetailsForm.data");
-        $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
+        $data = Session::get("Checkout.CustomerDetails.data");
 
-        if (!Checkout::config()->simple_checkout && !is_array($billing_data) && !is_array($delivery_data)) {
+        if (!Checkout::config()->simple_checkout && !is_array($data)) {
             return $this->redirect($this->Link('index'));
         }
         
         // Check permissions for guest checkout
         if (!Member::currentUserID() && !Checkout::config()->guest_checkout) {
+            Debug::show('second');
+            exit;
             return $this->redirect($this->Link('index'));
         }
             
@@ -233,52 +234,6 @@ class Checkout_Controller extends Controller
         }
 
         $this->extend("updateLoginForm", $form);
-
-        return $form;
-    }
-
-    /**
-     * Form to capture the customers details
-     *
-     * @return CustomerDetailsForm
-     */
-    public function CustomerForm()
-    {
-        $form = CustomerDetailsForm::create($this, 'CustomerForm');
-
-        $data = Session::get("Checkout.CustomerDetailsForm.data");
-        if (is_array($data)) {
-            $form->loadDataFrom($data);
-        } elseif($member = Member::currentUser()) {
-            // Fill email, phone, etc
-            $form->loadDataFrom($member);
-            
-            // Then fill with Address info
-            if($member->DefaultAddress()) {
-                $form->loadDataFrom($member->DefaultAddress());
-            }
-        }
-
-        $this->extend("updateCustomerForm", $form);
-
-        return $form;
-    }
-
-    /**
-     * Form to capture users delivery details
-     *
-     * @return DeliveryDetailsForm
-     */
-    public function DeliveryForm()
-    {
-        $form = DeliveryDetailsForm::create($this, 'DeliveryForm');
-
-        $data = Session::get("Checkout.DeliveryDetailsForm.data");
-        if (is_array($data)) {
-            $form->loadDataFrom($data);
-        }
-
-        $this->extend("updateDeliveryForm", $form);
 
         return $form;
     }

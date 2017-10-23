@@ -18,8 +18,9 @@ class CustomerDetailsForm extends Form
             $actions = FieldList::create()
         );
         
-        $data = Session::get("FormInfo.{$this->FormName()}.settings");        
-        // set default form parameters
+        $data = Session::get("FormInfo.{$this->FormName()}.settings"); 
+
+        // set default form parameters        
         $new_billing = false;
         $same_shipping = 1;
         $new_shipping = false;     
@@ -75,7 +76,7 @@ class CustomerDetailsForm extends Form
             )
         )->setName("AddressFields");
 
-        if ($member && $member->Addresses()->count() > 0) {
+        if ($member && $member->Addresses()->count() > 1) {
             $address_fields->push(
                 FormAction::create(
                     'doUseSavedBilling',
@@ -101,7 +102,7 @@ class CustomerDetailsForm extends Form
             $saved_shipping = null;
         }
 
-        if (!$new_billing && $member && $member->Addresses()->count()) {
+        if (!$new_billing && $member && $member->Addresses()->count() > 1) {
             $fields->add(
                 // Add default fields
                 $saved_billing
@@ -153,7 +154,7 @@ class CustomerDetailsForm extends Form
             )
         )->setName("AddressFields");
 
-        if ($member && $member->Addresses()->count() > 0) {
+        if ($member && $member->Addresses()->count() > 1) {
             $daddress_fields->push(
                 FormAction::create(
                     'doUseSavedShipping',
@@ -163,7 +164,7 @@ class CustomerDetailsForm extends Form
             );
         }
         
-        if (!$new_shipping && $member && $member->Addresses()->count()) {
+        if (!$new_shipping && $member && $member->Addresses()->count() > 1) {
             $fields->add(
                 $saved_shipping            
             );
@@ -206,6 +207,13 @@ class CustomerDetailsForm extends Form
                     $pw_field = ConfirmedPasswordField::create("Password")->setAttribute('formnovalidate',true)
                 )->setName("PasswordFields")
             );            
+        }
+
+        if (is_array($data)) {
+            $this->loadDataFrom($data);
+        }
+        if ($member && $member->Addresses()->count() == 1) {
+            $this->loadDataFrom($member->Addresses()->First());
         }
 
         if(!$cart->isDeliverable() || $cart->isCollection()) {
@@ -315,8 +323,26 @@ class CustomerDetailsForm extends Form
      * @return Redirect
      */
     public function doContinue($data)
-    {
-        if (!Member::currentUserID() && !Checkout::config()->guest_checkout || isset($data['Password'])) {
+    {        
+        if (!isset($data['Address1']) && isset($data['BillingAddress'])) {
+            $billing_address = MemberAddress::get()->ByID($data['BillingAddress']);
+        }
+
+        if (isset($data['DuplicateDelivery']) && $data['DuplicateDelivery'] == 1) {
+            $data['DeliveryCompany'] = $data['Company'];
+            $data['DeliveryFirstnames'] = $data['FirstName'];
+            $data['DeliverySurname'] = $data['Surname'];
+            $data['DeliveryAddress1'] = $data['Address1'];
+            $data['DeliveryAddress2'] = $data['Address2'];
+            $data['DeliveryCity'] = $data['City'];
+            $data['DeliveryState'] = $data['State'];
+            $data['DeliveryPostCode'] = $data['PostCode'];
+            $data['DeliveryCountry'] = $data['Country'];
+        }
+
+        Session::set("FormInfo.{$this->FormName()}.settings",$data);       
+        
+        if (!Member::currentUserID() && (!Checkout::config()->guest_checkout || isset($data['Password']))) {
             $this->registerUser($data);
         }
 
@@ -325,9 +351,12 @@ class CustomerDetailsForm extends Form
         if ($member = Member::currentUser()) {
             $estimate = $cart->getEstimate();
             $this->saveInto($estimate);
-        } else {
-            Session::set('Checkout.CustomerDetails.data',$data);
+            foreach ($data as $key => $value) {
+                $estimate->{$key} = $value;
+            }
         }
+            
+        Session::set('Checkout.CustomerDetails.data',$data);
 
         $url = $this
             ->controller

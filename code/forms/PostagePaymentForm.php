@@ -16,7 +16,7 @@ class PostagePaymentForm extends Form
         
         if (!Checkout::config()->simple_checkout && !$cart->isCollection() && $cart->isDeliverable()) {
             // Get delivery data and postage areas from session
-            $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
+            $delivery_data = Session::get("Checkout.CustomerDetails.data");
             $country = $delivery_data['DeliveryCountry'];
             $postcode = $delivery_data['DeliveryPostCode'];
             
