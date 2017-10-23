@@ -92,7 +92,7 @@ class PostagePaymentForm extends Form
         $fields = FieldList::create();
         $actions = FieldList::create();
 
-        try {
+        /*try {
             // Get available payment methods and setup payment
             $payment_methods = GatewayInfo::getSupportedGateways();
 
@@ -118,19 +118,25 @@ class PostagePaymentForm extends Form
         $payment_field = CompositeField::create(
             HeaderField::create('PaymentHeading', _t('Checkout.Payment', 'Payment'), 2),
             $payment_field
-        )->setName("PaymentFields");
+        )->setName("PaymentFields");*/
+
+        $actions
+            ->add(FormAction::create(
+                'doContinue',
+                _t('Checkout.PaymentDetails', 'Enter Payment Details')
+            )->addExtraClass('checkout-action-next'));
 
         $fields->add(
             CompositeField::create(
-                $postage_field,
-                $payment_field
+                $postage_field//,
+                //$payment_field
             )->setName("PostagePaymentFields")
-            ->setColumnCount(2)
+            //->setColumnCount(2)
         );
 
         $validator = RequiredFields::create(array(
             "PostageID",
-            "PaymentMethodID"
+            //"PaymentMethodID"
         ));
 
         parent::__construct(
@@ -145,12 +151,12 @@ class PostagePaymentForm extends Form
     }
     
     public function getBackURL() {
-        return $this->controller->Link("billing");
+        return $this->controller->Link();
     } 
 
     public function doContinue($data)
     {
-        Session::set('Checkout.PaymentMethodID', $data['PaymentMethodID']);
+        //Session::set('Checkout.PaymentMethodID', $data['PaymentMethodID']);
         Session::set("Checkout.PostageID", $data["PostageID"]);
 
         $url = Controller::join_links(

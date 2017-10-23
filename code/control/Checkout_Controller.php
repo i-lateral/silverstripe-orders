@@ -238,6 +238,33 @@ class Checkout_Controller extends Controller
         return $form;
     }
 
+     /**
+     * Form to capture the customers details
+     *
+     * @return CustomerDetailsForm
+     */
+    public function CustomerForm()
+    {
+        $form = CustomerDetailsForm::create($this, 'CustomerForm');
+
+        $data = Session::get("Checkout.CustomerDetailsForm.data");
+        if (is_array($data)) {
+            $form->loadDataFrom($data);
+        } elseif($member = Member::currentUser()) {
+            // Fill email, phone, etc
+            $form->loadDataFrom($member);
+            
+            // Then fill with Address info
+            if($member->DefaultAddress()) {
+                $form->loadDataFrom($member->DefaultAddress());
+            }
+        }
+
+        $this->extend("updateCustomerForm", $form);
+
+        return $form;
+    }
+
     /**
      * Form to find postage options and allow user to select payment
      *
