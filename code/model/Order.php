@@ -212,6 +212,7 @@ class Order extends DataObject implements PermissionProvider
         // Delivery Details
         'DeliveryCompany'    => 'Varchar',
         'DeliveryFirstnames'=> 'Varchar',
+        'DeliveryFirstName'=> 'Varchar',
         'DeliverySurname'   => 'Varchar',
         'DeliveryAddress1'  => 'Varchar',
         'DeliveryAddress2'  => 'Varchar',
@@ -491,7 +492,7 @@ class Order extends DataObject implements PermissionProvider
                         _t("Orders.DeliveryDetails", "Delivery Details")
                     ),
                     TextField::create("DeliveryCompany"),
-                    TextField::create("DeliveryFirstnames"),
+                    TextField::create("DeliveryFirstName"),
                     TextField::create("DeliverySurname"),
                     TextField::create("DeliveryAddress1"),
                     TextField::create("DeliveryAddress2"),
@@ -948,6 +949,21 @@ class Order extends DataObject implements PermissionProvider
     }
 
     /**
+     * Add default recoprds when the database is built
+     * 
+     * @return void
+     */
+    public function requireDefaultRecords()
+    {
+        parent::requireDefaultRecords();
+        
+        if(OrderMigrationTask::config()->run_during_dev_build) {
+            $task = new OrderMigrationTask();
+            $task->up();
+        }
+    }
+
+    /**
      * API Callback before this object is removed from to the DB
      *
      */
@@ -981,7 +997,7 @@ class Order extends DataObject implements PermissionProvider
         // Is delivery address set, if not, set it here
         if (!$this->DeliveryAddress1 && !$this->DeliveryPostCode) {
             $this->DeliveryCompany = $this->Company;
-            $this->DeliveryFirstnames = $this->FirstName;
+            $this->DeliveryFirstName = $this->FirstName;
             $this->DeliverySurname = $this->Surname;
             $this->DeliveryAddress1 = $this->Address1;
             $this->DeliveryAddress2 = $this->Address2;

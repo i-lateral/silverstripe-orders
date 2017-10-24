@@ -6,7 +6,7 @@ class OrdersUsers_Register_ControllerExtension extends Extension
     {
         if (isset($data['Address1'])) {
             $address = new MemberAddress($data);
-            $address->MemberID = $member->ID;
+            $address->OwnerID = $member->ID;
             $address->write();
 
             $member->Addresses()->add($address);
@@ -15,7 +15,7 @@ class OrdersUsers_Register_ControllerExtension extends Extension
                 $new_data = [];
 
                 $new_data['Company'] = $data['DeliveryCompany'];
-                $new_data['FirstName'] = $data['DeliveryFirstnames'];
+                $new_data['FirstName'] = $data['DeliveryFirstName'];
                 $new_data['Surname'] = $data['DeliverySurname'];
                 $new_data['Address1'] = $data['DeliveryAddress1'];
                 $new_data['Address2'] = $data['DeliveryAddress2'];
@@ -25,7 +25,7 @@ class OrdersUsers_Register_ControllerExtension extends Extension
                 $new_data['Country'] = $data['DeliveryCountry'];
 
                 $address = new MemberAddress($new_data);
-                $address->MemberID = $member->ID;
+                $address->OwnerID = $member->ID;
                 $address->write();
             
                 $member->Addresses()->add($address);

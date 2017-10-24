@@ -137,7 +137,7 @@ class CustomerDetailsForm extends Form
         $dpersonal_fields = CompositeField::create(
             TextField::create('DeliveryCompany', _t('Checkout.Company', 'Company'))
                 ->setRightTitle(_t("Checkout.Optional", "Optional")),
-            TextField::create('DeliveryFirstnames', _t('Checkout.FirstName', 'First Name(s)')),
+            TextField::create('DeliveryFirstName', _t('Checkout.FirstName', 'First Name(s)')),
             TextField::create('DeliverySurname', _t('Checkout.Surname', 'Surname'))
         )->setName("PersonalFields");
 
@@ -255,7 +255,7 @@ class CustomerDetailsForm extends Form
             $validator->addRequiredField('ShippingAddress');
         } else {
             $validator->appendRequiredFields(new RequiredFields(
-                'DeliveryFirstnames',
+                'DeliveryFirstName',
                 'DeliverySurname',
                 'DeliveryAddress1',
                 'DeliveryCity',
@@ -333,7 +333,7 @@ class CustomerDetailsForm extends Form
 
         if (isset($data['DuplicateDelivery']) && $data['DuplicateDelivery'] == 1) {
             $data['DeliveryCompany'] = isset($data['Company']) ? $data['Company'] : '';
-            $data['DeliveryFirstnames'] = isset($data['FirstName']) ? $data['FirstName'] : '';
+            $data['DeliveryFirstName'] = isset($data['FirstName']) ? $data['FirstName'] : '';
             $data['DeliverySurname'] = isset($data['Surname']) ? $data['Surname'] : '';
             $data['DeliveryAddress1'] = isset($data['Address1']) ? $data['Address1'] : '';
             $data['DeliveryAddress2'] = isset($data['Address2']) ? $data['Address2'] : '';
@@ -362,6 +362,12 @@ class CustomerDetailsForm extends Form
             foreach ($data as $key => $value) {
                 $estimate->{$key} = $value;
             }
+            if (isset($data['SaveBillingAddress']) && $data['SaveBillingAddress'] == 1) {
+                $this->save_billing_address($data);
+            }
+            if (isset($data['SaveShippingAddress']) && $data['SaveShippingAddress'] == 1) {
+                $this->save_shipping_address($data);
+            }
         }
             
         Session::set('Checkout.CustomerDetails.data',$data);
@@ -388,44 +394,6 @@ class CustomerDetailsForm extends Form
     }
 
     /**
-     * Method used to save data (without delivery info) to an order and redirect
-     * to the delivery details page
-     *
-     * @param $data Form data
-     *
-     * @return Redirect
-     */
-    public function doSetDelivery($data)
-    {
-        // Save billing data to sessions
-        Session::set("Checkout.BillingDetailsForm.data", $data);
-
-        $this->save_address($data);
-
-        $url = $this
-            ->controller
-            ->Link("delivery");
-
-        return $this
-            ->controller
-            ->redirect($url);
-    }
-
-    /**
-     * If the user is not logged in and wants to create an account
-     * save all details into the account
-     *
-     * @param $data
-     */
-    private function create_member($data) 
-    {
-        $member = Member::create();
-        $member->write();
-        $this->save_billing_address($data);
-        $member->logIn();
-    }
-
-    /**
      * If the flag has been set from the provided array, create a new
      * address and assign to the current user.
      *
@@ -436,14 +404,13 @@ class CustomerDetailsForm extends Form
         $member = Member::currentUser();
         
         // If the user ticked "save address" then add to their account
-        if ($member && array_key_exists('SaveAddress', $data) && $data['SaveAddress']) {
+        if ($member && array_key_exists('SaveBillingAddress', $data) && $data['SaveBillingAddress'] == 1) {
             // First save the details to the users account if they aren't set
             // We don't save email, as this is used for login
             $member->FirstName = ($member->FirstName) ? $member->FirstName : $data['FirstName'];
             $member->Surname = ($member->Surname) ? $member->Surname : $data['Surname'];
             $member->Company = ($member->Company) ? $member->Company : $data['Company'];
             $member->PhoneNumber = ($member->PhoneNumber) ? $member->PhoneNumber : $data['PhoneNumber'];
-            $member->write();
             
             $address = MemberAddress::create();
             $address->Company = $data['Company'];
@@ -452,10 +419,14 @@ class CustomerDetailsForm extends Form
             $address->Address1 = $data['Address1'];
             $address->Address2 = $data['Address2'];
             $address->City = $data['City'];
+            $address->State = $data['Stste'];
             $address->PostCode = $data['PostCode'];
             $address->Country = $data['Country'];
             $address->OwnerID = $member->ID;
             $address->write();
+
+            $member->Addresses()->add($address);
+            $member->write();       
         }
     }
 
@@ -464,14 +435,13 @@ class CustomerDetailsForm extends Form
         $member = Member::currentUser();
         
         // If the user ticked "save address" then add to their account
-        if ($member && array_key_exists('SaveAddress', $data) && $data['SaveAddress']) {
+        if ($member && array_key_exists('SaveShippingAddress', $data) && $data['SaveShippingAddress'] == 1) {
             // First save the details to the users account if they aren't set
             // We don't save email, as this is used for login
             $member->FirstName = ($member->FirstName) ? $member->FirstName : $data['FirstName'];
             $member->Surname = ($member->Surname) ? $member->Surname : $data['Surname'];
             $member->Company = ($member->Company) ? $member->Company : $data['Company'];
             $member->PhoneNumber = ($member->PhoneNumber) ? $member->PhoneNumber : $data['PhoneNumber'];
-            $member->write();
             
             $address = MemberAddress::create();
             $address->Company = $data['DeliveryCompany'];
@@ -481,9 +451,13 @@ class CustomerDetailsForm extends Form
             $address->Address2 = $data['DeliveryAddress2'];
             $address->City = $data['DeliveryCity'];
             $address->PostCode = $data['DeliveryPostCode'];
+            $address->State = $data['DeliveryState'];
             $address->Country = $data['DeliveryCountry'];
             $address->OwnerID = $member->ID;
             $address->write();
+
+            $member->Addresses()->add($address);
+            $member->write();            
         }
     }
 }

@@ -1,4 +1,6 @@
 <% require css('orders/css/checkout.css') %>
+<% require javascript('orders/js/checkout.js') %>
+
 <div class="content-container container checkout-payment typography">
     <h1><%t Checkout.Summary "Summary" %></h1>
     <p><%t Checkout.SummaryCopy "Please review your personal information before proceeding and entering your payment details." %></p>

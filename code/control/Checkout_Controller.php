@@ -153,7 +153,7 @@ class Checkout_Controller extends Controller
 
         if ($otherid == "delivery" || !$cart->isDeliverable()) {
             $data['DeliveryCompany']  = $address->Company;
-            $data['DeliveryFirstnames']  = $address->FirstName;
+            $data['DeliveryFirstName']  = $address->FirstName;
             $data['DeliverySurname']    = $address->Surname;
             $data['DeliveryAddress1']   = $address->Address1;
             $data['DeliveryAddress2']   = $address->Address2;

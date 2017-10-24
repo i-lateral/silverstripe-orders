@@ -8,7 +8,7 @@ class CheckoutValidator extends RequiredFields
         }
         if (isset($data['DuplicateDelivery']) && $data['DuplicateDelivery'] == 1) {
             $this->removeRequiredField('ShippingAddress');
-            $this->removeRequiredField('DeliveryFirstnames');
+            $this->removeRequiredField('DeliveryFirstName');
             $this->removeRequiredField('DeliverySurname');
             $this->removeRequiredField('DeliveryAddress1');
             $this->removeRequiredField('DeliveryCity');

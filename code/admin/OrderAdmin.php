@@ -47,7 +47,7 @@ class OrderAdmin extends ModelAdmin
                 "City"              => "Billing City",
                 "PostCode"          => "Billing Post Code",
                 "CountryFull"       => "Billing Country",
-                "DeliveryFirstnames"=> "Delivery First Name(s)",
+                "DeliveryFirstName"=> "Delivery First Name(s)",
                 "DeliverySurname"   => "Delivery Surname",
                 "DeliveryAddress1"  => "Delivery Address 1",
                 "DeliveryAddress2"  => "Delivery Address 2",

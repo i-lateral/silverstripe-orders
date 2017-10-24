@@ -369,7 +369,7 @@ class Payment_Controller extends Controller
             $actions
                 ->add(FormAction::create(
                     'doContinue',
-                    _t('Checkout.PaymentDetails', 'Enter Payment Details')
+                    _t('Checkout.ChangeGateway', 'Change Payment Type')
                 )->addExtraClass('checkout-action-next'));
         } catch (Exception $e) {
             $payment_field = ReadonlyField::create(

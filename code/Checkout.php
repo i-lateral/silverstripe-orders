@@ -100,7 +100,7 @@ class Checkout extends ViewableData
         "PhoneNumber",
         "Email",
         "DeliveryCompany",
-        "DeliveryFirstnames",
+        "DeliveryFirstName",
         "DeliverySurname",
         "DeliveryAddress1",
         "DeliveryAddress2",
