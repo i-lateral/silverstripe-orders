@@ -326,18 +326,26 @@ class CustomerDetailsForm extends Form
     {        
         if (!isset($data['Address1']) && isset($data['BillingAddress'])) {
             $billing_address = MemberAddress::get()->ByID($data['BillingAddress']);
+            foreach ($billing_address->toMap() as $key => $value) {
+                $data[$key] = $value;
+            }
         }
 
         if (isset($data['DuplicateDelivery']) && $data['DuplicateDelivery'] == 1) {
-            $data['DeliveryCompany'] = $data['Company'];
-            $data['DeliveryFirstnames'] = $data['FirstName'];
-            $data['DeliverySurname'] = $data['Surname'];
-            $data['DeliveryAddress1'] = $data['Address1'];
-            $data['DeliveryAddress2'] = $data['Address2'];
-            $data['DeliveryCity'] = $data['City'];
-            $data['DeliveryState'] = $data['State'];
-            $data['DeliveryPostCode'] = $data['PostCode'];
-            $data['DeliveryCountry'] = $data['Country'];
+            $data['DeliveryCompany'] = isset($data['Company']) ? $data['Company'] : '';
+            $data['DeliveryFirstnames'] = isset($data['FirstName']) ? $data['FirstName'] : '';
+            $data['DeliverySurname'] = isset($data['Surname']) ? $data['Surname'] : '';
+            $data['DeliveryAddress1'] = isset($data['Address1']) ? $data['Address1'] : '';
+            $data['DeliveryAddress2'] = isset($data['Address2']) ? $data['Address2'] : '';
+            $data['DeliveryCity'] = isset($data['City']) ? $data['City'] : '';
+            $data['DeliveryState'] = isset($data['State']) ? $data['State'] : '';
+            $data['DeliveryPostCode'] = isset($data['PostCode']) ? $data['PostCode'] : '';
+            $data['DeliveryCountry'] = isset($data['Country']) ? $data['Country'] : '';
+        } elseif (!isset($data['DeliveryAddress1']) && isset($data['ShippingAddress'])) {
+            $shipping_address = MemberAddress::get()->ByID($data['ShippingAddress']);
+            foreach ($shipping_address->toMap() as $key => $value) {
+                $data['Delivery'.$key] = $value;
+            }
         }
 
         Session::set("FormInfo.{$this->FormName()}.settings",$data);       

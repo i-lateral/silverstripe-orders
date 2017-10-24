@@ -38,6 +38,7 @@ class Payment_Controller extends Controller
         "index",
         "complete",
         "PaymentForm",
+        "GatewayForm"
     );
 
     /**
@@ -143,8 +144,7 @@ class Payment_Controller extends Controller
         }
 
         // Get billing and delivery details and merge into an array
-        $billing_data = Session::get("Checkout.BillingDetailsForm.data");
-        $delivery_data = Session::get("Checkout.DeliveryDetailsForm.data");
+        $customer_data = Session::get("Checkout.CustomerDetails.data");
         
         // If we have applied free shipping, set that up, else get 
         if (Session::get('Checkout.PostageID') == -1 || !$cart->isDeliverable()) {
@@ -154,11 +154,11 @@ class Payment_Controller extends Controller
         }
         
         // If we are using a complex checkout and do not have correct details redirect 
-        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && $cart->isDeliverable() && (!$postage || !$billing_data || !$delivery_data)) {
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && $cart->isDeliverable() && (!$postage || !$customer_data )) {
             return $this->redirect(Checkout_Controller::create()->Link());
         }
             
-        if ($cart->isCollection() && (!$billing_data)) {
+        if ($cart->isCollection() && (!$customer_data)) {
             return $this->redirect(Checkout_Controller::create()->Link());
         }
 
@@ -173,8 +173,7 @@ class Payment_Controller extends Controller
 
         // Assign billing, delivery and postage data
         if (!Checkout::config()->simple_checkout) {
-            $data = array_merge($data, $billing_data);
-            $data = (is_array($delivery_data)) ? array_merge($data, $delivery_data) : $data;
+            $data = array_merge($data, $customer_data);
             $checkout_data = Checkout::config()->checkout_data;
             
             if (!$cart->isCollection()) {
@@ -242,6 +241,7 @@ class Payment_Controller extends Controller
         Session::set("Checkout.OrderID", $order->ID);
 
         $form = $this->PaymentForm();
+        $gateway_form = $this->GatewayForm();
 
         // Generate a map of payment data and load into form.
         // This way we can add users to a form
@@ -257,6 +257,7 @@ class Payment_Controller extends Controller
         $form->loadDataFrom($omnipay_data);
 
         $this->customise(array(
+            "GatewayForm" => $gateway_form, 
             "Form" => $form,
             "Order" => $order
         ));
@@ -343,6 +344,61 @@ class Payment_Controller extends Controller
     }
 
     /**
+     * Generate a gateway form from available gateways
+     * 
+     * @return Form
+     */
+    public function GatewayForm()
+    {
+        $actions = FieldList::create();
+        try {
+            // Get available payment methods and setup payment
+            $payment_methods = GatewayInfo::getSupportedGateways();
+            $reverse = array_reverse($payment_methods);
+            $default = array_pop($reverse);
+            $current = Session::get("Checkout.PaymentMethodID");
+            $gateway = $current ? $current : $default;                
+            
+            $payment_field = OptionsetField::create(
+                'PaymentMethodID',
+                _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
+                $payment_methods
+            )->setTemplate("PaymentsOptionsetField")
+            ->setValue($gateway);
+
+            $actions
+                ->add(FormAction::create(
+                    'doContinue',
+                    _t('Checkout.PaymentDetails', 'Enter Payment Details')
+                )->addExtraClass('checkout-action-next'));
+        } catch (Exception $e) {
+            $payment_field = ReadonlyField::create(
+                "PaymentMethodID",
+                _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
+                $e->getMessage()
+            );
+        }
+
+        $fields = FieldList::create($payment_field);
+
+        $validator = RequiredFields::create(array(
+            "PaymentMethodID"
+        ));
+
+        $form = Form::create(
+            $this,
+            "GatewayForm",
+            $fields,
+            $actions,
+            $validator
+        );
+
+        $this->extend("updatePaymentForm", $form);
+
+        return $form;
+    }
+
+    /**
      * Generate a payment form using omnipay scafold
      *
      * @return Form
@@ -366,6 +422,12 @@ class Payment_Controller extends Controller
         $this->extend("updatePaymentForm", $form);
 
         return $form;
+    }
+
+    public function doContinue($data, $form)
+    {
+        Session::set("Checkout.PaymentMethodID", $data["PaymentMethodID"]);        
+        return $this->redirectBack();        
     }
 
     public function doSubmit($data, $form)

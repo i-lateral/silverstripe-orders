@@ -188,8 +188,6 @@ class Checkout_Controller extends Controller
         
         // Check permissions for guest checkout
         if (!Member::currentUserID() && !Checkout::config()->guest_checkout) {
-            Debug::show('second');
-            exit;
             return $this->redirect($this->Link('index'));
         }
             
