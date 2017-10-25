@@ -181,7 +181,8 @@ class Checkout_Controller extends Controller
     {
         // Check the users details are set, if not, send them to the cart
         $data = Session::get("Checkout.CustomerDetails.data");
-
+        $cart = ShoppingCart::get();
+        
         if (!Checkout::config()->simple_checkout && !is_array($data)) {
             return $this->redirect($this->Link('index'));
         }
@@ -190,11 +191,15 @@ class Checkout_Controller extends Controller
         if (!Member::currentUserID() && !Checkout::config()->guest_checkout) {
             return $this->redirect($this->Link('index'));
         }
+
+        if ($cart->isCollection() || !$cart->isDeliverable()) {
+            return $this->redirect(Payment_Controller::create()->Link());
+        }
             
         if (Checkout::config()->simple_checkout) {
             $title = _t('Checkout.SelectPaymentMethod', "Select Payment Method");
         } else {
-            $title = _t('Checkout.SeelctPostagePayment', "Select Postage and Payment Method");
+            $title = _t('Checkout.SeelctPostageMethod', "Select Postage Method");
         }
 
         $customer = ArrayData::create($data);
