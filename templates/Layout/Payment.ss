@@ -70,7 +70,7 @@
                             </div>
                         </div>
                     <% end_loop %>
-                    <table class="checkout-total-table width-100">
+                    <table class="checkout-total-table table width-100">
                         <tr class="subtotal">
                             <td class="text-right">
                                 <strong>
