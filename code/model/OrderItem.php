@@ -114,6 +114,7 @@ class OrderItem extends DataObject
     private static $casting = array(
         "Total" => "Currency",
         "UnitPrice" => "Currency",
+        "UnitTax" => "Currency",
         "SubTotal" => "Currency",
         "Tax" => "Currency"
     );
@@ -185,6 +186,18 @@ class OrderItem extends DataObject
     }
 
     /**
+     * Get the amount of tax for a single unit of this item
+     * 
+     * @return Float
+     */
+    public function UnitTax()
+    {
+        $price = $this->obj("UnitPrice");
+
+        return ($price->getValue() / 100) * $this->TaxRate;
+    }
+
+    /**
      * Get the value of this item, minus any tax
      * 
      * @return Float
@@ -192,6 +205,18 @@ class OrderItem extends DataObject
     public function SubTotal()
     {
         $price = $this->obj("UnitPrice");
+
+        return $price->getValue() * $this->Quantity;
+    }
+
+    /**
+     * Get the amount of tax for a single unit of this item
+     * 
+     * @return Float
+     */
+    public function Tax()
+    {
+        $price = $this->obj("UnitTax");
 
         return $price->getValue() * $this->Quantity;
     }
@@ -210,18 +235,6 @@ class OrderItem extends DataObject
         }
 
         return $price->getValue() + $tax->getValue();
-    }
-
-    /**
-     * Get the amount of tax for a single unit of this item
-     * 
-     * @return Float
-     */
-    public function Tax()
-    {
-        $price = $this->obj("SubTotal");
-
-        return ($price->getValue() / 100) * $this->TaxRate;
     }
 
     /**
