@@ -127,67 +127,69 @@ class CustomerDetailsForm extends Form
                 );
             }
         }
-        $fields->add(
-            CheckboxField::create(
-                'DuplicateDelivery',
-                _t('Checkout.DeliverHere', 'Deliver to this address?')
-            )->setValue($same_shipping)
-        );
-
-        $dpersonal_fields = CompositeField::create(
-            TextField::create('DeliveryCompany', _t('Checkout.Company', 'Company'))
-                ->setRightTitle(_t("Checkout.Optional", "Optional")),
-            TextField::create('DeliveryFirstName', _t('Checkout.FirstName', 'First Name(s)')),
-            TextField::create('DeliverySurname', _t('Checkout.Surname', 'Surname'))
-        )->setName("PersonalFields");
-
-        $daddress_fields = CompositeField::create(
-            TextField::create('DeliveryAddress1', _t('Checkout.Address1', 'Address Line 1')),
-            TextField::create('DeliveryAddress2', _t('Checkout.Address2', 'Address Line 2'))
-                ->setRightTitle(_t("Checkout.Optional", "Optional")),
-            TextField::create('DeliveryCity', _t('Checkout.City', 'City')),
-            TextField::create('DeliveryState', _t('Checkout.StateCounty', 'State/County')),
-            TextField::create('DeliveryPostCode', _t('Checkout.PostCode', 'Post Code')),
-            CountryDropdownField::create(
-                'DeliveryCountry',
-                _t('Checkout.Country', 'Country')
-            )
-        )->setName("AddressFields");
-
-        if ($member && $member->Addresses()->count() > 1) {
-            $daddress_fields->push(
-                FormAction::create(
-                    'doUseSavedShipping',
-                    _t('Checkout.SavedAddress', 'Use saved address')
-                )->addextraClass('btn btn-default')
-                ->setAttribute('formnovalidate',true)
-            );
-        }
-        
-        if (!$new_shipping && $member && $member->Addresses()->count() > 1) {
+        if (!$cart->isCollection() && $cart->isDeliverable()) {
             $fields->add(
-                $saved_shipping            
-            );
-        } else {
-            $fields->add(
-                CompositeField::create(
-                    $dpersonal_fields,
-                    $daddress_fields
-                )->setName("DeliveryFields")
-                ->setColumnCount(2)
-            );
-        }
-        
-        // Add a save address for later checkbox if a user is logged in
-        if (Member::currentUserID()) {
-            $member = Member::currentUser();
-
-            $daddress_fields->push(
                 CheckboxField::create(
-                    "SaveShippingAddress",
-                    _t('Checkout.SaveShippingAddress', 'Save this address for later')
-                )
+                    'DuplicateDelivery',
+                    _t('Checkout.DeliverHere', 'Deliver to this address?')
+                )->setValue($same_shipping)
             );
+
+            $dpersonal_fields = CompositeField::create(
+                TextField::create('DeliveryCompany', _t('Checkout.Company', 'Company'))
+                    ->setRightTitle(_t("Checkout.Optional", "Optional")),
+                TextField::create('DeliveryFirstName', _t('Checkout.FirstName', 'First Name(s)')),
+                TextField::create('DeliverySurname', _t('Checkout.Surname', 'Surname'))
+            )->setName("PersonalFields");
+
+            $daddress_fields = CompositeField::create(
+                TextField::create('DeliveryAddress1', _t('Checkout.Address1', 'Address Line 1')),
+                TextField::create('DeliveryAddress2', _t('Checkout.Address2', 'Address Line 2'))
+                    ->setRightTitle(_t("Checkout.Optional", "Optional")),
+                TextField::create('DeliveryCity', _t('Checkout.City', 'City')),
+                TextField::create('DeliveryState', _t('Checkout.StateCounty', 'State/County')),
+                TextField::create('DeliveryPostCode', _t('Checkout.PostCode', 'Post Code')),
+                CountryDropdownField::create(
+                    'DeliveryCountry',
+                    _t('Checkout.Country', 'Country')
+                )
+            )->setName("AddressFields");
+
+            if ($member && $member->Addresses()->count() > 1) {
+                $daddress_fields->push(
+                    FormAction::create(
+                        'doUseSavedShipping',
+                        _t('Checkout.SavedAddress', 'Use saved address')
+                    )->addextraClass('btn btn-default')
+                    ->setAttribute('formnovalidate',true)
+                );
+            }
+            
+            if (!$new_shipping && $member && $member->Addresses()->count() > 1) {
+                $fields->add(
+                    $saved_shipping            
+                );
+            } else {
+                $fields->add(
+                    CompositeField::create(
+                        $dpersonal_fields,
+                        $daddress_fields
+                    )->setName("DeliveryFields")
+                    ->setColumnCount(2)
+                );
+            }
+            
+            // Add a save address for later checkbox if a user is logged in
+            if (Member::currentUserID()) {
+                $member = Member::currentUser();
+
+                $daddress_fields->push(
+                    CheckboxField::create(
+                        "SaveShippingAddress",
+                        _t('Checkout.SaveShippingAddress', 'Save this address for later')
+                    )
+                );
+            }
         }
 
         // If we have turned off login, or member logged in
@@ -250,18 +252,19 @@ class CustomerDetailsForm extends Form
                 'PhoneNumber'
             ));
         }
-
-        if (!$new_shipping && $member && $member->Addresses()->count() > 1) {
-            $validator->addRequiredField('ShippingAddress');
-        } else {
-            $validator->appendRequiredFields(new RequiredFields(
-                'DeliveryFirstName',
-                'DeliverySurname',
-                'DeliveryAddress1',
-                'DeliveryCity',
-                'DeliveryPostCode',
-                'DeliveryCountry'
-            ));
+        if (!$cart->isCollection() && $cart->isDeliverable()) {
+            if (!$new_shipping && $member && $member->Addresses()->count() > 1) {
+                $validator->addRequiredField('ShippingAddress');
+            } else {
+                $validator->appendRequiredFields(new RequiredFields(
+                    'DeliveryFirstName',
+                    'DeliverySurname',
+                    'DeliveryAddress1',
+                    'DeliveryCity',
+                    'DeliveryPostCode',
+                    'DeliveryCountry'
+                ));
+            }
         }
         
         $this->setValidator($validator);
