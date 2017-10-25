@@ -19,7 +19,7 @@
                     <% if $DeliveryCompany %>
 						<strong><%t Orders.Company "Company" %>:</strong> $DeliveryCompany <br/>
 					<% end_if %>
-                    <strong><%t Orders.Firstnames "First names" %>:</strong> $DeliveryFirstnames <br/>
+                    <strong><%t Orders.FirstName "First Name" %>:</strong> $DeliveryFirstName <br/>
                     <strong><%t Orders.Surname "Surname" %>:</strong> $DeliverySurname <br/>
                     <strong><%t Orders.Address1 "Address Line 1" %>:</strong> $DeliveryAddress1 <br/>
                     <strong><%t Orders.Address2 "Address Line 2" %>:</strong> $DeliveryAddress1 <br/>

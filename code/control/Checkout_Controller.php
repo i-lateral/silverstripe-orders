@@ -197,9 +197,12 @@ class Checkout_Controller extends Controller
             $title = _t('Checkout.SeelctPostagePayment', "Select Postage and Payment Method");
         }
 
+        $customer = ArrayData::create($data);
+
         $this->customise(array(
             'Title'     => $title,
-            'Form'      => $this->PostagePaymentForm()
+            'Form'      => $this->PostagePaymentForm(),
+            'Customer' => $customer
         ));
 
         $this->extend("onBeforeFinish");
