@@ -3,7 +3,7 @@
         <tr>
             <td style="vertical-align: middle;">$Image.CroppedImage(45,45)</div>
             <td style="vertical-align: middle;">
-                <h3 class="h4">$Quantity x $Title</h3>
+                <p>$Quantity x $Title</p>
             </td>
             <td class="text-right" style="vertical-align: middle;">        
                 <p>$UnitPrice.Nice</p>
