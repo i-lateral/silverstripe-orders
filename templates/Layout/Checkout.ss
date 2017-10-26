@@ -13,7 +13,9 @@
             $Form
         </div>
         <div class="unit-33 unit size1of3 col-xs-12 col-sm-4">
-            <% include CheckoutSummary %>
+            <% with $ShoppingCart.Estimate %>
+                <% include OrderSummary %>
+            <% end_with %>
         </div>                
     </div>
 </div>

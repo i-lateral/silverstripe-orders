@@ -363,8 +363,7 @@ class Payment_Controller extends Controller
                 'PaymentMethodID',
                 _t('Checkout.PaymentSelection', 'Please choose how you would like to pay'),
                 $payment_methods
-            )->setTemplate("PaymentsOptionsetField")
-            ->setValue($gateway);
+            )->setValue($gateway);
 
             $actions
                 ->add(FormAction::create(
