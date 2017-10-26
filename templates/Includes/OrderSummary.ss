@@ -46,7 +46,7 @@
             </strong>
         </td>
         <td class="text-right">
-                $Top.Order.PostageType ({$PostageCost.Nice})
+                $PostageType ({$PostageCost.Nice})
         </td>
     </tr>
 <% end_if %>
