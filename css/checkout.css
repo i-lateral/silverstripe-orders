@@ -88,6 +88,13 @@
         }
     }
 
+/* Checkout Order Summary
+--------------------------------------- */
+.checkout-checkout .checkout-order-summary .total {
+    text-align: center;
+    font-size: 2em;
+}
+
 /* Proceed Button
 --------------------------------------------------------------------- */
 .checkout-cart-proceed .btn {
