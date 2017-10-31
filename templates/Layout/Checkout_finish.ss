@@ -1,7 +1,7 @@
 <% require css('checkout/css/checkout.css') %>
 
 <div class="content-container container checkout-checkout typography">
-    <h1>$Title</h1>
+    <h1><%t Checkout.SeelctPostageMethod "Select Postage Method" %></h1>
     
     <div class="row line">
         <div class="col-sm-4 unit size1of3">
@@ -22,11 +22,9 @@
                 </p>
             <% end_with %>
             <p>
-                <% with $Form %>
-                    <a href="{$BackURL}" class="btn btn-red btn-danger checkout-action-back">
-                        <%t Checkout.Back 'Back' %>
-                    </a>
-                <% end_with %>
+                <a href="{$Link}" class="btn btn-red btn-danger checkout-action-back">
+                    <%t Checkout.Back 'Back' %>
+                </a>
             </p>
         </div>
         <div class="col-sm-4 unit size1of3">

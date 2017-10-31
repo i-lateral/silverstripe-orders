@@ -34,7 +34,7 @@ class Checkout_Controller extends Controller
         "finish",
         "LoginForm",
         'CustomerForm',
-        "PostagePaymentForm"
+        "PostageForm"
     );
 
     public function getClassName()
@@ -148,18 +148,11 @@ class Checkout_Controller extends Controller
         if ($cart->isCollection() || !$cart->isDeliverable()) {
             return $this->redirect(Payment_Controller::create()->Link());
         }
-            
-        if (Checkout::config()->simple_checkout) {
-            $title = _t('Checkout.SelectPaymentMethod', "Select Payment Method");
-        } else {
-            $title = _t('Checkout.SeelctPostageMethod', "Select Postage Method");
-        }
 
         $customer = ArrayData::create($data);
 
         $this->customise(array(
-            'Title'     => $title,
-            'Form'      => $this->PostagePaymentForm(),
+            'Form'      => $this->PostageForm(),
             'Customer' => $customer
         ));
 
@@ -232,12 +225,114 @@ class Checkout_Controller extends Controller
      *
      * @return PostagePaymentForm
      */
-    public function PostagePaymentForm()
+    public function PostageForm()
     {
-        $form = PostagePaymentForm::create($this, "PostagePaymentForm");
+        $cart = ShoppingCart::get();
+        $validator = RequiredFields::create();
+        
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && $cart->isDeliverable()) {
+            // Get delivery data and postage areas from session
+            $delivery_data = Session::get("Checkout.CustomerDetails.data");
+            $country = $delivery_data['DeliveryCountry'];
+            $postcode = $delivery_data['DeliveryPostCode'];
+            
+            $postage_areas = new ShippingCalculator($postcode, $country);
+            $postage_areas
+                ->setCost($cart->SubTotalCost)
+                ->setWeight($cart->TotalWeight)
+                ->setItems($cart->TotalItems);
+                
+            $postage_areas = $postage_areas->getPostageAreas();
 
-        $this->extend("updatePostagePaymentForm", $form);
+            // Loop through all postage areas and generate a new list
+            $postage_array = array();
+            foreach ($postage_areas as $area) {
+                $area_currency = new Currency("Cost");
+                $area_currency->setValue($area->Cost);
+                $postage_array[$area->ID] = $area->Title . " (" . $area_currency->Nice() . ")";
+            }
+
+            if (Session::get('Checkout.PostageID')) {
+                $postage_id = Session::get('Checkout.PostageID');
+            } elseif ($postage_areas->exists()) {
+                $postage_id = $postage_areas->first()->ID;
+            } else {
+                $postage_id = 0;
+            }
+
+            if (count($postage_array)) {
+                $select_postage_field = OptionsetField::create(
+                    "PostageID",
+                    _t('Checkout.PostageSelection', 'Please select your preferred postage'),
+                    $postage_array
+                )->setValue($postage_id);
+            } else {
+                $select_postage_field = ReadonlyField::create(
+                    "NoPostage",
+                    "",
+                    _t('Checkout.NoPostageSelection', 'Unfortunately we cannot deliver to your address')
+                )->addExtraClass("label")
+                ->addExtraClass("label-red");
+            }
+
+            // Setup postage fields
+            $postage_field = CompositeField::create(
+                HeaderField::create("PostageHeader", _t('Checkout.Postage', "Postage")),
+                $select_postage_field
+            )->setName("PostageFields");
+
+            $validator->addRequiredField("PostageID");
+        } elseif ($cart->isCollection()) {
+            $postage_field = CompositeField::create(
+                HeaderField::create("PostageHeader", _t('Checkout.CollectionOnly', "Collection Only")),
+                ReadonlyField::create(
+                    "CollectionText",
+                    "",
+                    _t("Checkout.ItemsReservedInstore", "Your items will be held instore until you collect them")
+                )
+            )->setName("CollectionFields");
+        } elseif (!$cart->isDeliverable()) {
+            $postage_field = CompositeField::create(
+                HeaderField::create(
+                    "PostageHeader",
+                    _t('Checkout.Postage', "Postage")
+                ),
+                ReadonlyField::create(
+                    "CollectionText",
+                    "",
+                    _t("Checkout.NoDeliveryForOrder", "Your order does not contain items that can be posted")
+                )
+            )->setName("CollectionFields");
+        } else {
+            $postage_field = null;
+        }
+
+        $form = Form::create(
+            $this,
+            "PostageForm",
+            FieldList::create(
+                $postage_field
+            ),
+            FieldList::create(
+                FormAction::create(
+                    'doSetPostage',
+                    _t('Checkout.PaymentDetails', 'Enter Payment Details')
+                )->addExtraClass('checkout-action-next btn btn-success')
+            ),
+            $validator
+        );
+
+        $this->extend("updatePostageForm", $form);
 
         return $form;
+    }
+
+    public function doSetPostage($data)
+    {
+        Session::set("Checkout.PostageID", $data["PostageID"]);
+
+        $controller = Injector::inst()->get("Payment_Controller");
+
+        return $this->redirect($controller->Link());
     }
 }
