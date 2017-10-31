@@ -35,7 +35,7 @@ class OrderMigrationTask extends MigrationTask {
             }
         }
 
-        $this->log("Updated {$updated} items");
+        $this->log("Updated Delivery Names on {$updated} items");
     }
 
     public function log($message)
