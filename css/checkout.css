@@ -73,19 +73,16 @@
     clear: both;
 }
     #CheckoutLoginForm_LoginForm_action_dologin {
-        position: absolute;
-        right: 0;
-        bottom: 0;
+        float: right;
+        margin-left: 3em;
     }
     #CheckoutLoginForm_LoginForm #ForgotPassword {
-        position: absolute;
-        right: 25%;
-        bottom: 0;
+        float: left;
+        line-height: 2.5em;
     }
     @media screen and (max-width: 480px) {
         #CheckoutLoginForm_LoginForm_action_dologin,
         #CheckoutLoginForm_LoginForm #ForgotPassword {
-            position: static;
             float: left;
             margin-right: 2em;
         }

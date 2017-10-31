@@ -228,14 +228,17 @@ class Checkout_Controller extends Controller
     {
         $form = CheckoutLoginForm::create($this, 'LoginForm');
         $form->setAttribute("action", $this->Link("LoginForm"));
+        $form->setTemplate("CheckoutLoginForm");
 
         $form
             ->Fields()
             ->add(HiddenField::create("BackURL")->setValue($this->Link()));
+        
         $login_action = $form
             ->Actions()
             ->dataFieldByName('action_dologin');
-        if ($login_action) {
+        
+            if ($login_action) {
             $login_action->addExtraClass("btn btn-primary");
         }
 
