@@ -62,6 +62,35 @@
     max-width: none;
 }
 
+/* Checkout Login Form
+---------------------------------------- */
+#CheckoutLoginForm_LoginForm {
+    position: relative;
+}
+#CheckoutLoginForm_LoginForm:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+    #CheckoutLoginForm_LoginForm_action_dologin {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+    #CheckoutLoginForm_LoginForm #ForgotPassword {
+        position: absolute;
+        right: 25%;
+        bottom: 0;
+    }
+    @media screen and (max-width: 480px) {
+        #CheckoutLoginForm_LoginForm_action_dologin,
+        #CheckoutLoginForm_LoginForm #ForgotPassword {
+            position: static;
+            float: left;
+            margin-right: 2em;
+        }
+    }
+
 /* Proceed Button
 --------------------------------------------------------------------- */
 .checkout-cart-proceed .btn {

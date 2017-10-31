@@ -1,5 +1,5 @@
 <% if $IncludeFormTag %>
-<form $addExtraClass('forms columnar').AttributesHTML>
+<form $addExtraClass('forms').AttributesHTML>
 <% end_if %>
 
     <% if $Message %>
@@ -9,50 +9,17 @@
     <% end_if %>
 
     <fieldset>
-        <% if $Legend %><legend>$Legend</legend><% end_if %>
+        <% if $Legend %>
+            <legend>$Legend</legend>
+        <% end_if %>
 
         <div class="Fields">
             <% if $Fields.fieldByName("SavedBilling") %>
-                <% with $Fields.fieldByName("SavedBilling") %>
-                    <$Tag id="$HolderID" class="CompositeField line $extraClass <% if ColumnCount %>multicolumn<% end_if %>">
-                        <% if $Tag == 'fieldset' && $Legend %>
-                            <legend>$Legend</legend>
-                        <% end_if %>
-                        
-                        <% loop $FieldList %>
-                            <% if $Up.ColumnCount %>
-                                <div class="column-{$Up.ColumnCount} unit <% if $Up.ColumnCount == 2 %>unit-50 half size1of2 col-sm-6<% else_if $Up.ColumnCount == 3 %>unit-33 third size1of3 col-sm-4<% end_if %> $FirstLast">
-                                    $FieldHolder
-                                </div>
-                            <% else %>
-                                $FieldHolder
-                            <% end_if %>
-                        <% end_loop %>
-
-                        <% if $Description %><span class="description">$Description</span><% end_if %>
-                    </$Tag>
-                <% end_with %>
+                $Fields.fieldByName("SavedBilling").FieldHolder
             <% end_if %>
-            <% if $Fields.fieldByName("BillingFields") %>
-                <% with $Fields.fieldByName("BillingFields") %>
-                    <$Tag id="$HolderID" class="CompositeField line row units-row $extraClass <% if ColumnCount %>multicolumn<% end_if %>">
-                        <% if $Tag == 'fieldset' && $Legend %>
-                            <legend>$Legend</legend>
-                        <% end_if %>
-                        
-                        <% loop $FieldList %>
-                            <% if $Up.ColumnCount %>
-                                <div class="column-{$Up.ColumnCount} unit <% if $Up.ColumnCount == 2 %>unit-50 half size1of2 col-sm-6<% else_if $Up.ColumnCount == 3 %>unit-33 third size1of3 col-sm-4<% end_if %> $FirstLast">
-                                    $FieldHolder
-                                </div>
-                            <% else %>
-                                $FieldHolder
-                            <% end_if %>
-                        <% end_loop %>
 
-                        <% if $Description %><span class="description">$Description</span><% end_if %>
-                    </$Tag>
-                <% end_with %>
+            <% if $Fields.fieldByName("BillingFields") %>
+                $Fields.fieldByName("BillingFields").FieldHolder
             <% end_if %>
             
             <div class="line">
@@ -60,77 +27,22 @@
             </div>
 
             <% if $Fields.fieldByName("SavedShipping") %>
-                <% with $Fields.fieldByName("SavedShipping") %>
-                    <$Tag id="$HolderID" class="CompositeField line $extraClass <% if ColumnCount %>multicolumn<% end_if %>">
-                        <% if $Tag == 'fieldset' && $Legend %>
-                            <legend>$Legend</legend>
-                        <% end_if %>
-                        
-                        <% loop $FieldList %>
-                            <% if $Up.ColumnCount %>
-                                <div class="column-{$Up.ColumnCount} unit <% if $Up.ColumnCount == 2 %>unit-50 half size1of2 col-sm-6<% else_if $Up.ColumnCount == 3 %>unit-33 third size1of3 col-sm-4<% end_if %> $FirstLast">
-                                    $FieldHolder
-                                </div>
-                            <% else %>
-                                $FieldHolder
-                            <% end_if %>
-                        <% end_loop %>
-
-                        <% if $Description %><span class="description">$Description</span><% end_if %>
-                    </$Tag>
-                <% end_with %>
+                $Fields.fieldByName("SavedShipping").FieldHolder
             <% end_if %>
             
             <% if $Fields.fieldByName("DeliveryFields") %>
-            <% with $Fields.fieldByName("DeliveryFields") %>
-                <$Tag id="$HolderID" class="CompositeField line row units-row $extraClass <% if ColumnCount %>multicolumn<% end_if %>">
-                    <% if $Tag == 'fieldset' && $Legend %>
-                        <legend>$Legend</legend>
-                    <% end_if %>
-                    
-                    <% loop $FieldList %>
-                        <% if $Up.ColumnCount %>
-                            <div class="column-{$Up.ColumnCount} unit <% if $Up.ColumnCount == 2 %>unit-50 half size1of2 col-sm-6<% else_if $Up.ColumnCount == 3 %>unit-33 third size1of3 col-sm-4<% end_if %> $FirstLast">
-                                $FieldHolder
-                            </div>
-                        <% else %>
-                            $FieldHolder
-                        <% end_if %>
-                    <% end_loop %>
-
-                    <% if $Description %><span class="description">$Description</span><% end_if %>
-                </$Tag>
-            <% end_with %>
+                $Fields.fieldByName("DeliveryFields").FieldHolder
             <% end_if %>
         
-        <div class="line">
-            $Fields.fieldByName("SaveShippingAddressHolder").FieldHolder
-        </div>
+            <div class="line">
+                $Fields.fieldByName("SaveShippingAddressHolder").FieldHolder
+            </div>
 
-
-        <% if $Fields.fieldByName("PasswordFields") %>
-            <% with $Fields.fieldByName("PasswordFields") %>
-                <$Tag id="$HolderID" class="CompositeField line row units-row $extraClass <% if ColumnCount %>multicolumn<% end_if %>">
-                    <% if $Tag == 'fieldset' && $Legend %>
-                        <legend>$Legend</legend>
-                    <% end_if %>
-                    
-                    <% loop $FieldList %>
-                        <% if $Up.ColumnCount %>
-                            <div class="column-{$Up.ColumnCount} unit <% if $Up.ColumnCount == 2 %>unit-50 half size1of2 col-sm-6<% else_if $Up.ColumnCount == 3 %>unit-33 third size1of3 col-sm-4<% end_if %> $FirstLast">
-                                $FieldHolder
-                            </div>
-                        <% else %>
-                            $FieldHolder
-                        <% end_if %>
-                    <% end_loop %>
-
-                    <% if $Description %><span class="description">$Description</span><% end_if %>
-                </$Tag>
-            <% end_with %>
-        <% end_if %>
-        
-        $Fields.dataFieldByName("SecurityID")
+            <% if $Fields.fieldByName("PasswordFields") %>
+                $Fields.fieldByName("PasswordFields").FieldHolder
+            <% end_if %>
+            
+            $Fields.dataFieldByName("SecurityID")
         </div>
 
         <div class="clear"><!-- --></div>

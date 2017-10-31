@@ -7,8 +7,10 @@
     <div class="units-row row line">
         <div class="unit-66 unit size2of3 col-xs-12 col-sm-8">
             <% if $ShowLoginForm %>
+                <h3><%t Framework.Login "Login" %></h3>
                 $LoginForm
-                <h4 class="text-center legend">OR<span></span></h4>
+                <h4 class="clearfix text-center legend">OR</h4>
+                <hr/>
             <% end_if %>
             $Form
         </div>
