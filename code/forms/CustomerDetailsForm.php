@@ -151,7 +151,7 @@ class CustomerDetailsForm extends Form
                     FormAction::create(
                         'doUseSavedShipping',
                         _t('Checkout.SavedAddress', 'Use saved address')
-                    )->addextraClass('btn btn-default')
+                    )->addextraClass('btn btn-primary')
                     ->setAttribute('formnovalidate',true)
                 );
             }
