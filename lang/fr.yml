@@ -19,7 +19,7 @@ fr:
     City: Ville
     Country: Pays
     CustomerDetails: 'Customer Details'
-    CustomerEmailFooter: 'Many thanks'
+    CustomerEmailFooter: 'Merci beaucoup'
     Date: Date
     DeliveryDetails: 'Informations de livraison'
     Details: Details
@@ -28,7 +28,7 @@ fr:
     FirstNames: 'Prénom(s)'
     Item: Article
     Items: 'Articles commandés'
-    ItemsOrdered: 'Items Ordered'
+    ItemsOrdered: 'Les articles commandés'
     Name: Nom
     NoOrders: 'Vous n'avez passé aucune commande'
     NotFound: 'Commande non trouvée'
@@ -36,10 +36,11 @@ fr:
     OrderDispatchedTo: 'Votre commande sera expédiée à l'adresse suivante'
     OrderHistory: 'historique des commandes'
     OrderItemReportDescription: 'View all individual products ordered through this site'
-    OrderItems: 'Items ordered'
-    OrderMarkedAs: 'Order {ordernumber} has been marked as {status}'
-    OrderStatusUpdate: 'Order Status Update'
-    OrdersMade: 'Orders made'
+    OrderItems: 'Les articles commandés'
+    OrderMarkedAs: 'La commande {ordernumber} a été marquée comme {status}'
+    OrderStatusUpdate: 'Mise à jour de statut'
+    OrdersMade: 'Commandes effectuées'
+    OrderSummary: 'Résumé'
     OrdersReportDescription: 'View reports on all orders made through this site'
     OutstandingOrders: 'Commandes en cours'
     Phone: Téléphone

@@ -19,7 +19,7 @@ de:
     City: Stadt
     Country: Land
     CustomerDetails: 'Customer Details'
-    CustomerEmailFooter: 'Many thanks'
+    CustomerEmailFooter: 'Danke vielmals'
     Date: Datum
     DeliveryDetails: 
     Details: DetailsLieferanschrift
@@ -28,7 +28,7 @@ de:
     FirstNames: 'First Name(s)'
     Item: Item
     Items: 'Einzelheiten Ihrer Auftrag'
-    ItemsOrdered: 'Items Ordered'
+    ItemsOrdered: 'Bestellte Artikel'
     Name: Name
     NoOrders: 'Keine Bestellungen'
     NotFound: 'Bestellung nicht gefunden wurde'
@@ -36,10 +36,11 @@ de:
     OrderDispatchedTo: 'Ihr Auftrag wurde an die folgende Adresse versandt'
     OrderHistory: 'herausragende Geschichte'
     OrderItemReportDescription: 'View all individual products ordered through this site'
-    OrderItems: 'Items ordered'
-    OrderMarkedAs: 'Order {ordernumber} has been marked as {status}'
-    OrderStatusUpdate: 'Order Status Update'
-    OrdersMade: 'Orders made'
+    OrderItems: 'Bestellte Artikel'
+    OrderMarkedAs: 'Auftrag {ordernumber} wurde als {status} markiert'
+    OrderStatusUpdate: 'Auftragsstatusaktualisierung'
+    OrdersMade: 'Bestellungen gemacht'
+    OrderSummary: 'Bestellübersicht'
     OrdersReportDescription: 'View reports on all orders made through this site'
     OutstandingOrders: 'Offene Aufträge'
     Phone: Telefonnummer

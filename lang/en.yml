@@ -60,6 +60,7 @@ en:
     OrderMarkedAs: 'Order {ordernumber} has been marked as {status}'
     OrderStatusUpdate: 'Order Status Update'
     OrdersMade: 'Orders made'
+    OrderSummary: 'Order Summary'
     OrdersReportDescription: 'View reports on all orders made through this site'
     OutstandingOrders: 'Outstanding Orders'
     Phone: Phone
