@@ -290,8 +290,9 @@ class Payment_Controller extends Controller
         $cart = ShoppingCart::get();
 
         $id = $this->request->param('ID');
+        $error = ($id == "error") ? true : false;
 
-        if ($id == "error") {
+        if ($error) {
             $return = $this->error_data();
         } else {
             $return = $this->success_data();
@@ -310,7 +311,7 @@ class Payment_Controller extends Controller
         $this->extend("onBeforeComplete");
 
         // Clear our session data
-        if (isset($_SESSION)) {
+        if (!$error && isset($_SESSION)) {
             $cart->clear();
             unset($_SESSION['Checkout.PaymentMethod']);
             unset($_SESSION['Checkout.OrderID']);
