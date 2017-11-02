@@ -457,6 +457,27 @@ class OrderItem extends DataObject
     }
 
     /**
+     * Overwrite default duplicate function
+     *
+     * @param boolean $doWrite (write the cloned object to DB)
+     * @return DataObject $clone The duplicated object
+     */
+    public function duplicate($doWrite = true) {
+        $clone = parent::duplicate($doWrite);
+
+        // Ensure we clone any customisations
+        if ($doWrite) {
+            foreach ($this->Customisations() as $customisation) {
+                $new_item = $customisation->duplicate(false);
+                $new_item->OrderItemID = $clone->ID;
+                $new_item->write();
+            }
+        }
+
+        return $clone;
+    }
+
+    /**
      * Perform post-DB write functions
      *
      * @return void
