@@ -13,6 +13,21 @@ class QuantityField extends NumericField
         return 'quantity numeric text';
     }
 
+    /**
+	 * @return array
+	 */
+	public function getAttributes() {
+		$attributes = array(
+            "type" => "number",
+            "min" => "0"
+        );
+
+		return array_merge(
+			parent::getAttributes(),
+			$attributes
+		);
+	}
+
     /** PHP Validation **/
     public function validate($validator)
     {
