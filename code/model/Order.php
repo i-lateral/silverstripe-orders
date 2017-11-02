@@ -280,7 +280,8 @@ class Order extends DataObject implements PermissionProvider
         "Surname"       => "Surname",
         "Email"         => "Email",
         "Total"         => "Total",
-        "Created"       => "Created"
+        "Created"       => "Created",
+        "LastEdited"    => "Last Edited"
     );
 
     private static $extensions = array(
