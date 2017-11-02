@@ -803,11 +803,22 @@ class ShoppingCart extends Controller
     {
         // First tear down any objects in our estimate
         $this->removeAll();
+        $member = Member::currentUser();
+        $estimate = $this->getEstimate();
 
         // Now remove any sessions
         Session::clear('ShoppingCart.Items');
         Session::clear('ShoppingCart.Discount');
         Session::clear("Checkout.PostageID");
+
+        // If member logged in, clear postage and
+        // discount on the tracked estimate
+        if ($member && $estimate) {
+            $estimate->setPostage("", 0, 0);
+            $estimate->setDiscount("", 0);
+            $estimate->write();
+        }
+        
     }
     
     /**
