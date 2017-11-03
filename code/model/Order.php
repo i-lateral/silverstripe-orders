@@ -266,7 +266,8 @@ class Order extends DataObject implements PermissionProvider
         'TranslatedStatus'  => 'Varchar',
         "QuoteLink"         => 'Varchar',
         "InvoiceLink"       => 'Varchar',
-        "Paid"              => "Boolean"
+        "Paid"              => "Boolean",
+        "AmountPaid"        => "Currency"
     );
 
     private static $defaults = array(
@@ -361,7 +362,8 @@ class Order extends DataObject implements PermissionProvider
     {
         $member = Member::currentUser();
         $existing_customer = $this->config()->existing_customer_class;
-        
+        $payment = $this->getPayment();
+
         $fields = new FieldList(
             $tab_root = new TabSet(
                 "Root",
@@ -405,7 +407,7 @@ class Order extends DataObject implements PermissionProvider
                     TextField::create("DiscountAmount"),
                     
                     // Sidebar
-                    OrderSidebar::create(
+                    $order_sidebar = OrderSidebar::create(
                         TextField::create('Status'),
                         DropdownField::create(
                             'Action',
@@ -425,8 +427,8 @@ class Order extends DataObject implements PermissionProvider
                             ->setValue($this->TaxTotal->Nice()),
                         ReadonlyField::create("TotalValue",_t("Orders.Total", "Total"))
                             ->setValue($this->Total->Nice()),
-                        TextField::create('PaymentProvider'),
-                        TextField::create('PaymentNo')
+                        ReadonlyField::create("AmountPaidValue",_t("Orders.AmountPaid", "Amount Paid"))
+                            ->setValue($this->obj("AmountPaid")->Nice())
                     )->setTitle("Details")
                 ),
                 
@@ -464,9 +466,42 @@ class Order extends DataObject implements PermissionProvider
                     TextField::create("DeliveryCity"),
                     TextField::create("DeliveryPostCode"),
                     CountryDropdownField::create("DeliveryCountry")
+                ),
+
+                // List payments
+                $tab_payments = new Tab(
+                    "Payments",
+                    GridField::create(
+                        "Payments",
+                        "",
+                        $this->Payments(),
+                        $config = GridFieldConfig::create()
+                            ->addComponents(
+                                new GridFieldButtonRow('before'),
+                                new GridFieldTitleHeader(),
+                                new GridFieldDataColumns(),
+                                new GridFieldEditButton(),
+                                new GridFieldDetailForm()
+                            )
+                    )
                 )
             )
         );
+
+        if ($payment) {
+            $payment_ref = $payment->TransactionReference;
+        } elseif ($this->PaymentNo) {
+            $payment_ref = $this->PaymentNo;
+        } else {
+            $payment_ref = null;
+        }
+
+        if ($payment_ref) {
+            $order_sidebar->push(
+                ReadonlyField::create("PaymentNoValue",_t("Orders.PaymentNo", "Payment No"))
+                    ->setValue($payment_ref)
+            );
+        }
         
         
         // Add Sidebar is editable
@@ -594,7 +629,7 @@ class Order extends DataObject implements PermissionProvider
      *
      * @return boolean
      */
-    public function getPaid()
+    public function isPaid()
     {
         $statuses = $this->Config()->paid_statuses;
 
@@ -603,6 +638,50 @@ class Order extends DataObject implements PermissionProvider
         } else {
             return in_array($this->Status, $statuses);
         }
+    }
+
+
+    /**
+     * Proxy for isPaid function, will be removed
+     *
+     * @deprecated 2.0
+     * @return boolean
+     */
+    public function getPaid()
+    {
+        return $this->isPaid();
+    }
+
+    public function getAmountPaid()
+    {
+        $total = 0;
+
+        foreach ($this->Payments() as $payment) {
+            if ($payment->isCaptured()) {
+                $total .= $payment->getAmount();
+            }
+        }
+
+        return $total;
+    }
+
+    /**
+     * Get the captured payment object associated with this order
+     *
+     * @return Payment || null
+     */
+    public function getPayment()
+    {
+        foreach ($this->Payments() as $payment) {
+            $a = (string)$payment->getAmount();
+            $b = (string)$this->getTotal()->RAW();
+
+            if ($payment->isCaptured() && (abs(($a-$b)/$b) < 0.00001)) {
+                return $payment;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -830,18 +909,6 @@ class Order extends DataObject implements PermissionProvider
         $this->extend("updateTotal", $return);
         
         return $return;
-    }
-
-    /**
-     * Get the payment object associated with this order
-     *
-     * @return Payment
-     */
-    public function getPayment()
-    {
-        return Payment::get()
-            ->filter("OrderID", $this->ID)
-            ->first();
     }
 
     protected function generate_order_number()
