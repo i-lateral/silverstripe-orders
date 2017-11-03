@@ -323,34 +323,6 @@ class Order extends DataObject implements PermissionProvider
         );
     }
 
-    /**
-     * Generate a link to view the payment associated with this
-     * order (if one is set)
-     *
-     * @return string
-     */
-    public function PaymentLink()
-    {
-        $payment = $this->getPayment();
-        $return = "";
-
-        if ($payment) {
-            $return = Controller::join_links(
-                Injector::inst()
-                    ->get("OrderAdmin")
-                    ->Link("Payment"),
-                "EditForm",
-                "field",
-                "Payment",
-                "item",
-                $payment->ID,
-                "edit"
-            );
-        }
-
-        return $return;
-    }
-
     public function populateDefaults()
     {
         parent::populateDefaults();
