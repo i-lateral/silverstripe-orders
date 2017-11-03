@@ -163,10 +163,7 @@ class Payment_Controller extends Controller
         if ($cart->isCollection() && (!$billing_data)) {
             return $this->redirect(Checkout_Controller::create()->Link());
         }
-
-        // Create an order number
-        $data["OrderNumber"] = substr(chunk_split(Checkout::getRandomNumber(), 4, '-'), 0, -1);
-        
+         
         // Setup holder for Payment ID
         $data["PaymentID"] = 0;
 
