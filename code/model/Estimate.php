@@ -25,7 +25,8 @@ class Estimate extends Order
         'FirstName' => 'First Name',
         'Surname'   => 'Surname',
         "Total"     => "Total",
-        "Created"   => "Created"
+        "Created"   => "Created",
+        "LastEdited"=> "Last Edited"
     );
 
     /**
