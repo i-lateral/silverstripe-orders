@@ -42,6 +42,7 @@ class Order extends DataObject implements PermissionProvider
         "failed" => "Failed",
         "cancelled" => "Cancelled",
         "pending" => "Pending",
+        "part-paid" => "Part Paid",
         "paid" => "Paid",
         "processing" => "Processing",
         "ready" => "Ready",
@@ -58,6 +59,7 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $outstanding_statuses = array(
+        "part-paid",
         "paid",
         "processing"
     );
@@ -101,6 +103,7 @@ class Order extends DataObject implements PermissionProvider
         "",
         "incomplete",
         "pending",
+        "part-paid",
         "paid",
         "failed",
         "cancelled"
@@ -116,13 +119,39 @@ class Order extends DataObject implements PermissionProvider
     private static $default_status = "incomplete";
 
     /**
-     * The status which an order is considered "complete" (meaning
-     * ready for processing, dispatch, etc).
+     * The status which an order is considered "complete".
      * 
      * @var string
      * @config
      */
     private static $completion_status = "paid";
+
+    /**
+     * The status which an order has been marked pending
+     * (meaning we are awaiting payment).
+     * 
+     * @var string
+     * @config
+     */
+    private static $pending_status = "pending";
+
+    /**
+     * The status which an order is considered "paid" (meaning
+     * ready for processing, dispatch, etc).
+     * 
+     * @var string
+     * @config
+     */
+    private static $paid_status = "paid";
+
+    /**
+     * The status which an order is considered "part paid" (meaning
+     * partially paid, possibly deposit paid).
+     * 
+     * @var string
+     * @config
+     */
+    private static $part_paid_status = "part-paid";
 
     /**
      * The status which an order has not been completed (meaning
@@ -132,6 +161,40 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $incomplete_status = "incomplete";
+
+    /**
+     * The status which an order has been canceled.
+     * 
+     * @var string
+     * @config
+     */
+    private static $canceled_status = "canceled";
+
+    /**
+     * The status which an order has been refunded.
+     * 
+     * @var string
+     * @config
+     */
+    private static $refunded_status = "refunded";
+
+    /**
+     * The status which an order has been dispatched
+     * (sent to customer).
+     * 
+     * @var string
+     * @config
+     */
+    private static $dispatched_status = "dispatched";
+    
+    /**
+     * The status which an order has been marked collected
+     * (meaning goods collected from store).
+     * 
+     * @var string
+     * @config
+     */
+    private static $collected_status = "collected";
 
     /**
      * Actions on an order are to determine what will happen on
@@ -645,8 +708,8 @@ class Order extends DataObject implements PermissionProvider
     public function getPayment()
     {
         foreach ($this->Payments() as $payment) {
-            $a = (string)$payment->getAmount();
-            $b = (string)$this->getTotal()->RAW();
+            $a = Checkout::round_up($payment->getAmount(), 2);
+            $b = Checkout::round_up($this->getTotal()->RAW(), 2);
 
             if ($payment->isCaptured() && (abs(($a-$b)/$b) < 0.00001)) {
                 return $payment;
@@ -660,17 +723,89 @@ class Order extends DataObject implements PermissionProvider
      * Mark this order as "complete" which generally is intended
      * to mean "paid for, ready for processing".
      *
+     * @return Order
+     */
+    public function markComplete()
+    {
+        $this->Status = $this->config()->completion_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "paid"
+     *
      * @param string $reference the unique reference from the gateway
      * @return Order
      */
-    public function markComplete($reference = null)
+    public function markPaid()
     {
-        $this->Status = $this->config()->completion_status;
-        
-        if ($reference) {
-            $this->PaymentNo = $reference;
-        }
+        $this->Status = $this->config()->paid_status;
+        return $this;
+    }
 
+    /**
+     * Mark this order as "part paid".
+     *
+     * @return Order
+     */
+    public function markPartPaid()
+    {
+        $this->Status = $this->config()->part_paid_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "pending" (awaiting payment to clear/reconcile).
+     *
+     * @return Order
+     */
+    public function markPending()
+    {
+        $this->Status = $this->config()->pending_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "canceled".
+     *
+     * @return Order
+     */
+    public function markCanceled()
+    {
+        $this->Status = $this->config()->canceled_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "refunded".
+     *
+     * @return Order
+     */
+    public function markRefunded()
+    {
+        $this->Status = $this->config()->refunded_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "dispatched".
+     *
+     * @return Order
+     */
+    public function markDispatched()
+    {
+        $this->Status = $this->config()->dispatched_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "collected".
+     *
+     * @return Order
+     */
+    public function markCollected()
+    {
+        $this->Status = $this->config()->collected_status;
         return $this;
     }
 

@@ -66,10 +66,9 @@ class OrderTest extends SapphireTest
 	public function testStatusDetails()
     {
 		$order = $this->objFromFixture('Order', 'addressdetails');
-		$order->markComplete("123456");
+		$order->markComplete();
 
 		$this->assertTrue($order->getPaid());
-		$this->assertEquals("123456", $order->PaymentNo);
 	}
 
 	/**

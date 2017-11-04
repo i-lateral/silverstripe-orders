@@ -22,15 +22,25 @@ class OrdersPaymentExtension extends DataExtension
      */
     public function onCaptured($response)
     {
-        if ($this->owner->OrderID) {
-            $order = $this->owner->Order();
+        $order = $this->owner->Order();
 
+        if ($order->exists()) {    
+            $payment_amount = Checkout::round_up($this->owner->getAmount(), 2);
+            $order_amount = Checkout::round_up($order->getTotal()->RAW(), 2);
+
+            // First ensure we have an order (not an estimate)
             $order->convertToOrder();
             $order->write();
-
             $order = Order::get()->byID($order->ID);
-            $order->PaymentProvider = $this->owner->Gateway;
-            $order->markComplete($this->owner->TransactionReference);
+
+            // If our payment is the value of the order, mark paid
+            // else mark part paid
+            if (abs(($payment_amount - $order_amount) / $order_amount) < 0.00001) {
+                $order->markPaid();
+            } else {
+                $order->markPartPaid();
+            }
+
             $order->write();
         }
     }
@@ -43,9 +53,10 @@ class OrdersPaymentExtension extends DataExtension
      */
     public function onRefunded($response)
     {
-        if ($this->owner->OrderID) {
-            $order = $this->owner->Order();
-            $order->Status = "refunded";
+        $order = $this->owner->Order();
+
+        if ($order->exists()) {
+            $order->markRefunded();
             $order->write();
         }
     }
@@ -58,9 +69,10 @@ class OrdersPaymentExtension extends DataExtension
      */
     public function onVoid($response)
     {
-        if ($this->owner->OrderID) {
-            $order = $this->owner->Order();
-            $order->Status = "cancelled";
+        $order = $this->owner->Order();
+
+        if ($order->exists()) {
+            $order->markRefunded();
             $order->write();
         }
     }
