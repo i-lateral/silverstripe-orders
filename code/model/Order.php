@@ -693,7 +693,7 @@ class Order extends DataObject implements PermissionProvider
 
         foreach ($this->Payments() as $payment) {
             if ($payment->isCaptured()) {
-                $total .= $payment->getAmount();
+                $total += $payment->getAmount();
             }
         }
 
