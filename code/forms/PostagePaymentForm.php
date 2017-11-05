@@ -150,8 +150,14 @@ class PostagePaymentForm extends Form
 
     public function doContinue($data)
     {
+        $cart = ShoppingCart::get();
+        
         Session::set('Checkout.PaymentMethodID', $data['PaymentMethodID']);
-        Session::set("Checkout.PostageID", $data["PostageID"]);
+
+        // Only set postage ID if required
+        if (!Checkout::config()->simple_checkout && !$cart->isCollection() && $cart->isDeliverable()) {
+            Session::set("Checkout.PostageID", $data["PostageID"]);
+        }
 
         $url = Controller::join_links(
             Director::absoluteBaseUrl(),
