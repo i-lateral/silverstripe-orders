@@ -26,7 +26,7 @@ class OrdersPaymentExtension extends DataExtension
 
         if ($order->exists()) {    
             $payment_amount = Checkout::round_up($this->owner->getAmount(), 2);
-            $order_amount = Checkout::round_up($order->getTotal()->RAW(), 2);
+            $order_amount = Checkout::round_up($order->Total, 2);
 
             // First ensure we have an order (not an estimate)
             if ($order instanceof Estimate) {            

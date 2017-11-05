@@ -416,7 +416,7 @@ class ShoppingCart extends Controller
                 ->setPostage(
                     $postage->Title,
                     $postage->Cost,
-                    $postage->obj("TaxAmount")->RAW()
+                    $postage->TaxAmount
                 );
         }
         
@@ -929,8 +929,7 @@ class ShoppingCart extends Controller
     {
         return $this
             ->getEstimate()
-            ->getTaxTotal()
-            ->getValue();
+            ->getTaxTotal();
     }
     
     /**
@@ -943,8 +942,7 @@ class ShoppingCart extends Controller
     {
         return $this
             ->getEstimate()
-            ->getTotal()
-            ->getValue();
+            ->getTotal();
     }
 
     /**

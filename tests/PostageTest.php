@@ -48,7 +48,7 @@ class PostageTest extends SapphireTest
 
         $postage_areas = new ShippingCalculator($order->DeliveryPostCode, $order->DeliveryCountry);
         $postage_areas
-            ->setCost($order->obj("SubTotal")->RAW())
+            ->setCost($order->SubTotal)
             ->setWeight($order->TotalWeight)
             ->setItems($order->TotalItems);
 
@@ -69,7 +69,7 @@ class PostageTest extends SapphireTest
 
         $postage_areas = new ShippingCalculator($order->DeliveryPostCode, $order->DeliveryCountry);
         $postage_areas
-            ->setCost($order->obj("SubTotal")->RAW())
+            ->setCost($order->SubTotal)
             ->setWeight($order->TotalWeight)
             ->setItems($order->TotalItems);
 
@@ -90,7 +90,7 @@ class PostageTest extends SapphireTest
 
         $postage_areas = new ShippingCalculator($order->DeliveryPostCode, $order->DeliveryCountry);
         $postage_areas
-            ->setCost($order->obj("SubTotal")->RAW())
+            ->setCost($order->SubTotal)
             ->setWeight($order->TotalWeight)
             ->setItems($order->TotalItems);
 
@@ -111,7 +111,7 @@ class PostageTest extends SapphireTest
 
         $postage_areas = new ShippingCalculator($order->DeliveryPostCode, $order->DeliveryCountry);
         $postage_areas
-            ->setCost($order->obj("SubTotal")->RAW())
+            ->setCost($order->SubTotal)
             ->setWeight($order->TotalWeight)
             ->setItems($order->TotalItems);
 
@@ -133,7 +133,7 @@ class PostageTest extends SapphireTest
 
         $postage_areas = new ShippingCalculator($order->DeliveryPostCode, $order->DeliveryCountry);
         $postage_areas
-            ->setCost($order->obj("SubTotal")->RAW())
+            ->setCost($order->SubTotal)
             ->setWeight($order->TotalWeight)
             ->setItems($order->TotalItems);
 
@@ -155,7 +155,7 @@ class PostageTest extends SapphireTest
 
         $postage_areas = new ShippingCalculator($order->DeliveryPostCode, $order->DeliveryCountry);
         $postage_areas
-            ->setCost($order->obj("SubTotal")->RAW())
+            ->setCost($order->SubTotal)
             ->setWeight($order->TotalWeight)
             ->setItems($order->TotalItems);
 
@@ -177,7 +177,7 @@ class PostageTest extends SapphireTest
 
         $postage_areas = new ShippingCalculator($order->DeliveryPostCode, $order->DeliveryCountry);
         $postage_areas
-            ->setCost($order->obj("SubTotal")->RAW())
+            ->setCost($order->SubTotal)
             ->setWeight($order->TotalWeight)
             ->setItems($order->TotalItems);
 

@@ -409,7 +409,7 @@ class Payment_Controller extends Controller
         $payment = Payment::create()
             ->init(
                 $this->getPaymentMethod(),
-                Checkout::round_up($order->Total->Value, 2),
+                Checkout::round_up($order->Total, 2),
                 Checkout::config()->currency_code
             )->setSuccessUrl($this->Link('complete'))
             ->setFailureUrl(Controller::join_links(

@@ -322,15 +322,14 @@ class Order extends DataObject implements PermissionProvider
         'Postage'           => 'Currency',
         'TaxTotal'          => 'Currency',
         'Total'             => 'Currency',
+        "AmountPaid"        => 'Currency',
         'TotalItems'        => 'Int',
         'TotalWeight'       => 'Decimal',
         'ItemSummary'       => 'Text',
         'ItemSummaryHTML'   => 'HTMLText',
         'TranslatedStatus'  => 'Varchar',
         "QuoteLink"         => 'Varchar',
-        "InvoiceLink"       => 'Varchar',
-        "Paid"              => "Boolean",
-        "AmountPaid"        => "Currency"
+        "InvoiceLink"       => 'Varchar'
     );
 
     private static $defaults = array(
@@ -453,15 +452,15 @@ class Order extends DataObject implements PermissionProvider
                             ->setValue($this->ID),
                         ReadonlyField::create("Created"),
                         ReadonlyField::create("SubTotalValue",_t("Orders.SubTotal", "Sub Total"))
-                            ->setValue($this->SubTotal->Nice()),
+                            ->setValue($this->obj("SubTotal")->Nice()),
                         ReadonlyField::create("DiscountValue",_t("Orders.Discount", "Discount"))
                             ->setValue($this->dbObject("DiscountAmount")->Nice()),
                         ReadonlyField::create("PostageValue",_t("Orders.Postage", "Postage"))
-                            ->setValue($this->Postage->Nice()),
+                            ->setValue($this->obj("Postage")->Nice()),
                         ReadonlyField::create("TaxValue",_t("Orders.Tax", "Tax"))
-                            ->setValue($this->TaxTotal->Nice()),
+                            ->setValue($this->obj("TaxTotal")->Nice()),
                         ReadonlyField::create("TotalValue",_t("Orders.Total", "Total"))
-                            ->setValue($this->Total->Nice()),
+                            ->setValue($this->obj("Total")->Nice()),
                         ReadonlyField::create("AmountPaidValue",_t("Orders.AmountPaid", "Amount Paid"))
                             ->setValue($this->obj("AmountPaid")->Nice())
                     )->setTitle("Details")
@@ -675,31 +674,6 @@ class Order extends DataObject implements PermissionProvider
         }
     }
 
-
-    /**
-     * Proxy for isPaid function, will be removed
-     *
-     * @deprecated 2.0
-     * @return boolean
-     */
-    public function getPaid()
-    {
-        return $this->isPaid();
-    }
-
-    public function getAmountPaid()
-    {
-        $total = 0;
-
-        foreach ($this->Payments() as $payment) {
-            if ($payment->isCaptured()) {
-                $total += $payment->getAmount();
-            }
-        }
-
-        return $total;
-    }
-
     /**
      * Get the captured payment object associated with this order
      *
@@ -709,7 +683,7 @@ class Order extends DataObject implements PermissionProvider
     {
         foreach ($this->Payments() as $payment) {
             $a = Checkout::round_up($payment->getAmount(), 2);
-            $b = Checkout::round_up($this->getTotal()->RAW(), 2);
+            $b = Checkout::round_up($this->Total, 2);
 
             if ($payment->isCaptured() && (abs(($a-$b)/$b) < 0.00001)) {
                 return $payment;
@@ -822,6 +796,8 @@ class Order extends DataObject implements PermissionProvider
             $return .= "{$item->Quantity} x {$item->Title};\n";
         }
 
+        $this->extend("updateItemSummary", $return);
+
         return $return;
     }
 
@@ -836,7 +812,7 @@ class Order extends DataObject implements PermissionProvider
         
         $html->setValue(nl2br($this->ItemSummary));
         
-        $this->extend("updateItemSummary", $html);
+        $this->extend("updateItemSummaryHTML", $html);
 
         return $html;
     }
@@ -869,19 +845,15 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Get the postage cost for this order
      *
-     * @return Currency
+     * @return float
      */
     public function getPostage()
     {
-        $return = new Currency();
-        $return->setName("Postage");
         $total = $this->PostageCost;
         
-        $return->setValue($total);
+        $this->extend("updatePostage", $total);
         
-        $this->extend("updatePostage", $return);
-        
-        return $return;
+        return $total;
     }
 
     /**
@@ -915,13 +887,15 @@ class Order extends DataObject implements PermissionProvider
             $total += ($item->Quantity) ? $item->Quantity : 1;
         }
 
+        $this->extend("updateTotalItems", $total);
+
         return $total;
     }
 
     /**
     * Find the total weight of all items in the shopping cart
     *
-    * @return Decimal
+    * @return float
     */
     public function getTotalWeight()
     {
@@ -932,6 +906,8 @@ class Order extends DataObject implements PermissionProvider
                 $total = $total + ($item->Weight * $item->Quantity);
             }
         }
+
+        $this->extend("updateTotalWeight", $total);
         
         return $total;
     }
@@ -939,35 +915,29 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Total values of items in this order (without any tax)
      *
-     * @return Currency
+     * @return float
      */
     public function getSubTotal()
     {
-        $return = new Currency();
-        $return->setName("SubTotal");
         $total = 0;
 
         // Calculate total from items in the list
         foreach ($this->Items() as $item) {
-            $total += $item->obj("SubTotal")->getValue();
+            $total += $item->SubTotal;
         }
         
-        $return->setValue($total);
-        
-        $this->extend("updateSubTotal", $return);
+        $this->extend("updateSubTotal", $total);
 
-        return $return;
+        return $total;
     }
 
     /**
      * Total values of items in this order
      *
-     * @return Currency
+     * @return float
      */
     public function getTaxTotal()
     {
-        $return = new Currency();
-        $return->setName("TaxTotal");
         $total = 0;
         $items = $this->Items();
         
@@ -977,10 +947,10 @@ class Order extends DataObject implements PermissionProvider
             // discounted amount
             if ($this->DiscountAmount > 0) {
                 $discount = $this->DiscountAmount / $this->TotalItems;
-                $price = $item->obj("UnitPrice")->getValue() - $discount;
+                $price = $item->UnitPrice - $discount;
                 $tax = ($price / 100) * $item->TaxRate;
             } else {
-                $tax = $item->obj("UnitTax")->getValue();
+                $tax = $item->UnitTax;
             }
 
             $total += $tax * $item->Quantity;
@@ -989,33 +959,47 @@ class Order extends DataObject implements PermissionProvider
         if ($this->PostageTax) {
             $total += $this->PostageTax;
         }
+        
+        $this->extend("updateTaxTotal", $total);
 
         $total = Checkout::round_up($total, 2);
 
-        $return->setValue($total);
-        
-        $this->extend("updateTaxTotal", $return);
-
-        return $return;
+        return $total;
     }
 
     /**
      * Total of order including postage
      *
-     * @return Currency
+     * @return float
      */
     public function getTotal()
+    {   
+        $total = (($this->SubTotal + $this->Postage) - $this->DiscountAmount) + $this->TaxTotal;
+        
+        $this->extend("updateTotal", $total);
+        
+        return $total;
+    }
+
+    /**
+     * Find the total amount paid for this order
+     * (based on the sum of its payments)
+     * 
+     * @return float
+     */
+    public function getAmountPaid()
     {
-        $return = new Currency();
-        $return->setName("Total");
-        
-        $total = (($this->getSubTotal()->RAW() + $this->getPostage()->RAW()) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
-        
-        $return->setValue($total);
-        
-        $this->extend("updateTotal", $return);
-        
-        return $return;
+        $total = 0;
+
+        foreach ($this->Payments() as $payment) {
+            if ($payment->isCaptured()) {
+                $total += $payment->getAmount();
+            }
+        }
+
+        $this->extend("updateAmountPaid", $total);
+
+        return $total;
     }
 
     protected function generate_order_number()

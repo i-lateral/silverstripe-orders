@@ -68,7 +68,7 @@ class OrderTest extends SapphireTest
 		$order = $this->objFromFixture('Order', 'addressdetails');
 		$order->markComplete();
 
-		$this->assertTrue($order->getPaid());
+		$this->assertTrue($order->isPaid());
 	}
 
 	/**
@@ -124,12 +124,12 @@ class OrderTest extends SapphireTest
 		$this->assertEquals("Different Postage", $no_tax_order->PostageType);
 		$this->assertEquals(0.50, $no_tax_order->PostageCost);
 		$this->assertEquals(0, $no_tax_order->PostageTax);
-		$this->assertEquals(0.50, $no_tax_order->Postage->RAW());
+		$this->assertEquals(0.50, $no_tax_order->Postage);
 
 		$this->assertEquals("Different Tax Postage", $tax_order->PostageType);
 		$this->assertEquals(1.00, $tax_order->PostageCost);
 		$this->assertEquals(0.20, $tax_order->PostageTax);
-		$this->assertEquals(1.00, $tax_order->Postage->RAW());
+		$this->assertEquals(1.00, $tax_order->Postage);
 	}
 
 	/**
@@ -165,10 +165,10 @@ class OrderTest extends SapphireTest
 		$tax_order_two = $this->objFromFixture('Order', 'complextax');
 		$discount_order = $this->objFromFixture('Order', 'discount');
 
-		$this->assertEquals(0, $no_tax_order->TaxTotal->RAW());
-		$this->assertEquals(1.60, $tax_order_one->TaxTotal->RAW());
-		$this->assertEquals(3.20, $tax_order_two->TaxTotal->RAW());
-		$this->assertEquals(3.0, $discount_order->TaxTotal->RAW());
+		$this->assertEquals(0, $no_tax_order->TaxTotal);
+		$this->assertEquals(1.60, $tax_order_one->TaxTotal);
+		$this->assertEquals(3.20, $tax_order_two->TaxTotal);
+		$this->assertEquals(3.0, $discount_order->TaxTotal);
 	}
 
 	/**
@@ -184,13 +184,13 @@ class OrderTest extends SapphireTest
 		$tax_order_two = $this->objFromFixture('Order', 'complextax');
 		$discount_order = $this->objFromFixture('Order', 'discount');
 
-		$this->assertEquals(11.98, $no_tax_order->SubTotal->RAW());
-		$this->assertEquals(13.98, $no_tax_order->Total->RAW());
-		$this->assertEquals(5.99, $tax_order_one->SubTotal->RAW());
-		$this->assertEquals(9.59, $tax_order_one->Total->RAW());
-		$this->assertEquals(13.97, $tax_order_two->SubTotal->RAW());
-		$this->assertEquals(19.17, $tax_order_two->Total->RAW());
-		$this->assertEquals(15.97, $discount_order->SubTotal->RAW());
-		$this->assertEquals(17.97, $discount_order->Total->RAW());
+		$this->assertEquals(11.98, $no_tax_order->SubTotal);
+		$this->assertEquals(13.98, $no_tax_order->Total);
+		$this->assertEquals(5.99, $tax_order_one->SubTotal);
+		$this->assertEquals(9.59, $tax_order_one->Total);
+		$this->assertEquals(13.97, $tax_order_two->SubTotal);
+		$this->assertEquals(19.17, $tax_order_two->Total);
+		$this->assertEquals(15.97, $discount_order->SubTotal);
+		$this->assertEquals(17.97, $discount_order->Total);
 	}
 }
