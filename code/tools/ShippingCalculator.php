@@ -263,7 +263,7 @@ class ShippingCalculator extends Object
 
         // First loop through and find items that are invalid
         foreach ($return as $location) {
-            if ($location->Calculation == "Price" && ($total_cost->RAW() < $location->Unit)) {
+            if ($location->Calculation == "Price" && ($total_cost < $location->Unit)) {
                 $return->remove($location);
             }
 
