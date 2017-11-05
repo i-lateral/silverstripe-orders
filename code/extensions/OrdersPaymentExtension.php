@@ -29,9 +29,11 @@ class OrdersPaymentExtension extends DataExtension
             $order_amount = Checkout::round_up($order->getTotal()->RAW(), 2);
 
             // First ensure we have an order (not an estimate)
-            $order->convertToOrder();
-            $order->write();
-            $order = Order::get()->byID($order->ID);
+            if ($order instanceof Estimate) {            
+                $order->convertToOrder();
+                $order->write();
+                $order = Order::get()->byID($order->ID);
+            }
 
             // If our payment is the value of the order, mark paid
             // else mark part paid
