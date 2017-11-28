@@ -893,6 +893,26 @@ class Order extends DataObject implements PermissionProvider
     }
 
     /**
+     * Find the total quantity of taxable items in the shopping cart
+     *
+     * @return Int
+     */
+    public function getTotalTaxableItems()
+    {
+        $total = 0;
+
+        foreach ($this->Items() as $item) {
+            if ($item->Price > 0 && $item->TaxRate > 0) {
+                $total += ($item->Quantity) ? $item->Quantity : 1;
+            }
+        }
+
+        $this->extend("updateTotalTaxableItems", $total);
+
+        return $total;
+    }
+
+    /**
     * Find the total weight of all items in the shopping cart
     *
     * @return float
@@ -946,7 +966,7 @@ class Order extends DataObject implements PermissionProvider
             // If a discount applied, get the tax based on the
             // discounted amount
             if ($this->DiscountAmount > 0) {
-                $discount = $this->DiscountAmount / $this->TotalItems;
+                $discount = $this->DiscountAmount / $this->TotalTaxableItems;
                 $price = $item->UnitPrice - $discount;
                 $tax = ($price / 100) * $item->TaxRate;
             } else {
