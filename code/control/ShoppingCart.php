@@ -251,6 +251,8 @@ class ShoppingCart extends Controller
         
         $postage_areas = $postage_areas->getPostageAreas();
         
+        $this->extend('updateAvailablePostage',$postage_areas);
+
         Session::set("Checkout.AvailablePostage", $postage_areas);
         
         return $this;
