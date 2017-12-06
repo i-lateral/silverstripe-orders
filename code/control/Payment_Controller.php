@@ -98,6 +98,16 @@ class Payment_Controller extends Controller
         );
     }
 
+    /**
+     * Get the link to this controller
+     * 
+     * @return string
+     */
+    public function AbsoluteLink($action = null)
+    {
+        return Director::absoluteURL($this->Link($action));
+    }
+
     public function init()
     {
         parent::init();
@@ -411,9 +421,9 @@ class Payment_Controller extends Controller
                 $this->getPaymentMethod(),
                 Checkout::round_up($order->Total, 2),
                 Checkout::config()->currency_code
-            )->setSuccessUrl($this->Link('complete'))
+            )->setSuccessUrl($this->AbsoluteLink('complete'))
             ->setFailureUrl(Controller::join_links(
-                $this->Link('complete'),
+                $this->AbsoluteLink('complete'),
                 "error"
             ));
         
