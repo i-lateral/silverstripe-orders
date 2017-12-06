@@ -167,6 +167,7 @@ class Checkout extends ViewableData
         $postage->Title = _t("Checkout.FreeShipping", "Free Shipping");
         $postage->Country = "*";
         $postage->ZipCode = "*";
+        $postage->FreeShipping = true;
         
         return $postage;
     }

@@ -142,6 +142,8 @@ class PostagePaymentForm extends Form
         );
         
         $this->setTemplate($this->ClassName);
+
+        $this->extend('updatePostagePaymentForm',$this);
     }
     
     public function getBackURL() {
