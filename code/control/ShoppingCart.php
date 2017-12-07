@@ -670,7 +670,7 @@ class ShoppingCart extends Controller
                 
                 // If we need to track stock, do it now
                 if ($cart_item->Stocked || $this->config()->check_stock_levels) {
-                    if ($cart_item->checkStockLevel($quantity) <= 0) {
+                    if ($cart_item->checkStockLevel($quantity) < 0) {
                         throw new ValidationException(_t(
                             "Checkout.NotEnoughStock",
                             "There are not enough '{title}' in stock",
