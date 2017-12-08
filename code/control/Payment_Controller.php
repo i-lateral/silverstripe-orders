@@ -99,6 +99,16 @@ class Payment_Controller extends Controller
         );
     }
 
+    /**
+     * Get the link to this controller
+     * 
+     * @return string
+     */
+    public function AbsoluteLink($action = null)
+    {
+        return Director::absoluteURL($this->Link($action));
+    }
+
     public function init()
     {
         parent::init();
@@ -142,6 +152,8 @@ class Payment_Controller extends Controller
         $cart = ShoppingCart::get();
         $data = array();
         $payment_data = array();
+        $member = Member::currentUser();
+        $order = null;
 
         // If shopping cart doesn't exist, redirect to base
         if (!$cart->getItems()->exists()) {
@@ -166,10 +178,7 @@ class Payment_Controller extends Controller
         if ($cart->isCollection() && (!$customer_data)) {
             return $this->redirect(Checkout_Controller::create()->Link());
         }
-
-        // Create an order number
-        $data["OrderNumber"] = substr(chunk_split(Checkout::getRandomNumber(), 4, '-'), 0, -1);
-        
+         
         // Setup holder for Payment ID
         $data["PaymentID"] = 0;
 
@@ -208,37 +217,47 @@ class Payment_Controller extends Controller
             }
         }
 
-        // Setup an order based on the data from the shopping cart and load data
-        $order = new Estimate();
-        $order->update($payment_data);
-
-        // Use this to generate a new order number
-        $order->OrderNumber = "";
+        // If user logged in then get their estimate,
+        // otherwise duplicate the cart
+        if ($member) {
+            $order = $member->getCart();
+        }
         
-        // If we are using collection, track it here
-        if ($cart->isCollection()) {
-            $order->Action = "collect";
-        }
+        if ($order) {
+            $order->update($payment_data);
+            $order->write();
+        } else {
+            $order = new Estimate();
+            $order->update($payment_data);
 
-        // If user logged in, track it against an order
-        if (Member::currentUserID()) {
-            $order->CustomerID = Member::currentUserID();
-        }
+            // Use this to generate a new order number
+            $order->OrderNumber = "";
+            
+            // If we are using collection, track it here
+            if ($cart->isCollection()) {
+                $order->Action = "collect";
+            }
 
-        // Write so we can setup our foreign keys
-        $order->write();
+            // If user logged in, track it against an order
+            if ($member) {
+                $order->CustomerID = $member->ID;
+            }
 
-        // Loop through each session cart item and add that item to the order
-        foreach ($cart->getItems() as $order_item) {
-            $new_item = $order_item->duplicate();
-            $new_item->write();
+            // Write so we can setup our foreign keys
+            $order->write();
 
-            $cart
-                ->getItems()
-                ->remove($new_item);
-            $order
-                ->Items()
-                ->add($new_item);
+            // Loop through each session cart item and add that item to the order
+            foreach ($cart->getItems() as $order_item) {
+                $new_item = $order_item->duplicate();
+                $new_item->write();
+
+                $cart
+                    ->getItems()
+                    ->remove($new_item);
+                $order
+                    ->Items()
+                    ->add($new_item);
+            }
         }
 
         $this->extend("onBeforeIndex", $order);
@@ -284,8 +303,9 @@ class Payment_Controller extends Controller
         $cart = ShoppingCart::get();
 
         $id = $this->request->param('ID');
+        $error = ($id == "error") ? true : false;
 
-        if ($id == "error") {
+        if ($error) {
             $return = $this->error_data();
         } else {
             $return = $this->success_data();
@@ -304,7 +324,7 @@ class Payment_Controller extends Controller
         $this->extend("onBeforeComplete");
 
         // Clear our session data
-        if (isset($_SESSION)) {
+        if (!$error && isset($_SESSION)) {
             $cart->clear();
             unset($_SESSION['Checkout.PaymentMethod']);
             unset($_SESSION['Checkout.OrderID']);
@@ -465,11 +485,11 @@ class Payment_Controller extends Controller
         $payment = Payment::create()
             ->init(
                 $this->getPaymentMethod(),
-                Checkout::round_up($order->Total->Value, 2),
+                Checkout::round_up($order->Total, 2),
                 Checkout::config()->currency_code
-            )->setSuccessUrl($this->Link('complete'))
+            )->setSuccessUrl($this->AbsoluteLink('complete'))
             ->setFailureUrl(Controller::join_links(
-                $this->Link('complete'),
+                $this->AbsoluteLink('complete'),
                 "error"
             ));
         

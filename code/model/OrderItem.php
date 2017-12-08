@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OrderItem is a single line item on an order, extimate or even in
  * the shopping cart.
@@ -172,69 +173,75 @@ class OrderItem extends DataObject
      * Get the price for a single line item (unit), minus any
      * tax
      * 
-     * @return Float
+     * @return float
      */
-    public function UnitPrice()
+    public function getUnitPrice()
     {
-        $price = $this->Price;
+        $total = $this->Price;
 
         foreach ($this->Customisations() as $customisation) {
-            $price += $customisation->Price;
+            $total += $customisation->Price;
         }
 
-        return $price;
+        $this->extend("updateUnitPrice", $total);
+
+        return $total;
     }
 
     /**
      * Get the amount of tax for a single unit of this item
      * 
-     * @return Float
+     * @return float
      */
-    public function UnitTax()
+    public function getUnitTax()
     {
-        $price = $this->obj("UnitPrice");
+        $total = ($this->UnitPrice / 100) * $this->TaxRate;
 
-        return ($price->getValue() / 100) * $this->TaxRate;
+        $this->extend("updateUnitTax", $total);
+
+        return $total;
     }
 
     /**
      * Get the value of this item, minus any tax
      * 
-     * @return Float
+     * @return float
      */
-    public function SubTotal()
+    public function getSubTotal()
     {
-        $price = $this->obj("UnitPrice");
+        $total = $this->UnitPrice * $this->Quantity;
 
-        return $price->getValue() * $this->Quantity;
+        $this->extend("updateSubTotal", $total);
+
+        return $total;
     }
 
     /**
      * Get the amount of tax for a single unit of this item
      * 
-     * @return Float
+     * @return float
      */
-    public function Tax()
+    public function getTax()
     {
-        $price = $this->obj("UnitTax");
+        $total = $this->UnitTax * $this->Quantity;
 
-        return $price->getValue() * $this->Quantity;
+        $this->extend("updateTax", $total);
+
+        return $total;
     }
 
     /**
      * Get the value of this item, minus any tax
      * 
-     * @return Float
+     * @return float
      */
-    public function Total()
+    public function getTotal()
     {
-        $price = $this->obj("SubTotal");
+        $total = $this->SubTotal + $this->Tax;
 
-        if ($this->TaxRate > 0) {
-            $tax = $this->obj("Tax");
-        }
+        $this->extend("updateTotal", $total);
 
-        return $price->getValue() + $tax->getValue();
+        return $total;
     }
 
     /**
@@ -260,7 +267,7 @@ class OrderItem extends DataObject
      * Provide a string of customisations seperated by a comma but not
      * including a price
      *
-     * @return String
+     * @return string
      */
     public function CustomisationList()
     {
@@ -277,6 +284,7 @@ class OrderItem extends DataObject
             $return = implode(", ", $map);
         }
 
+        $this->extend("updateCustomisationList", $return);
         
         return $return;
     }
@@ -285,7 +293,7 @@ class OrderItem extends DataObject
      * Provide a string of customisations seperated by a comma and
      * including a price
      *
-     * @return String
+     * @return string
      */
     public function CustomisationAndPriceList()
     {
@@ -302,6 +310,7 @@ class OrderItem extends DataObject
             $return = implode(", ", $map);
         }
 
+        $this->extend("updateCustomisationAndPriceList", $return);
         
         return $return;
     }
@@ -310,6 +319,7 @@ class OrderItem extends DataObject
      * Unserialise the list of customisations and rendering into a basic
      * HTML string
      *
+     * @return HTMLText
      */
     public function CustomisationHTML()
     {
@@ -324,6 +334,9 @@ class OrderItem extends DataObject
         }
 
         $return->setValue($html);
+
+        $this->extend("updateCustomisationHTML", $return);
+
         return $return;
     }
         
@@ -376,9 +389,11 @@ class OrderItem extends DataObject
         $stock_param = $this->config()->stock_param;
         $item = $this->Match();
         $stock = ($item->$stock_param) ? $item->$stock_param : 0;
+        $return = $stock - $qty;
+
+        $this->extend("updateCheckStockLevel", $return);
         
-        // Return remaining stock
-        return $stock - $qty;
+        return $return;
     }
 
     /**
@@ -454,6 +469,28 @@ class OrderItem extends DataObject
         }
 
         return $this->Parent()->canEdit($member);
+    }
+
+    /**
+     * Overwrite default duplicate function
+     *
+     * @param boolean $doWrite (write the cloned object to DB)
+     * @return DataObject $clone The duplicated object
+     */
+    public function duplicate($doWrite = true)
+    {
+        $clone = parent::duplicate($doWrite);
+
+        // Ensure we clone any customisations
+        if ($doWrite) {
+            foreach ($this->Customisations() as $customisation) {
+                $new_item = $customisation->duplicate(false);
+                $new_item->OrderItemID = $clone->ID;
+                $new_item->write();
+            }
+        }
+
+        return $clone;
     }
 
     /**

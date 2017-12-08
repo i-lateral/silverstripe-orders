@@ -1,0 +1,183 @@
+PostageArea:
+  ukpostageone:
+    Title: "Basic UK Postage"
+    Country: "GB"
+    ZipCode: "AL,B,BA,BB,BD,BH,BL,BN,BR,CA,CB,CF,CH,CM,CO,CR,CT,CW,DA,DE,DH,DL,DN,DT,DY,E,EN,EX,FY,GL,GU,HA,HD,HG,HP,HU,HX,IG,IP,KT,L,LA,LD,LE,LL,LN,LS,LU,M,ME,MK,N,NE,NG,NN,NP,NR,NW,OL,OX,PE,PL,PR,RG,RH,RM,S,SA,SE,SG,SK,SL,SM,SN,SO,SP,SR,SS,ST,SW,SY,TA,TF,TN,TQ,TR,YO"
+    Calculation: "Weight"
+    Unit: 0
+    Cost: 3.00
+    Tax: 0
+    SiteID: 1
+  ukpostagetwo:
+    Title: "Light UK Postage"
+    Country: "GB"
+    ZipCode: "AL,B,BA,BB,BD,BH,BL,BN,BR,CA,CB,CF,CH,CM,CO,CR,CT,CW,DA,DE,DH,DL,DN,DT,DY,E,EN,EX,FY,GL,GU,HA,HD,HG,HP,HU,HX,IG,IP,KT,L,LA,LD,LE,LL,LN,LS,LU,M,ME,MK,N,NE,NG,NN,NP,NR,NW,OL,OX,PE,PL,PR,RG,RH,RM,S,SA,SE,SG,SK,SL,SM,SN,SO,SP,SR,SS,ST,SW,SY,TA,TF,TN,TQ,TR,YO"
+    Calculation: "Weight"
+    Unit: 1
+    Cost: 4.00
+    Tax: 0
+    SiteID: 1
+  ukpostagethree:
+    Title: "Heavy UK Postage"
+    Country: "GB"
+    ZipCode: "AL,B,BA,BB,BD,BH,BL,BN,BR,CA,CB,CF,CH,CM,CO,CR,CT,CW,DA,DE,DH,DL,DN,DT,DY,E,EN,EX,FY,GL,GU,HA,HD,HG,HP,HU,HX,IG,IP,KT,L,LA,LD,LE,LL,LN,LS,LU,M,ME,MK,N,NE,NG,NN,NP,NR,NW,OL,OX,PE,PL,PR,RG,RH,RM,S,SA,SE,SG,SK,SL,SM,SN,SO,SP,SR,SS,ST,SW,SY,TA,TF,TN,TQ,TR,YO"
+    Calculation: "Weight"
+    Unit: 2
+    Cost: 5.00
+    Tax: 0
+    SiteID: 1
+  ukoffshorepostage:
+    Title: "UK Offshore"
+    Country: "GB"
+    ZipCode: "HS,ZE,IM,IV55,IV56,KA27,KA28"
+    Calculation: "Weight"
+    Unit: 0
+    Cost: 10.00
+    Tax: 0
+    SiteID: 1
+  ukwildcard:
+    Title: "UK Wildcard"
+    Country: "GB"
+    ZipCode: "*"
+    Calculation: "Weight"
+    Unit: 0
+    Cost: 15.00
+    Tax: 0
+    SiteID: 1
+  globalwildcard:
+    Title: "Global Wildcard"
+    Country: "*"
+    ZipCode: "*"
+    Calculation: "Weight"
+    Unit: 0
+    Cost: 25.00
+    Tax: 0
+    SiteID: 1
+OrderItem:
+  noweightitem:
+    Title: "No weight item"
+    Quantity: 1
+    Weight: 0
+    Price: 5.99
+    TaxRate: 0
+  weightitemone:
+    Title: "Light item"
+    Quantity: 1
+    Weight: 0.5
+    Price: 5.99
+    TaxRate: 0
+  weightitemtwo:
+    Title: "Light item 2"
+    Quantity: 2
+    Weight: 0.5
+    Price: 5.99
+    TaxRate: 0
+  weightitemthree:
+    Title: "Heavy item"
+    Quantity: 1
+    Weight: 5
+    Price: 10.99
+    TaxRate: 0
+  offshoreitem:
+    Title: "Offshore item"
+    Quantity: 1
+    Weight: 5
+    Price: 10.99
+    TaxRate: 0
+  wildcarditem:
+    Title: "Offshore item"
+    Quantity: 1
+    Weight: 5
+    Price: 10.99
+    TaxRate: 0
+  globalitem:
+    Title: "Global item"
+    Quantity: 1
+    Weight: 5
+    Price: 10.99
+    TaxRate: 0
+Order:
+  noweightorder:
+    Status: incomplete
+    Address1: "123 Street Name"
+    Address2: "A Place"
+    City: "A City"
+    PostCode: "SO98 9XZ"
+    Country: "GB"
+    DeliveryAddress1: "321 Street Name"
+    DeliveryCity: "Delivery City"
+    DeliveryPostCode: "SO98 9XZ"
+    DeliveryCountry: "GB"
+    Items: =>OrderItem.noweightitem
+  lightorderone:
+    Status: incomplete
+    Address1: "123 Street Name"
+    Address2: "A Place"
+    City: "A City"
+    PostCode: "SO98 9XZ"
+    Country: "GB"
+    DeliveryAddress1: "321 Street Name"
+    DeliveryCity: "Delivery City"
+    DeliveryPostCode: "SO98 9XZ"
+    DeliveryCountry: "GB"
+    Items: =>OrderItem.weightitemone
+  lightordertwo:
+    Status: incomplete
+    Address1: "123 Street Name"
+    Address2: "A Place"
+    City: "A City"
+    PostCode: "IG12 3AB"
+    Country: "GB"
+    DeliveryAddress1: "321 Street Name"
+    DeliveryCity: "Delivery City"
+    DeliveryPostCode: "IG12 3AB"
+    DeliveryCountry: "GB"
+    Items: =>OrderItem.weightitemtwo
+  heavyorder:
+    Status: incomplete
+    Address1: "123 Street Name"
+    Address2: "A Place"
+    City: "A City"
+    PostCode: "BA12 3AB"
+    Country: "GB"
+    DeliveryAddress1: "321 Street Name"
+    DeliveryCity: "Delivery City"
+    DeliveryPostCode: "BA12 3AB"
+    DeliveryCountry: "GB"
+    Items: =>OrderItem.weightitemthree
+  offshoreorder:
+    Status: incomplete
+    Address1: "123 Street Name"
+    Address2: "A Place"
+    City: "A City"
+    PostCode: "BA12 3AB"
+    Country: "GB"
+    DeliveryAddress1: "321 Street Name"
+    DeliveryCity: "Delivery City"
+    DeliveryPostCode: "IV55 3AB"
+    DeliveryCountry: "GB"
+    Items: =>OrderItem.offshoreitem
+  wildcardorder:
+    Status: incomplete
+    Address1: "123 Street Name"
+    Address2: "A Place"
+    City: "A City"
+    PostCode: "BA12 3AB"
+    Country: "GB"
+    DeliveryAddress1: "321 Street Name"
+    DeliveryCity: "Delivery City"
+    DeliveryPostCode: "PO30 1BA"
+    DeliveryCountry: "GB"
+    Items: =>OrderItem.wildcarditem
+  globalorder:
+    Status: incomplete
+    Address1: "123 Street Name"
+    Address2: "A Place"
+    City: "A City"
+    PostCode: "12345 12345"
+    Country: "US"
+    DeliveryAddress1: "321 Street Name"
+    DeliveryCity: "Delivery City"
+    DeliveryPostCode: "12345 12345"
+    DeliveryCountry: "US"
+    Items: =>OrderItem.globalitem

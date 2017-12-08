@@ -104,9 +104,9 @@ class ShoppingCart extends Controller
     /**
      * Track a discount object placed against this cart
      *
-     * @var Discount
+     * @var Int
      */
-    protected $discount;
+    protected $discount_id;
     
     /**
      * Track the currently selected postage (if available)
@@ -172,14 +172,24 @@ class ShoppingCart extends Controller
         return $this->estimate->Items();
     }
     
+    public function getDiscountID()
+    {
+        return $this->discount_id;
+    }
+    
+    public function setDiscountID(Int $discount_id)
+    {
+        $this->discount_id = $discount_id;
+    }
+
     public function getDiscount()
     {
-        return $this->discount;
+        return Discount::get()->ByID($this->discount_id);
     }
     
     public function setDiscount(Discount $discount)
     {
-        $this->discount = $discount;
+        $this->discount_id = $discount->ID;
     }
     
     /**
@@ -241,6 +251,8 @@ class ShoppingCart extends Controller
         
         $postage_areas = $postage_areas->getPostageAreas();
         
+        $this->extend('updateAvailablePostage',$postage_areas);
+
         Session::set("Checkout.AvailablePostage", $postage_areas);
         
         return $this;
@@ -383,25 +395,25 @@ class ShoppingCart extends Controller
         $this->setEstimate($estimate);
         
         // If discount stored in a session, get it
-        if (Session::get('ShoppingCart.Discount')) {
-            $this->discount = unserialize(Session::get('ShoppingCart.Discount'));
+        if (Session::get('ShoppingCart.DiscountID')) {
+            $this->discount_id = Session::get('ShoppingCart.DiscountID');
             $this
                 ->getEstimate()
                 ->setDiscount(
-                    $this->discount->Title,
+                    $this->getDiscount()->Title,
                     $this->getDiscountAmount()
                 );
         }
         
         // If we don't have any discounts, a user is logged in and he has
         // access to discounts through a group, add the discount here
-        if (!$this->discount && $member && $member->getDiscount()) {
-            $this->discount = $member->getDiscount();
-            Session::set('ShoppingCart.Discount', serialize($this->discount));
+        if (!$this->discount_id && $member && $member->getDiscount()) {
+            $this->discount_id = $member->getDiscount()->ID;
+            Session::set('ShoppingCart.DiscountID', $this->discount_id);
             $this
                 ->getEstimate()
                 ->setDiscount(
-                    $this->discount->Title,
+                    $this->getDiscount()->Title,
                     $this->getDiscountAmount()
                 );
         }
@@ -416,7 +428,7 @@ class ShoppingCart extends Controller
                 ->setPostage(
                     $postage->Title,
                     $postage->Cost,
-                    $postage->obj("TaxAmount")->RAW()
+                    $postage->TaxAmount
                 );
         }
         
@@ -524,18 +536,18 @@ class ShoppingCart extends Controller
         
         // First check if the discount is already added (so we don't
         // query the DB if we don't have to).
-        if (!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
+        if (!$this->discount_id || ($this->discount_id && $this->getDiscount()->Code != $code_to_search)) {
             $codes = Discount::get()
                 ->filter("Code", $code_to_search)
                 ->exclude("Expires:LessThan", date("Y-m-d"));
             
             if ($codes->exists()) {
                 $code = $codes->first();
-                $this->discount = $code;
+                $this->discount_id = $code->ID;
                 $this->save();
             }
-        } elseif ($this->discount && $this->discount->Code == $code_to_search) {
-            $code = $this->discount;
+        } elseif ($this->discount_id && $this->getDiscount()->Code == $code_to_search) {
+            $code = $this->getDiscount();
         }
         
         return $this
@@ -658,7 +670,7 @@ class ShoppingCart extends Controller
                 
                 // If we need to track stock, do it now
                 if ($cart_item->Stocked || $this->config()->check_stock_levels) {
-                    if ($cart_item->checkStockLevel($quantity) <= 0) {
+                    if ($cart_item->checkStockLevel($quantity) < 0) {
                         throw new ValidationException(_t(
                             "Checkout.NotEnoughStock",
                             "There are not enough '{title}' in stock",
@@ -776,10 +788,10 @@ class ShoppingCart extends Controller
         }
         
         // Save cart discounts
-        if ($this->discount) {
+        if ($this->discount_id) {
             Session::set(
-                "ShoppingCart.Discount",
-                serialize($this->discount)
+                "ShoppingCart.DiscountID",
+                $this->discount_id
             );
         }
         
@@ -803,11 +815,22 @@ class ShoppingCart extends Controller
     {
         // First tear down any objects in our estimate
         $this->removeAll();
+        $member = Member::currentUser();
+        $estimate = $this->getEstimate();
 
         // Now remove any sessions
         Session::clear('ShoppingCart.Items');
-        Session::clear('ShoppingCart.Discount');
+        Session::clear('ShoppingCart.DiscountID');
         Session::clear("Checkout.PostageID");
+
+        // If member logged in, clear postage and
+        // discount on the tracked estimate
+        if ($member && $estimate) {
+            $estimate->setPostage("", 0, 0);
+            $estimate->setDiscount("", 0);
+            $estimate->write();
+        }
+        
     }
     
     /**
@@ -918,8 +941,7 @@ class ShoppingCart extends Controller
     {
         return $this
             ->getEstimate()
-            ->getTaxTotal()
-            ->getValue();
+            ->getTaxTotal();
     }
     
     /**
@@ -932,8 +954,7 @@ class ShoppingCart extends Controller
     {
         return $this
             ->getEstimate()
-            ->getTotal()
-            ->getValue();
+            ->getTotal();
     }
 
     /**
@@ -1138,14 +1159,14 @@ class ShoppingCart extends Controller
         
         // First check if the discount is already added (so we don't
         // query the DB if we don't have to).
-        if (!$this->discount || ($this->discount && $this->discount->Code != $code_to_search)) {
+        if (!$this->discount_id || ($this->discount_id && $this->getDiscount()->Code != $code_to_search)) {
             $code = Discount::get()
                 ->filter("Code", $code_to_search)
                 ->exclude("Expires:LessThan", date("Y-m-d"))
                 ->first();
             
             if ($code) {
-                $this->discount = $code;
+                $this->discount_id = $code->ID;
             }
         }
         

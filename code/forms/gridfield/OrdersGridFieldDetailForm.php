@@ -191,22 +191,6 @@ class OrdersGridFieldDetailForm_ItemRequest extends GridFieldDetailForm_ItemRequ
                     $actions->insertAfter($link_field, "action_doChangeStatus");
                 }
             }
-
-            if ($record->ID && $record->getPayment()) {
-                $html = '<a href="' . $record->PaymentLink() . '" ';
-                $html .= 'class="action ss-ui-button ui-button ui-corner-all open-external" ';
-                $html .= '>' . _t('Orders.PaymentInfo', 'Payment Info') . '</a>';
-                
-                $link_field = LiteralField::create('paymentInfo', $html);
-                
-                if ($actions->find("Name", "action_doSave")) {
-                    $actions->insertAfter($link_field, "action_doSave");
-                }
-                
-                if ($actions->find("Name", "action_doChangeStatus")) {
-                    $actions->insertAfter($link_field, "action_doChangeStatus");
-                }
-            }
         }
         
         // Add a duplicate button, either after the save button or

@@ -14,7 +14,8 @@ class PostageArea extends DataObject
         "Calculation"   => "Enum('Price,Weight,Items','Weight')",
         "Unit"          => "Decimal",
         "Cost"          => "Decimal",
-        "Tax"           => "Decimal"
+        "Tax"           => "Decimal",
+        "FreeShipping"  => 'Boolean'
     );
 
     private static $has_one = array(

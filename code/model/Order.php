@@ -42,6 +42,7 @@ class Order extends DataObject implements PermissionProvider
         "failed" => "Failed",
         "cancelled" => "Cancelled",
         "pending" => "Pending",
+        "part-paid" => "Part Paid",
         "paid" => "Paid",
         "processing" => "Processing",
         "ready" => "Ready",
@@ -58,6 +59,7 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $outstanding_statuses = array(
+        "part-paid",
         "paid",
         "processing"
     );
@@ -101,6 +103,7 @@ class Order extends DataObject implements PermissionProvider
         "",
         "incomplete",
         "pending",
+        "part-paid",
         "paid",
         "failed",
         "cancelled"
@@ -116,13 +119,39 @@ class Order extends DataObject implements PermissionProvider
     private static $default_status = "incomplete";
 
     /**
-     * The status which an order is considered "complete" (meaning
-     * ready for processing, dispatch, etc).
+     * The status which an order is considered "complete".
      * 
      * @var string
      * @config
      */
     private static $completion_status = "paid";
+
+    /**
+     * The status which an order has been marked pending
+     * (meaning we are awaiting payment).
+     * 
+     * @var string
+     * @config
+     */
+    private static $pending_status = "pending";
+
+    /**
+     * The status which an order is considered "paid" (meaning
+     * ready for processing, dispatch, etc).
+     * 
+     * @var string
+     * @config
+     */
+    private static $paid_status = "paid";
+
+    /**
+     * The status which an order is considered "part paid" (meaning
+     * partially paid, possibly deposit paid).
+     * 
+     * @var string
+     * @config
+     */
+    private static $part_paid_status = "part-paid";
 
     /**
      * The status which an order has not been completed (meaning
@@ -132,6 +161,40 @@ class Order extends DataObject implements PermissionProvider
      * @config
      */
     private static $incomplete_status = "incomplete";
+
+    /**
+     * The status which an order has been canceled.
+     * 
+     * @var string
+     * @config
+     */
+    private static $canceled_status = "canceled";
+
+    /**
+     * The status which an order has been refunded.
+     * 
+     * @var string
+     * @config
+     */
+    private static $refunded_status = "refunded";
+
+    /**
+     * The status which an order has been dispatched
+     * (sent to customer).
+     * 
+     * @var string
+     * @config
+     */
+    private static $dispatched_status = "dispatched";
+    
+    /**
+     * The status which an order has been marked collected
+     * (meaning goods collected from store).
+     * 
+     * @var string
+     * @config
+     */
+    private static $collected_status = "collected";
 
     /**
      * Actions on an order are to determine what will happen on
@@ -160,6 +223,7 @@ class Order extends DataObject implements PermissionProvider
      * This is used to generate the gridfield under the customer details
      * tab.
      * 
+     * @var string
      * @config
      */
     private static $existing_customer_class = "Member";
@@ -170,9 +234,10 @@ class Order extends DataObject implements PermissionProvider
      * 
      * If not set, will default to summary_fields
      * 
+     * @var array
      * @config
      */
-    private static $existing_customer_fields;
+    private static $existing_customer_fields = array();
 
     /**
      * Select the fields that will be copied from the source object to
@@ -258,14 +323,14 @@ class Order extends DataObject implements PermissionProvider
         'Postage'           => 'Currency',
         'TaxTotal'          => 'Currency',
         'Total'             => 'Currency',
+        "AmountPaid"        => 'Currency',
         'TotalItems'        => 'Int',
         'TotalWeight'       => 'Decimal',
         'ItemSummary'       => 'Text',
         'ItemSummaryHTML'   => 'HTMLText',
         'TranslatedStatus'  => 'Varchar',
         "QuoteLink"         => 'Varchar',
-        "InvoiceLink"       => 'Varchar',
-        "Paid"              => "Boolean"
+        "InvoiceLink"       => 'Varchar'
     );
 
     private static $defaults = array(
@@ -281,7 +346,8 @@ class Order extends DataObject implements PermissionProvider
         "Surname"       => "Surname",
         "Email"         => "Email",
         "Total"         => "Total",
-        "Created"       => "Created"
+        "Created"       => "Created",
+        "LastEdited"    => "Last Edited"
     );
 
     private static $extensions = array(
@@ -320,34 +386,6 @@ class Order extends DataObject implements PermissionProvider
         );
     }
 
-    /**
-     * Generate a link to view the payment associated with this
-     * order (if one is set)
-     *
-     * @return string
-     */
-    public function PaymentLink()
-    {
-        $payment = $this->getPayment();
-        $return = "";
-
-        if ($payment) {
-            $return = Controller::join_links(
-                Injector::inst()
-                    ->get("OrderAdmin")
-                    ->Link("Payment"),
-                "EditForm",
-                "field",
-                "Payment",
-                "item",
-                $payment->ID,
-                "edit"
-            );
-        }
-
-        return $return;
-    }
-
     public function populateDefaults()
     {
         parent::populateDefaults();
@@ -359,49 +397,8 @@ class Order extends DataObject implements PermissionProvider
     {
         $member = Member::currentUser();
         $existing_customer = $this->config()->existing_customer_class;
+        $payment = $this->getPayment();
 
-        // Manually inject HTML for totals as Silverstripe refuses to
-        // render Currency.Nice any other way.
-        $subtotal_html = '<div id="SubTotal" class="field readonly">';
-        $subtotal_html .= '<label class="left" for="Form_ItemEditForm_SubTotal">';
-        $subtotal_html .= _t("Orders.SubTotal", "Sub Total");
-        $subtotal_html .= '</label>';
-        $subtotal_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_SubTotal" class="readonly">';
-        $subtotal_html .= $this->SubTotal->Nice();
-        $subtotal_html .= '</span></div></div>';
-        
-        $discount_html = '<div id="Discount" class="field readonly">';
-        $discount_html .= '<label class="left" for="Form_ItemEditForm_Discount">';
-        $discount_html .= _t("Orders.Discount", "Discount");
-        $discount_html .= '</label>';
-        $discount_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Discount" class="readonly">';
-        $discount_html .= $this->dbObject("DiscountAmount")->Nice();
-        $discount_html .= '</span></div></div>';
-        
-        $postage_html = '<div id="Postage" class="field readonly">';
-        $postage_html .= '<label class="left" for="Form_ItemEditForm_Postage">';
-        $postage_html .= _t("Orders.Postage", "Postage");
-        $postage_html .= '</label>';
-        $postage_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Postage" class="readonly">';
-        $postage_html .= $this->Postage->Nice();
-        $postage_html .= '</span></div></div>';
-        
-        $tax_html = '<div id="TaxTotal" class="field readonly">';
-        $tax_html .= '<label class="left" for="Form_ItemEditForm_TaxTotal">';
-        $tax_html .= _t("Orders.Tax", "Tax");
-        $tax_html .= '</label>';
-        $tax_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_TaxTotal" class="readonly">';
-        $tax_html .= $this->TaxTotal->Nice();
-        $tax_html .= '</span></div></div>';
-        
-        $total_html = '<div id="Total" class="field readonly">';
-        $total_html .= '<label class="left" for="Form_ItemEditForm_Total">';
-        $total_html .= _t("Orders.Total", "Total");
-        $total_html .= '</label>';
-        $total_html .= '<div class="middleColumn"><span id="Form_ItemEditForm_Total" class="readonly">';
-        $total_html .= $this->Total->Nice();
-        $total_html .= '</span></div></div>';
-        
         $fields = new FieldList(
             $tab_root = new TabSet(
                 "Root",
@@ -445,7 +442,7 @@ class Order extends DataObject implements PermissionProvider
                     TextField::create("DiscountAmount"),
                     
                     // Sidebar
-                    OrderSidebar::create(
+                    $order_sidebar = OrderSidebar::create(
                         TextField::create('Status'),
                         DropdownField::create(
                             'Action',
@@ -455,13 +452,18 @@ class Order extends DataObject implements PermissionProvider
                         ReadonlyField::create("QuoteNumber", "#")
                             ->setValue($this->ID),
                         ReadonlyField::create("Created"),
-                        LiteralField::create("SubTotal", $subtotal_html),
-                        LiteralField::create("Discount", $discount_html),
-                        LiteralField::create("Postage", $postage_html),
-                        LiteralField::create("TaxTotal", $tax_html),
-                        LiteralField::create("Total", $total_html),
-                        TextField::create('PaymentProvider'),
-                        TextField::create('PaymentNo')
+                        ReadonlyField::create("SubTotalValue",_t("Orders.SubTotal", "Sub Total"))
+                            ->setValue($this->obj("SubTotal")->Nice()),
+                        ReadonlyField::create("DiscountValue",_t("Orders.Discount", "Discount"))
+                            ->setValue($this->dbObject("DiscountAmount")->Nice()),
+                        ReadonlyField::create("PostageValue",_t("Orders.Postage", "Postage"))
+                            ->setValue($this->obj("Postage")->Nice()),
+                        ReadonlyField::create("TaxValue",_t("Orders.Tax", "Tax"))
+                            ->setValue($this->obj("TaxTotal")->Nice()),
+                        ReadonlyField::create("TotalValue",_t("Orders.Total", "Total"))
+                            ->setValue($this->obj("Total")->Nice()),
+                        ReadonlyField::create("AmountPaidValue",_t("Orders.AmountPaid", "Amount Paid"))
+                            ->setValue($this->obj("AmountPaid")->Nice())
                     )->setTitle("Details")
                 ),
                 
@@ -499,9 +501,42 @@ class Order extends DataObject implements PermissionProvider
                     TextField::create("DeliveryCity"),
                     TextField::create("DeliveryPostCode"),
                     CountryDropdownField::create("DeliveryCountry")
+                ),
+
+                // List payments
+                $tab_payments = new Tab(
+                    "Payments",
+                    GridField::create(
+                        "Payments",
+                        "",
+                        $this->Payments(),
+                        $config = GridFieldConfig::create()
+                            ->addComponents(
+                                new GridFieldButtonRow('before'),
+                                new GridFieldTitleHeader(),
+                                new GridFieldDataColumns(),
+                                new GridFieldEditButton(),
+                                new GridFieldDetailForm()
+                            )
+                    )
                 )
             )
         );
+
+        if ($payment) {
+            $payment_ref = $payment->TransactionReference;
+        } elseif ($this->PaymentNo) {
+            $payment_ref = $this->PaymentNo;
+        } else {
+            $payment_ref = null;
+        }
+
+        if ($payment_ref) {
+            $order_sidebar->push(
+                ReadonlyField::create("PaymentNoValue",_t("Orders.PaymentNo", "Payment No"))
+                    ->setValue($payment_ref)
+            );
+        }
         
         
         // Add Sidebar is editable
@@ -522,7 +557,7 @@ class Order extends DataObject implements PermissionProvider
                 "BillingDetailsHeader"
             );
             
-            if (is_array($this->config()->existing_customer_fields)) {
+            if (is_array($this->config()->existing_customer_fields) && count($this->config()->existing_customer_fields)) {
                 $columns = $config->getComponentByType("GridFieldDataColumns");
                 
                 if ($columns) {
@@ -538,7 +573,6 @@ class Order extends DataObject implements PermissionProvider
             $map_extension
                 ->setMapFields($this->config()->existing_customer_map);
         }
-        
 
 		$tab_root->addextraClass('orders-root');
         $tab_main->addExtraClass("order-admin-items");
@@ -630,7 +664,7 @@ class Order extends DataObject implements PermissionProvider
      *
      * @return boolean
      */
-    public function getPaid()
+    public function isPaid()
     {
         $statuses = $this->Config()->paid_statuses;
 
@@ -642,20 +676,111 @@ class Order extends DataObject implements PermissionProvider
     }
 
     /**
+     * Get the captured payment object associated with this order
+     *
+     * @return Payment || null
+     */
+    public function getPayment()
+    {
+        foreach ($this->Payments() as $payment) {
+            $a = Checkout::round_up($payment->getAmount(), 2);
+            $b = Checkout::round_up($this->Total, 2);
+
+            if ($payment->isCaptured() && (abs(($a-$b)/$b) < 0.00001)) {
+                return $payment;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Mark this order as "complete" which generally is intended
      * to mean "paid for, ready for processing".
+     *
+     * @return Order
+     */
+    public function markComplete()
+    {
+        $this->Status = $this->config()->completion_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "paid"
      *
      * @param string $reference the unique reference from the gateway
      * @return Order
      */
-    public function markComplete($reference = null)
+    public function markPaid()
     {
-        $this->Status = $this->config()->completion_status;
-        
-        if ($reference) {
-            $this->PaymentNo = $reference;
-        }
+        $this->Status = $this->config()->paid_status;
+        return $this;
+    }
 
+    /**
+     * Mark this order as "part paid".
+     *
+     * @return Order
+     */
+    public function markPartPaid()
+    {
+        $this->Status = $this->config()->part_paid_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "pending" (awaiting payment to clear/reconcile).
+     *
+     * @return Order
+     */
+    public function markPending()
+    {
+        $this->Status = $this->config()->pending_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "canceled".
+     *
+     * @return Order
+     */
+    public function markCanceled()
+    {
+        $this->Status = $this->config()->canceled_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "refunded".
+     *
+     * @return Order
+     */
+    public function markRefunded()
+    {
+        $this->Status = $this->config()->refunded_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "dispatched".
+     *
+     * @return Order
+     */
+    public function markDispatched()
+    {
+        $this->Status = $this->config()->dispatched_status;
+        return $this;
+    }
+
+    /**
+     * Mark this order as "collected".
+     *
+     * @return Order
+     */
+    public function markCollected()
+    {
+        $this->Status = $this->config()->collected_status;
         return $this;
     }
 
@@ -672,6 +797,8 @@ class Order extends DataObject implements PermissionProvider
             $return .= "{$item->Quantity} x {$item->Title};\n";
         }
 
+        $this->extend("updateItemSummary", $return);
+
         return $return;
     }
 
@@ -686,7 +813,7 @@ class Order extends DataObject implements PermissionProvider
         
         $html->setValue(nl2br($this->ItemSummary));
         
-        $this->extend("updateItemSummary", $html);
+        $this->extend("updateItemSummaryHTML", $html);
 
         return $html;
     }
@@ -719,19 +846,15 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Get the postage cost for this order
      *
-     * @return Currency
+     * @return float
      */
     public function getPostage()
     {
-        $return = new Currency();
-        $return->setName("Postage");
         $total = $this->PostageCost;
         
-        $return->setValue($total);
+        $this->extend("updatePostage", $total);
         
-        $this->extend("updatePostage", $return);
-        
-        return $return;
+        return $total;
     }
 
     /**
@@ -765,13 +888,35 @@ class Order extends DataObject implements PermissionProvider
             $total += ($item->Quantity) ? $item->Quantity : 1;
         }
 
+        $this->extend("updateTotalItems", $total);
+
+        return $total;
+    }
+
+    /**
+     * Find the total quantity of taxable items in the shopping cart
+     *
+     * @return Int
+     */
+    public function getTotalTaxableItems()
+    {
+        $total = 0;
+
+        foreach ($this->Items() as $item) {
+            if ($item->Price > 0 && $item->TaxRate > 0) {
+                $total += ($item->Quantity) ? $item->Quantity : 1;
+            }
+        }
+
+        $this->extend("updateTotalTaxableItems", $total);
+
         return $total;
     }
 
     /**
     * Find the total weight of all items in the shopping cart
     *
-    * @return Decimal
+    * @return float
     */
     public function getTotalWeight()
     {
@@ -782,6 +927,8 @@ class Order extends DataObject implements PermissionProvider
                 $total = $total + ($item->Weight * $item->Quantity);
             }
         }
+
+        $this->extend("updateTotalWeight", $total);
         
         return $total;
     }
@@ -789,35 +936,29 @@ class Order extends DataObject implements PermissionProvider
     /**
      * Total values of items in this order (without any tax)
      *
-     * @return Currency
+     * @return float
      */
     public function getSubTotal()
     {
-        $return = new Currency();
-        $return->setName("SubTotal");
         $total = 0;
 
         // Calculate total from items in the list
         foreach ($this->Items() as $item) {
-            $total += $item->obj("SubTotal")->getValue();
+            $total += $item->SubTotal;
         }
         
-        $return->setValue($total);
-        
-        $this->extend("updateSubTotal", $return);
+        $this->extend("updateSubTotal", $total);
 
-        return $return;
+        return $total;
     }
 
     /**
      * Total values of items in this order
      *
-     * @return Currency
+     * @return float
      */
     public function getTaxTotal()
     {
-        $return = new Currency();
-        $return->setName("TaxTotal");
         $total = 0;
         $items = $this->Items();
         
@@ -826,11 +967,11 @@ class Order extends DataObject implements PermissionProvider
             // If a discount applied, get the tax based on the
             // discounted amount
             if ($this->DiscountAmount > 0) {
-                $discount = $this->DiscountAmount / $this->TotalItems;
-                $price = $item->obj("UnitPrice")->getValue() - $discount;
+                $discount = $this->DiscountAmount / $this->TotalTaxableItems;
+                $price = $item->UnitPrice - $discount;
                 $tax = ($price / 100) * $item->TaxRate;
             } else {
-                $tax = $item->obj("UnitTax")->getValue();
+                $tax = $item->UnitTax;
             }
 
             $total += $tax * $item->Quantity;
@@ -839,45 +980,47 @@ class Order extends DataObject implements PermissionProvider
         if ($this->PostageTax) {
             $total += $this->PostageTax;
         }
+        
+        $this->extend("updateTaxTotal", $total);
 
         $total = Checkout::round_up($total, 2);
 
-        $return->setValue($total);
-        
-        $this->extend("updateTaxTotal", $return);
-
-        return $return;
+        return $total;
     }
 
     /**
      * Total of order including postage
      *
-     * @return Currency
+     * @return float
      */
     public function getTotal()
-    {
-        $return = new Currency();
-        $return->setName("Total");
+    {   
+        $total = (($this->SubTotal + $this->Postage) - $this->DiscountAmount) + $this->TaxTotal;
         
-        $total = (($this->getSubTotal()->RAW() + $this->getPostage()->RAW()) - $this->DiscountAmount) + $this->getTaxTotal()->RAW();
+        $this->extend("updateTotal", $total);
         
-        $return->setValue($total);
-        
-        $this->extend("updateTotal", $return);
-        
-        return $return;
+        return $total;
     }
 
     /**
-     * Get the payment object associated with this order
-     *
-     * @return Payment
+     * Find the total amount paid for this order
+     * (based on the sum of its payments)
+     * 
+     * @return float
      */
-    public function getPayment()
+    public function getAmountPaid()
     {
-        return Payment::get()
-            ->filter("OrderID", $this->ID)
-            ->first();
+        $total = 0;
+
+        foreach ($this->Payments() as $payment) {
+            if ($payment->isCaptured()) {
+                $total += $payment->getAmount();
+            }
+        }
+
+        $this->extend("updateAmountPaid", $total);
+
+        return $total;
     }
 
     protected function generate_order_number()
