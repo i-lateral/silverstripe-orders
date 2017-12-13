@@ -186,7 +186,7 @@ class CustomerDetailsForm extends Form
             if (Config::inst()->get('Checkout', 'guest_checkout') == true) {
                 $register_title = _t('Checkout.CreateAccountOptional', 'Create Account (Optional)');
             } else {
-                $register_title = _t('Checkout.CreateAccount', 'Create Account');                
+                $register_title = _t('Checkout.CreateAccountRequired', 'Create Account (Required)');                
             }
             $fields->add(
                 CompositeField::create(
