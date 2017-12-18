@@ -2,6 +2,21 @@
 
 class Estimate extends Order
 {
+    /**
+     * number of days before an estimate expires
+     *
+     * @var integer
+     * @config
+     */
+    private static $default_end = 30;
+
+    /**
+     * track the creation date
+     *
+     * @var SS_DateTime
+     * @config
+     */
+    private static $date = null;
 
     /**
      * Standard DB columns

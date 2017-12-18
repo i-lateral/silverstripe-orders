@@ -337,7 +337,7 @@ class ShoppingCart extends Controller
 
         $member = Member::currentUser();
         $estimate_class = self::config()->estimate_class;
-        
+        $estimate_id = Cookie::get('ShoppingCart.DiscountID');
         // If the current member doesn't have a cart, set one
         // up, else get their estimate or create a blank one
         // (if no member).
@@ -348,6 +348,8 @@ class ShoppingCart extends Controller
             $member->Estimates()->add($estimate);
         } elseif ($member && $member->getCart()) {
             $estimate = $member->getCart();
+        } elseif ($estimate_id) {
+            $estimate = Estimate::get()->byID($estimate_id);
         } else {
             $estimate = Estimate::create();
             $estimate->Cart = true;
@@ -386,14 +388,14 @@ class ShoppingCart extends Controller
             }
 
             // Finally, if user logged in a member, clear the session items
-            if ($member) {
-                Session::clear('ShoppingCart.Items');
-            }
+            Session::clear('ShoppingCart.Items');
         }
 
         // Set our estimate to this cart
+        $estimate->write();
+        Cookie::set('ShoppingCart.DiscountID',$estimate->ID);
         $this->setEstimate($estimate);
-        
+
         // If discount stored in a session, get it
         if (Session::get('ShoppingCart.DiscountID')) {
             $this->discount_id = Session::get('ShoppingCart.DiscountID');
@@ -596,6 +598,7 @@ class ShoppingCart extends Controller
      */
     public function add($data, $quantity = 1)
     {
+        $estimate = $this->getEstimate();
         if (!array_key_exists("Key", $data)) {
             throw new ValidationException(_t(
                 "Checkout.NoKeyOnItem",
@@ -685,13 +688,14 @@ class ShoppingCart extends Controller
                 
                 $this->extend("onBeforeAdd", $cart_item);
                 
-                $this
-                    ->getEstimate()
+                $estimate
                     ->Items()
                     ->add($cart_item);
                 
                 $this->save();
             }
+
+            $estimate->write();
         }
 
         return $this;
@@ -772,26 +776,14 @@ class ShoppingCart extends Controller
         // Clear any currently set postage
         Session::clear("Checkout.PostageID");
         
-        // Save cart items, either to a session or to
-        // the current user's estimate
-        if ($member && $estimate = $member->getCart()) {
-            $estimate->write();
-        } else {
-            // Generate a new list of items and dump into session
-            $list = ArrayList::create();
-            
-            foreach ($this->getItems() as $item) {
-                $list->add($item);
-            }
-            
-            Session::set("ShoppingCart.Items", serialize($list));
-        }
+        // Save cart items
+        $estimate = $this->getEstimate();
         
         // Save cart discounts
         if ($this->discount_id) {
-            Session::set(
-                "ShoppingCart.DiscountID",
-                $this->discount_id
+            $estimate->setDiscount(
+                $this->getDiscount()->Title,
+                $this->getDiscountAmount()
             );
         }
         
@@ -801,7 +793,9 @@ class ShoppingCart extends Controller
             $code = $data["ZipCode"];
             $this->setAvailablePostage($country, $code);
         }
-        
+
+        $estimate->write();
+
         // Extend our save operation
         $this->extend("onAfterSave");
     }
@@ -825,7 +819,7 @@ class ShoppingCart extends Controller
 
         // If member logged in, clear postage and
         // discount on the tracked estimate
-        if ($member && $estimate) {
+        if ($estimate) {
             $estimate->setPostage("", 0, 0);
             $estimate->setDiscount("", 0);
             $estimate->write();
