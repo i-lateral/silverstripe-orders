@@ -113,6 +113,8 @@ en:
     ConfirmPay: 'Confirm and Pay'
     ContinueAsGuest: 'Continue as a Guest'
     Country: Country
+    CreateAccountOptional: 'Create Account (Optional)'
+    CreateAccountRequired: 'Create Account (Required)'
     DeliverThisAddress: 'Deliver to this address'
     DeliveryDetails: 'Delivery Details'
     DeliverySavedAddress: 'Deliver to a saved address'

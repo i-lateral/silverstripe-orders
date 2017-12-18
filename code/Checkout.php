@@ -56,6 +56,14 @@ class Checkout extends ViewableData
      * @config
      */
     private static $click_and_collect = false;
+
+    /**
+     * whether or not the cleaning task should be left to a cron job
+     *
+     * @var boolean
+     * @config
+     */
+    private static $cron_cleaner = false;
     
     /**
      * Currency symbol used by default

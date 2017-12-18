@@ -220,13 +220,14 @@ class Payment_Controller extends Controller
         // otherwise duplicate the cart
         if ($member) {
             $order = $member->getCart();
+        } else {
+            $order = $cart->getEstimate();
         }
         
         if ($order) {
             $order->update($payment_data);
             $order->write();
         } else {
-            $order = new Estimate();
             $order->update($payment_data);
 
             // Use this to generate a new order number
@@ -299,7 +300,6 @@ class Payment_Controller extends Controller
     public function complete()
     {
         $site = SiteConfig::current_site_config();
-        $cart = ShoppingCart::get();
 
         $id = $this->request->param('ID');
         $error = ($id == "error") ? true : false;
@@ -324,9 +324,10 @@ class Payment_Controller extends Controller
 
         // Clear our session data
         if (!$error && isset($_SESSION)) {
-            $cart->clear();
-            unset($_SESSION['Checkout.PaymentMethod']);
-            unset($_SESSION['Checkout.OrderID']);
+            Session::clear('ShoppingCart.DiscountID');
+            Session::clear("Checkout.PostageID");
+            Session::clear('Checkout.PaymentMethodID');
+            Session::clear('Checkout.OrderID');
         }
 
         return $this->renderWith(array(

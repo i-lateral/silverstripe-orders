@@ -2,6 +2,13 @@
 
 class Estimate extends Order
 {
+    /**
+     * number of days before an estimate expires
+     *
+     * @var integer
+     * @config
+     */
+    private static $default_end = 30;
 
     /**
      * Standard DB columns
@@ -10,7 +17,8 @@ class Estimate extends Order
      * @config
      */
     private static $db = array(
-        "Cart"      => "Boolean"
+        "Cart"      => "Boolean",
+        'Date'      => "SS_DateTime"
     );
 
     /**
@@ -171,5 +179,8 @@ class Estimate extends Order
         parent::onBeforeWrite();
         
         $this->Status = $this->config()->default_status;
+        if (!$this->Date) {
+            $this->Date = SS_DateTime::now();
+        }
     }
 }
