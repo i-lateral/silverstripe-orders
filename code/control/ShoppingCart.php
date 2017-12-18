@@ -455,14 +455,16 @@ class ShoppingCart extends Controller
     public function init() {
         parent::init();
 
-        $siteconfig = SiteConfig::current_site_config();
-        $date = $siteconfig->dbobject("LastEstimateClean");
-        if (!$date || ($date && !$date->IsToday())) {
-            $task = Injector::inst()->create('CleanExpiredEstimatesTask');
-            $task->setSilent(true);
-            $task->run($this->getRequest());
-            $siteconfig->LastEstimateClean = SS_Datetime::now()->Value;
-            $siteconfig->write();
+        if (!Config::inst()->get('Checkout', 'cron_cleaner')) {
+            $siteconfig = SiteConfig::current_site_config();
+            $date = $siteconfig->dbobject("LastEstimateClean");
+            if (!$date || ($date && !$date->IsToday())) {
+                $task = Injector::inst()->create('CleanExpiredEstimatesTask');
+                $task->setSilent(true);
+                $task->run($this->getRequest());
+                $siteconfig->LastEstimateClean = SS_Datetime::now()->Value;
+                $siteconfig->write();
+            }
         }
 
     }
