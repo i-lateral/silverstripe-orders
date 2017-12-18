@@ -121,8 +121,7 @@ class Payment_Controller extends Controller
             if (array_key_exists($payment_session, $payment_methods)) {
                 $this->payment_method = $payment_session;
             } else {
-                $reverse = array_reverse($payment_methods);
-                $default = array_pop($reverse);
+                $default = key($payment_methods);
                 $this->payment_method = $default;
                 Session::set('Checkout.PaymentMethodID',$default);                
             }
