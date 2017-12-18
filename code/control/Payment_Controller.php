@@ -221,13 +221,14 @@ class Payment_Controller extends Controller
         // otherwise duplicate the cart
         if ($member) {
             $order = $member->getCart();
+        } else {
+            $order = $cart->getEstimate();
         }
         
         if ($order) {
             $order->update($payment_data);
             $order->write();
         } else {
-            $order = new Estimate();
             $order->update($payment_data);
 
             // Use this to generate a new order number
