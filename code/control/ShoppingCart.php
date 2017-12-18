@@ -350,6 +350,10 @@ class ShoppingCart extends Controller
             $estimate = $member->getCart();
         } elseif ($estimate_id) {
             $estimate = Estimate::get()->byID($estimate_id);
+            if (!$estimate) {
+                $estimate = Estimate::create();
+                $estimate->Cart = true;
+            }
         } else {
             $estimate = Estimate::create();
             $estimate->Cart = true;
@@ -447,6 +451,22 @@ class ShoppingCart extends Controller
     {
         return $this->renderWith('ViewCartButton');
     }
+
+    public function init() {
+        parent::init();
+
+        $siteconfig = SiteConfig::current_site_config();
+        $date = $siteconfig->dbobject("LastEstimateClean");
+        if (!$date || ($date && !$date->IsToday())) {
+            $task = Injector::inst()->create('CleanExpiredEstimatesTask');
+            $task->setSilent(true);
+            $task->run($this->getRequest());
+            $siteconfig->LastEstimateClean = SS_Datetime::now()->Value;
+            $siteconfig->write();
+        }
+
+    }
+
     
     /**
      * Default acton for the shopping cart

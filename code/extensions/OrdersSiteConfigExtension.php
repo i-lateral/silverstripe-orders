@@ -9,7 +9,8 @@ class OrdersSiteConfigExtension extends DataExtension
         "InvoiceFooter" => "HTMLText",
         "PaymentNumberPrefix" => "Varchar(6)",
         'PaymentSuccessContent' => 'Text',
-        'PaymentFailerContent'  => 'Text'
+        'PaymentFailerContent'  => 'Text',
+        'LastEstimateClean' => 'SS_DateTime'
     );
     
     private static $has_many = array(

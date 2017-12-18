@@ -11,21 +11,14 @@ class Estimate extends Order
     private static $default_end = 30;
 
     /**
-     * track the creation date
-     *
-     * @var SS_DateTime
-     * @config
-     */
-    private static $date = null;
-
-    /**
      * Standard DB columns
      *
      * @var array
      * @config
      */
     private static $db = array(
-        "Cart"      => "Boolean"
+        "Cart"      => "Boolean",
+        'Date'      => "SS_DateTime"
     );
 
     /**
@@ -186,5 +179,8 @@ class Estimate extends Order
         parent::onBeforeWrite();
         
         $this->Status = $this->config()->default_status;
+        if (!$this->Date) {
+            $this->Date = SS_DateTime::now();
+        }
     }
 }
