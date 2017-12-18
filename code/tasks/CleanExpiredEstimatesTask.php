@@ -38,26 +38,23 @@ class CleanExpiredEstimatesTask extends BuildTask {
     }
 
     function run($request) {
-        $estimates = Estimate::get()->filter('Cart',true);
         $now = new DateTime();
         $days = Estimate::config()->default_end;
+        $past = $now->modify("-{$days} days");
+
+        $estimates = Estimate::get()->filter([
+            'Cart' => true,
+            "Date:LessThan" => $past->format('Y-m-d H:i:s')
+        ]);
+
         $i = 0;
         foreach ($estimates as $estimate) {
-            $remove = false;
-
             if (!$estimate->CustomerID) {
-                $date = new DateTime($estimate->dbObject('Date')->Rfc822());
-                $age = (int) $date->diff($now)->format('%d') + ($date->diff($now)->format('%m') * 30);
-                if ($age > $days) {
-                    $remove = true;
-                }
-            }
-
-            if ($remove) {
                 $estimate->delete();
                 $i++;
             }
         }
+
         $this->log('removed '.$i.' expired estimates.');
     }
 

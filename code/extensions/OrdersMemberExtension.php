@@ -197,4 +197,11 @@ class OrdersMemberExtension extends DataExtension
 
         return $discounts->first();
     }
+
+    public function beforeMemberLoggedOut() 
+    {
+        $cart = ShoppingCart::get();
+
+        $cart->clear();
+    }
 }

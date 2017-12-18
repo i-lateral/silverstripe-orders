@@ -337,67 +337,83 @@ class ShoppingCart extends Controller
 
         $member = Member::currentUser();
         $estimate_class = self::config()->estimate_class;
-        $estimate_id = Cookie::get('ShoppingCart.DiscountID');
+        $estimate_id = Cookie::get('ShoppingCart.EstimateID');
+        $estimate = null;
+        $write = false;
         // If the current member doesn't have a cart, set one
         // up, else get their estimate or create a blank one
         // (if no member).
-        if ($member && !$member->getCart()) {
+        if ($member && !$member->getCart() && !$estimate_id) {
             $estimate = $estimate_class::create();
             $estimate->Cart = true;
-            $estimate->write();
-            $member->Estimates()->add($estimate);
+            $write = true;
         } elseif ($member && $member->getCart()) {
             $estimate = $member->getCart();
         } elseif ($estimate_id) {
-            $estimate = Estimate::get()->byID($estimate_id);
-            if (!$estimate) {
-                $estimate = Estimate::create();
-                $estimate->Cart = true;
-            }
-        } else {
-            $estimate = Estimate::create();
-            $estimate->Cart = true;
+            $estimate = $estimate_class::get()->byID($estimate_id);
         }
-        
-        // Get any saved items from a session
-        if (Session::get('ShoppingCart.Items')) {
-            $session_items = unserialize(Session::get('ShoppingCart.Items'));
-            
-            // If the current member has an estimate, but also session items
-            // add to the order
-            foreach ($session_items as $item) {
-                $existing = $estimate
-                    ->Items()
-                    ->find("Key", $item->Key);
-                
-                if (!$existing) {
-                    if ($member) {
-                        $item->write();
-                    }
-                    $estimate
-                        ->Items()
-                        ->add($item);
-                }
 
-                if ($item->Customisation) {
-                    $data = unserialize($item->Customisation);
-                    if ($data instanceof ArrayList) {
-                        foreach ($data as $data_item) {
-                            $item
-                                ->Customisations()
-                                ->push($data_item);
+        if (!$estimate) {
+            $estimate = $estimate_class::create();
+            $estimate->Cart = true;
+            $write = true;
+        }
+
+        if ($member && $estimate->CustomerID != $member->ID) {
+            $estimate->CustomerID = $member->ID;
+            $write = true;
+        }
+
+        if ($write) {
+            $estimate->write();
+        }
+
+
+        // Get any saved items from a session
+        if ($estimate_id && $estimate_id != $estimate->ID) {
+            $old_est = $estimate_class::get()->byID($estimate_id);
+            if ($old_est) {
+                $items = $old_est->Items();
+
+                // If the current member has an estimate, but also session items
+                // add to the order
+                foreach ($items as $item) {
+                    $existing = $estimate
+                        ->Items()
+                        ->find("Key", $item->Key);
+                    
+                    if (!$existing) {
+                        if ($member) {
+                            $item->write();
+                        }
+                        $estimate
+                            ->Items()
+                            ->add($item);
+                    }
+
+                    if ($item->Customisation) {
+                        $data = unserialize($item->Customisation);
+                        if ($data instanceof ArrayList) {
+                            foreach ($data as $data_item) {
+                                $item
+                                    ->Customisations()
+                                    ->push($data_item);
+                            }
                         }
                     }
                 }
+
+                $old_est->delete();
+                Cookie::force_expiry('ShoppingCart.EstimateID');
             }
 
-            // Finally, if user logged in a member, clear the session items
-            Session::clear('ShoppingCart.Items');
         }
 
         // Set our estimate to this cart
-        $estimate->write();
-        Cookie::set('ShoppingCart.DiscountID',$estimate->ID);
+        if (!$member) {
+            Cookie::set('ShoppingCart.EstimateID',$estimate->ID);
+        }
+
         $this->setEstimate($estimate);
 
         // If discount stored in a session, get it
@@ -830,12 +846,10 @@ class ShoppingCart extends Controller
     public function clear()
     {
         // First tear down any objects in our estimate
-        $this->removeAll();
-        $member = Member::currentUser();
         $estimate = $this->getEstimate();
 
         // Now remove any sessions
-        Session::clear('ShoppingCart.Items');
+        Cookie::force_expiry('ShoppingCart.EstimateID');
         Session::clear('ShoppingCart.DiscountID');
         Session::clear("Checkout.PostageID");
 

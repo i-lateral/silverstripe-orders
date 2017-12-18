@@ -301,7 +301,6 @@ class Payment_Controller extends Controller
     public function complete()
     {
         $site = SiteConfig::current_site_config();
-        $cart = ShoppingCart::get();
 
         $id = $this->request->param('ID');
         $error = ($id == "error") ? true : false;
@@ -326,9 +325,10 @@ class Payment_Controller extends Controller
 
         // Clear our session data
         if (!$error && isset($_SESSION)) {
-            $cart->clear();
-            unset($_SESSION['Checkout.PaymentMethod']);
-            unset($_SESSION['Checkout.OrderID']);
+            Session::clear('ShoppingCart.DiscountID');
+            Session::clear("Checkout.PostageID");
+            Session::clear('Checkout.PaymentMethodID');
+            Session::clear('Checkout.OrderID');
         }
 
         return $this->renderWith(array(
