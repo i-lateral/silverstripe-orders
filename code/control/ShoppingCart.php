@@ -254,6 +254,18 @@ class ShoppingCart extends Controller
         $this->extend('updateAvailablePostage',$postage_areas);
 
         Session::set("Checkout.AvailablePostage", $postage_areas);
+
+        
+        // If current postage is not available, clear it.
+        $postage_id = Session::get("Checkout.PostageID");
+
+        if (!$postage_areas->find("ID", $postage_id)) {
+            if ($postage_areas->exists()) {
+                Session::set("Checkout.PostageID", $postage_areas->first()->ID);
+            } else {
+                Session::clear("Checkout.PostageID");
+            }
+        }
         
         return $this;
     }
