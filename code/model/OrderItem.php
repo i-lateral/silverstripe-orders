@@ -199,7 +199,7 @@ class OrderItem extends DataObject
 
         $this->extend("updateUnitTax", $total);
 
-        return $total;
+        return Checkout::round_up($total,2);
     }
 
     /**

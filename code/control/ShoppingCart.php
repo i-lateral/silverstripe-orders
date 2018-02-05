@@ -520,6 +520,10 @@ class ShoppingCart extends Controller
                 }
             }
             
+            if (!$this->getItems()->exists()) {
+                $this->clear();
+            }
+
             $this->save();
             
             if ($title) {
@@ -699,7 +703,7 @@ class ShoppingCart extends Controller
                     $added = true;
                 }
             }
-            
+
             // If no update was sucessfull then add to cart items
             if (!$added) {
                 $cart_item = self::config()->item_class;
@@ -720,11 +724,13 @@ class ShoppingCart extends Controller
                         ));
                     }
                 }
-                
+
                 $cart_item->Key = $item_key;
                 $cart_item->Quantity = floor($quantity);
                 
                 $this->extend("onBeforeAdd", $cart_item);
+
+                $cart_item->write();
                 
                 $estimate
                     ->Items()
