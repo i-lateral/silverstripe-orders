@@ -966,7 +966,7 @@ class Order extends DataObject implements PermissionProvider
         foreach ($items as $item) {
             // If a discount applied, get the tax based on the
             // discounted amount
-            if ($this->DiscountAmount > 0) {
+            if ((int)$this->DiscountAmount > 0) {
                 $discount = $this->DiscountAmount / $this->TotalTaxableItems;
                 $price = $item->UnitPrice - $discount;
                 $tax = ($price / 100) * $item->TaxRate;
