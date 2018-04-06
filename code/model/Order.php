@@ -1023,6 +1023,14 @@ class Order extends DataObject implements PermissionProvider
         return $total;
     }
 
+    public function getAmountDue() 
+    {
+        $total = $this->owner->getTotal();
+        $paid = $this->owner->getAmountPaid();
+
+        return $total - $paid;
+    }
+
     protected function generate_order_number()
     {
         $id = str_pad($this->ID, 8,  "0");
