@@ -351,8 +351,7 @@ class Order extends DataObject implements PermissionProvider
     );
 
     private static $extensions = array(
-        "Versioned('History')",
-        "VersionHistoryExtension"
+        "Versioned('History')"
     );
 
     private static $default_sort = "Created DESC";
