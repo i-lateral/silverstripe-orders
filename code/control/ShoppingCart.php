@@ -841,7 +841,9 @@ class ShoppingCart extends Controller
                 $this->getDiscount()->Title,
                 $this->getDiscountAmount()
             );
-        }
+
+            Session::set("ShoppingCart.DiscountID", $this->discount_id);
+        }        
         
         // Update available postage (or clear any set if not deliverable)
         $data = Session::get("Form.Form_PostageForm.data");
