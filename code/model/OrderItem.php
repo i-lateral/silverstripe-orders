@@ -210,7 +210,7 @@ class OrderItem extends DataObject
     public function getSubTotal()
     {
         $total = $this->UnitPrice * $this->Quantity;
-
+        
         $this->extend("updateSubTotal", $total);
 
         return $total;
