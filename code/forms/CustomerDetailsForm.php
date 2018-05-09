@@ -6,6 +6,34 @@
  */
 class CustomerDetailsForm extends Form
 {
+    private static $billing_fields = array(
+        'FirstName',
+        'Surname',
+        'Company',
+        'Email',
+        'PhoneNumber',
+        'Address1',
+        'Address2',
+        'City',
+        'State',
+        'PostCode',
+        'Country'
+    );
+
+    private static $delivery_fields = array(
+        'DeliveryFirstName',
+        'DeliverySurname',
+        'DeliveryCompany',
+        'DeliveryEmail',
+        'DeliveryPhoneNumber',
+        'DeliveryAddress1',
+        'DeliveryAddress2',
+        'DeliveryCity',
+        'DeliveryState',
+        'DeliveryPostCode',
+        'DeliveryCountry'
+    );
+
     public function __construct($controller, $name = "CustomerDetailsForm")
     {
         $member = Member::currentUser();
@@ -157,9 +185,7 @@ class CustomerDetailsForm extends Form
             }
             
             if (!$new_shipping && $member && $member->Addresses()->count() > 1) {
-                $fields->add(
-                    $saved_shipping            
-                );
+                $fields->add($saved_shipping);
             } else {
                 $fields->add(
                     CompositeField::create(
@@ -311,34 +337,40 @@ class CustomerDetailsForm extends Form
     {        
         $member = Member::currentUser();
         $cart = Injector::inst()->create('ShoppingCart');
+        $billing_fields = $this->config()->billing_fields;
+        $delivery_fields = $this->config()->delivery_fields;
         
         if (!isset($data['Address1']) && isset($data['BillingAddress'])) {
             $billing_address = MemberAddress::get()->byID($data['BillingAddress']);
-            foreach ($billing_address->toMap() as $key => $value) {
-                $data[$key] = $value;
+            foreach ($billing_fields as $field) {
+                $data[$field] = $billing_address->{$field};
             }
         }
 
         if (isset($data['DuplicateDelivery']) && $data['DuplicateDelivery'] == 1) {
-            $data['DeliveryCompany'] = isset($data['Company']) ? $data['Company'] : '';
-            $data['DeliveryFirstName'] = isset($data['FirstName']) ? $data['FirstName'] : '';
-            $data['DeliverySurname'] = isset($data['Surname']) ? $data['Surname'] : '';
-            $data['DeliveryAddress1'] = isset($data['Address1']) ? $data['Address1'] : '';
-            $data['DeliveryAddress2'] = isset($data['Address2']) ? $data['Address2'] : '';
-            $data['DeliveryCity'] = isset($data['City']) ? $data['City'] : '';
-            $data['DeliveryState'] = isset($data['State']) ? $data['State'] : '';
-            $data['DeliveryPostCode'] = isset($data['PostCode']) ? $data['PostCode'] : '';
-            $data['DeliveryCountry'] = isset($data['Country']) ? $data['Country'] : '';
+            foreach ($delivery_fields as $field) {
+                $base_field = str_replace("Delivery", "", $field);
+                if (isset($data[$base_field])) {
+                    $data[$field] = $data[$base_field];
+                } else {
+                    $data[$field] = "";
+                }
+            }
         } elseif (!isset($data['DeliveryAddress1']) && isset($data['ShippingAddress'])) {
             $shipping_address = MemberAddress::get()->ByID($data['ShippingAddress']);
-            foreach ($shipping_address->toMap() as $key => $value) {
-                $data['Delivery'.$key] = $value;
+            foreach ($delivery_fields as $field) {
+                $base_field = str_replace("Delivery", "", $field);
+                $data[$field] = $shipping_address->{$base_field};
             }
         }
 
-        Session::set("FormInfo.{$this->FormName()}.settings",$data);       
+        Session::set("FormInfo.{$this->FormName()}.settings", $data);
         
-        if (!$member && (!Checkout::config()->guest_checkout || isset($data['Password']))) {
+        if (!$member && (!Checkout::config()->guest_checkout
+            || isset($data['Password'])
+            && isset($data['Password']['_Password'])
+            && !empty($data['Password']['_Password']))
+        ) {
             $this->registerUser($data);
         }
 
@@ -346,10 +378,18 @@ class CustomerDetailsForm extends Form
             $estimate = $cart->getEstimate();
             $this->saveInto($estimate);
 
+            // If logged in, copy the billing fields to the order from member
+            foreach ($billing_fields as $field) {
+                if (!isset($data[$field])) {
+                    $data[$field] = $member->{$field};
+                }
+            }
+
+            // Now copy any other order data
             foreach ($data as $key => $value) {
                 $estimate->{$key} = $value;
             }
-            
+
             if (isset($data['SaveBillingAddress']) && $data['SaveBillingAddress'] == 1) {
                 $this->save_billing_address($data);
             }
@@ -357,8 +397,8 @@ class CustomerDetailsForm extends Form
                 $this->save_shipping_address($data);
             }
         }
-            
-        Session::set('Checkout.CustomerDetails.data',$data);
+
+        Session::set('Checkout.CustomerDetails.data', $data);
 
         $url = $this
             ->controller
@@ -399,17 +439,17 @@ class CustomerDetailsForm extends Form
             $member->Surname = ($member->Surname) ? $member->Surname : $data['Surname'];
             $member->Company = ($member->Company) ? $member->Company : $data['Company'];
             $member->PhoneNumber = ($member->PhoneNumber) ? $member->PhoneNumber : $data['PhoneNumber'];
+
+            $billing_fields = $this->config()->billing_fields;
             
             $address = MemberAddress::create();
-            $address->Company = $data['Company'];
-            $address->FirstName = $data['FirstName'];
-            $address->Surname = $data['Surname'];
-            $address->Address1 = $data['Address1'];
-            $address->Address2 = $data['Address2'];
-            $address->City = $data['City'];
-            $address->State = $data['Stste'];
-            $address->PostCode = $data['PostCode'];
-            $address->Country = $data['Country'];
+            
+            foreach ($billing_fields as $field) {
+                if (isset($data[$field])) {
+                    $address->{$field} = $data[$field];
+                }
+            }
+
             $address->OwnerID = $member->ID;
             $address->write();
 
@@ -430,22 +470,24 @@ class CustomerDetailsForm extends Form
             $member->Surname = ($member->Surname) ? $member->Surname : $data['Surname'];
             $member->Company = ($member->Company) ? $member->Company : $data['Company'];
             $member->PhoneNumber = ($member->PhoneNumber) ? $member->PhoneNumber : $data['PhoneNumber'];
-            
+
+            $delivery_fields = $this->config()->delivery_fields;
+
             $address = MemberAddress::create();
-            $address->Company = $data['DeliveryCompany'];
-            $address->FirstName = $data['DeliveryFirstName'];
-            $address->Surname = $data['DeliverySurname'];
-            $address->Address1 = $data['DeliveryAddress1'];
-            $address->Address2 = $data['DeliveryAddress2'];
-            $address->City = $data['DeliveryCity'];
-            $address->PostCode = $data['DeliveryPostCode'];
-            $address->State = $data['DeliveryState'];
-            $address->Country = $data['DeliveryCountry'];
+
+            foreach ($delivery_fields as $field) {
+                $base_field = str_replace("Delivery", "", $field);
+
+                if (isset($data[$field])) {
+                    $address->{$base_field} = $data[$field];
+                }
+            }
+
             $address->OwnerID = $member->ID;
             $address->write();
 
             $member->Addresses()->add($address);
-            $member->write();            
+            $member->write();
         }
     }
 }
