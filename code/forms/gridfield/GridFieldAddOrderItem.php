@@ -390,13 +390,6 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
                 Controller::join_links($gridField->Link('search'))
             );
 
-        $find_action = new GridField_FormAction(
-            $gridField,
-            'gridfield_relationfind',
-			_t('GridField.Find', "Find"), 'find', 'find'
-        );
-		$find_action->setAttribute('data-icon', 'relationfind');
-
         $add_action = new GridField_FormAction(
             $gridField,
             'gridfield_orderitemadd',
@@ -410,7 +403,6 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
         $fields = new ArrayList();
 
         $fields->push($text_field);
-        $fields->push($find_action);
         $fields->push($add_action);
         
         $forTemplate = new ArrayData(array());
@@ -425,8 +417,10 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
      * Returns a json array of a search results that can be used by for
      * example Jquery.ui.autosuggestion
      *
-     * @param GridField $gridField
-     * @param SS_HTTPRequest $request
+     * @param GridField      $gridField the current gridfield
+     * @param SS_HTTPRequest $request   the curent request
+     * 
+     * @return string
      */
     public function doSearch($gridField, $request)
     {
@@ -442,8 +436,10 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
         
         if (!$search_fields) {
             throw new LogicException(
-                sprintf('GridFieldAddExistingAutocompleter: No searchable fields could be found for class "%s"',
-                $product_class)
+                sprintf(
+                    'GridFieldAddExistingAutocompleter: No searchable fields could be found for class "%s"',
+                    $product_class
+                )
             );
         }
         
@@ -488,7 +484,9 @@ class GridFieldAddOrderItem implements GridField_ActionProvider, GridField_HTMLP
     /**
      * Set the database field.
      *
-     * @param $field string
+     * @param string $field
+     * 
+     * @return void
      **/
     public function setDataObjectField($field)
     {
