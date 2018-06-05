@@ -836,7 +836,7 @@ class Order extends DataObject implements PermissionProvider
      * @param $amount The value of the discount
      * @return void
      */
-    public function setDiscount($title, $amount = 0)
+    public function assignDiscount($title, $amount = 0)
     {
         $this->Discount = $title;
         $this->DiscountAmount = $amount;

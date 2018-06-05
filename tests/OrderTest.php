@@ -99,7 +99,7 @@ class OrderTest extends SapphireTest
 		$order = $this->objFromFixture('Order', 'standardnotax');
 
 		$this->assertFalse($order->hasDiscount());
-		$order->setDiscount("A Discount", 5.00);
+		$order->assignDiscount("A Discount", 5.00);
 		$this->assertTrue($order->hasDiscount());
 
 		$this->assertEquals("A Discount", $order->Discount);

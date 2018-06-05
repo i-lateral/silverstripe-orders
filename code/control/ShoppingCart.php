@@ -399,7 +399,7 @@ class ShoppingCart extends Controller
             $this->discount_id = Session::get('ShoppingCart.DiscountID');
             $this
                 ->getEstimate()
-                ->setDiscount(
+                ->assignDiscount(
                     $this->getDiscount()->Title,
                     $this->getDiscountAmount()
                 );
@@ -412,7 +412,7 @@ class ShoppingCart extends Controller
             Session::set('ShoppingCart.DiscountID', $this->discount_id);
             $this
                 ->getEstimate()
-                ->setDiscount(
+                ->assignDiscount(
                     $this->getDiscount()->Title,
                     $this->getDiscountAmount()
                 );
@@ -827,7 +827,7 @@ class ShoppingCart extends Controller
         // discount on the tracked estimate
         if ($member && $estimate) {
             $estimate->setPostage("", 0, 0);
-            $estimate->setDiscount("", 0);
+            $estimate->assignDiscount("", 0);
             $estimate->write();
         }
         
