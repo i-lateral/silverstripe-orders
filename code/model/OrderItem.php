@@ -199,7 +199,7 @@ class OrderItem extends DataObject
 
         $this->extend("updateUnitTax", $total);
 
-        return $total;
+        return Checkout::round_up($total,2);
     }
 
     /**
@@ -210,7 +210,7 @@ class OrderItem extends DataObject
     public function getSubTotal()
     {
         $total = $this->UnitPrice * $this->Quantity;
-
+        
         $this->extend("updateSubTotal", $total);
 
         return $total;

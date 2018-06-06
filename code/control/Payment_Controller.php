@@ -121,8 +121,7 @@ class Payment_Controller extends Controller
             if (array_key_exists($payment_session, $payment_methods)) {
                 $this->payment_method = $payment_session;
             } else {
-                $reverse = array_reverse($payment_methods);
-                $default = array_pop($reverse);
+                $default = key($payment_methods);
                 $this->payment_method = $default;
                 Session::set('Checkout.PaymentMethodID',$default);                
             }
@@ -482,6 +481,13 @@ class Payment_Controller extends Controller
 
         $omnipay_data = array_merge($omnipay_data, $data);
 
+        // Set a description for this payment
+        $omnipay_data["description"] = _t(
+            "Order.PaymentDescription",
+            "Payment for Order: {ordernumber}",
+            ['ordernumber' => $order->OrderNumber]
+        );
+
         // Create the payment object. We pass the desired success and failure URLs as parameter to the payment
         $payment = Payment::create()
             ->init(
@@ -500,7 +506,10 @@ class Payment_Controller extends Controller
 
         // Add an extension before we finalise the payment
         // so we can overwrite our data
-        $this->extend("onBeforeSubmit", $payment, $order, $data);
+        $this->extend("onBeforeSubmit", $payment, $order, $omnipay_data);
+
+        $service = ServiceFactory::create()
+            ->getService($payment, ServiceFactory::INTENT_PAYMENT);
 
         $response = ServiceFactory::create()
             ->getService($payment, ServiceFactory::INTENT_PAYMENT)

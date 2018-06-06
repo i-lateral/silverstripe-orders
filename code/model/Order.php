@@ -966,9 +966,13 @@ class Order extends DataObject implements PermissionProvider
         foreach ($items as $item) {
             // If a discount applied, get the tax based on the
             // discounted amount
-            if ($this->DiscountAmount > 0) {
-                $discount = $this->DiscountAmount / $this->TotalTaxableItems;
+            $item_discount = $this->DiscountAmount;
+            if ((int)$item_discount > 0 && $this->TotalTaxableItems > 0) {
+                $discount = $item_discount / $this->TotalTaxableItems;
                 $price = $item->UnitPrice - $discount;
+                $tax = ($price / 100) * $item->TaxRate;
+            } elseif ((int)$item_discount > 0 && $this->TotalTaxableItems <= 0) {
+                $price = $item->UnitPrice - $item_discount;
                 $tax = ($price / 100) * $item->TaxRate;
             } else {
                 $tax = $item->UnitTax;
@@ -1021,6 +1025,14 @@ class Order extends DataObject implements PermissionProvider
         $this->extend("updateAmountPaid", $total);
 
         return $total;
+    }
+
+    public function getAmountDue() 
+    {
+        $total = $this->owner->getTotal();
+        $paid = $this->owner->getAmountPaid();
+
+        return $total - $paid;
     }
 
     protected function generate_order_number()

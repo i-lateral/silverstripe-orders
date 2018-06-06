@@ -254,6 +254,18 @@ class ShoppingCart extends Controller
         $this->extend('updateAvailablePostage',$postage_areas);
 
         Session::set("Checkout.AvailablePostage", $postage_areas);
+
+        
+        // If current postage is not available, clear it.
+        $postage_id = Session::get("Checkout.PostageID");
+
+        if (!$postage_areas->find("ID", $postage_id)) {
+            if ($postage_areas->exists()) {
+                Session::set("Checkout.PostageID", $postage_areas->first()->ID);
+            } else {
+                Session::clear("Checkout.PostageID");
+            }
+        }
         
         return $this;
     }
@@ -442,7 +454,7 @@ class ShoppingCart extends Controller
         
         // Setup postage
         $postage_id = Session::get("Checkout.PostageID");
-
+        
         if ($postage_id && $postage = PostageArea::get()->byID($postage_id)) {
             $this->postage = $postage;
             $this
@@ -520,6 +532,10 @@ class ShoppingCart extends Controller
                 }
             }
             
+            if (!$this->getItems()->exists()) {
+                $this->clear();
+            }
+
             $this->save();
             
             if ($title) {
@@ -699,7 +715,7 @@ class ShoppingCart extends Controller
                     $added = true;
                 }
             }
-            
+
             // If no update was sucessfull then add to cart items
             if (!$added) {
                 $cart_item = self::config()->item_class;
@@ -720,11 +736,13 @@ class ShoppingCart extends Controller
                         ));
                     }
                 }
-                
+
                 $cart_item->Key = $item_key;
                 $cart_item->Quantity = floor($quantity);
                 
                 $this->extend("onBeforeAdd", $cart_item);
+
+                $cart_item->write();
                 
                 $estimate
                     ->Items()
@@ -823,13 +841,19 @@ class ShoppingCart extends Controller
                 $this->getDiscount()->Title,
                 $this->getDiscountAmount()
             );
-        }
+
+            Session::set("ShoppingCart.DiscountID", $this->discount_id);
+        }        
         
-        // Update available postage
-        if ($data = Session::get("Form.Form_PostageForm.data")) {
+        // Update available postage (or clear any set if not deliverable)
+        $data = Session::get("Form.Form_PostageForm.data");
+        if ($data && is_array($data) && $this->isDeliverable()) {
             $country = $data["Country"];
             $code = $data["ZipCode"];
             $this->setAvailablePostage($country, $code);
+        } else {
+            Session::clear("Checkout.PostageID");
+            $estimate->setPostage("",0,0);
         }
 
         $estimate->write();
@@ -918,9 +942,10 @@ class ShoppingCart extends Controller
     public function getPostageCost()
     {
         $total = 0;
+        $estimate = $this->getEstimate();
         
-        if ($this->postage) {
-            $total = $this->postage->Cost;
+        if ($estimate) {
+            $total = $estimate->PostageCost;
         }
         
         return $total;
