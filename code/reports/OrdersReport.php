@@ -67,13 +67,26 @@ if (class_exists("SS_Report")) {
         {
             // Check filters
             $where_filter = array();
+            $db = DB::get_conn();
+            $format = "%Y-%m-%d";
+            $created = $db->formattedDatetimeClause(
+                "LastEdited",
+                $format
+            );
 
-            $where_filter[] = (isset($params['Filter_Year'])) ? "YEAR(\"Created\") = '{$params['Filter_Year']}'" : "YEAR(\"Created\") = '".date('Y')."'";
-            if (!empty($params['Filter_Month'])) {
-                $where_filter[] = "Month(\"Created\") = '{$params['Filter_Month']}'";
+            if (!empty($params['Filter_StartDate'])) {
+                $start = new DateTime($params['Filter_StartDate']);
+                $where_filter[] = $created . " >= '{$params['Filter_StartDate']}'";
+            }
+            if (!empty($params['Filter_EndDate'])) {
+                $where_filter[] = $created . " <= '{$params['Filter_EndDate']}'";
             }
             if (!empty($params['Filter_Status'])) {
                 $where_filter[] = "Status = '{$params['Filter_Status']}'";
+            }
+            if (!empty($params['Filter_Discount'])) {
+                $discount = Discount::get()->byID($params['Filter_Discount']);
+                $where_filter[] = "Discount = '{$discount->Title}'";
             }
 
             $limit = (isset($params['ResultsLimit']) && $params['ResultsLimit'] != 0) ? $params['ResultsLimit'] : '';
@@ -123,23 +136,27 @@ if (class_exists("SS_Report")) {
                     500 => 500,
                 );
 
-                $fields->push(DropdownField::create(
-                    'Filter_Month',
-                    'Filter by month',
-                    $months
-                ));
+                $fields->push(DateField::create(
+                    'Filter_StartDate',
+                    'Filter: StartDate'
+                )->setConfig('showcalendar', true));
                 
-                $fields->push(DropdownField::create(
-                    'Filter_Year',
-                    'Filter by year',
-                    $years
-                ));
+                $fields->push(DateField::create(
+                    'Filter_EndDate',
+                    'Filter: EndDate'
+                )->setConfig('showcalendar', true));
                 
                 $fields->push(DropdownField::create(
                     'Filter_Status',
                     'Filter By Status',
                     $statuses
                 ));
+
+                $fields->push(DropdownField::create(
+                    'Filter_Discount',
+                    'Filter By Discount',
+                    Discount::get()->map('ID', 'Title')
+                )->setEmptyString('All'));
                 
                 $fields->push(DropdownField::create(
                     "ResultsLimit",
