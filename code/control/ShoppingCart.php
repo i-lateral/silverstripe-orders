@@ -362,7 +362,7 @@ class ShoppingCart extends Controller
         } elseif ($member && $member->getCart()) {
             $estimate = $member->getCart();
         } elseif ($estimate_id) {
-            $estimate = $estimate_class::get()->byID($estimate_id);
+            $estimate = $estimate_class::get()->find('AccessKey', $estimate_id);
         }
 
         if (!$estimate) {
@@ -383,7 +383,7 @@ class ShoppingCart extends Controller
 
         // Get any saved items from a session
         if ($estimate_id && $estimate_id != $estimate->ID) {
-            $old_est = $estimate_class::get()->byID($estimate_id);
+            $old_est = $estimate_class::get()->find('AccessKey', $estimate_id);
             if ($old_est) {
                 $items = $old_est->Items();
 
@@ -423,7 +423,7 @@ class ShoppingCart extends Controller
 
         // Set our estimate to this cart
         if (!$member) {
-            Cookie::set('ShoppingCart.EstimateID',$estimate->ID);
+            Cookie::set('ShoppingCart.EstimateID', $estimate->AccessKey);
         }
 
         $this->setEstimate($estimate);
