@@ -487,6 +487,7 @@ class ShoppingCart extends Controller
             $siteconfig = SiteConfig::current_site_config();
             $date = $siteconfig->dbobject("LastEstimateClean");
             if (!$date || ($date && !$date->IsToday())) {
+
                 $task = Injector::inst()->create('CleanExpiredEstimatesTask');
                 $task->setSilent(true);
                 $task->run($this->getRequest());
