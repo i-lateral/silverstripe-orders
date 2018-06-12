@@ -834,7 +834,7 @@ class ShoppingCart extends Controller
         
         // Save cart discounts
         if ($this->discount_id) {
-            $estimate->setDiscount(
+            $estimate->assignDiscount(
                 $this->getDiscount()->Title,
                 $this->getDiscountAmount()
             );
