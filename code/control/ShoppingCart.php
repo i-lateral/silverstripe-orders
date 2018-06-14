@@ -382,7 +382,7 @@ class ShoppingCart extends Controller
 
 
         // Get any saved items from a session
-        if ($estimate_id && $estimate_id != $estimate->ID) {
+        if ($estimate_id && $estimate_id != $estimate->AccessKey) {
             $old_est = $estimate_class::get()->find('AccessKey', $estimate_id);
             if ($old_est) {
                 $items = $old_est->Items();
@@ -838,7 +838,7 @@ class ShoppingCart extends Controller
         
         // Save cart discounts
         if ($this->discount_id) {
-            $estimate->setDiscount(
+            $estimate->assignDiscount(
                 $this->getDiscount()->Title,
                 $this->getDiscountAmount()
             );
