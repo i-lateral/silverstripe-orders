@@ -24,43 +24,16 @@ class OrderAdmin extends ModelAdmin
     /**
      * For an order, export all fields by default
      * 
+     * @return array
      */
     public function getExportFields()
     {
-        if ($this->modelClass == 'Order') {
-            $return = array(
-                "OrderNumber"       => "#",
-                "Status"            => "Status",
-                "Created"           => "Created",
-                "Company"           => "Company Name",
-                "FirstName"         => "First Name(s)",
-                "Surname"           => "Surname",
-                "Email"             => "Email",
-                "PhoneNumber"       => "Phone Number",
-                "ItemSummary"       => "Items Ordered",
-                "SubTotal"          => "SubTotal",
-                "Postage"           => "Postage",
-                "TaxTotal"          => "TaxTotal",
-                "Total"             => "Total",
-                "Address1"          => "Billing Address 1",
-                "Address2"          => "Billing Address 2",
-                "City"              => "Billing City",
-                "PostCode"          => "Billing Post Code",
-                "CountryFull"       => "Billing Country",
-                "DeliveryFirstName"=> "Delivery First Name(s)",
-                "DeliverySurname"   => "Delivery Surname",
-                "DeliveryAddress1"  => "Delivery Address 1",
-                "DeliveryAddress2"  => "Delivery Address 2",
-                "DeliveryCity"      => "Delivery City",
-                "DeliveryPostCode"  => "Delivery Post Code",
-                "DeliveryCountryFull"=> "Delivery Country",
-                "DiscountAmount"    => "Discount Amount",
-                "PostageType"       => "Postage Type",
-                "PostageCost"       => "Postage Cost",
-                "PostageTax"        => "Postage Tax",
-            );
+        $obj = singleton($this->modelClass);
+        
+        if (isset($obj->config()->export_fields)) {
+            $return = $obj->config()->export_fields;
         } else {
-            $return = singleton($this->modelClass)->summaryFields();
+            $return = $obj->summaryFields();
         }
 
         $extend = $this->extend("updateExportFields", $return);
