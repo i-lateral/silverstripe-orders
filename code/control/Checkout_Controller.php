@@ -202,7 +202,7 @@ class Checkout_Controller extends Controller
     {
         $form = CustomerDetailsForm::create($this, 'CustomerForm');
 
-        $data = Session::get("Checkout.CustomerDetailsForm.data");
+        $data = Session::get("Checkout.CustomerDetails.data");
         if (is_array($data)) {
             $form->loadDataFrom($data);
         } elseif($member = Member::currentUser()) {
