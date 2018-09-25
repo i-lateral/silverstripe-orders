@@ -2,7 +2,7 @@
 <!-- layout.templ $Revision$ -->
 <html lang="en">
 <head>
-    <meta http-equiv="refresh" content="3;url={$RedirectURL}" />
+    <meta http-equiv="refresh" content="3;url={$ReturnURL}" />
 
     <title>$SiteConfig.Title <%t Checkout.Processing "Processing" %></title>
 
@@ -20,7 +20,7 @@
         </p>
 
         <p>
-            <a href="{$RedirectURL}">$SiteConfig.Title</a>
+            <a href="{$ReturnURL}">$SiteConfig.Title</a>
         </p>
     </div>
 
