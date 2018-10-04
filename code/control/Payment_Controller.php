@@ -260,7 +260,7 @@ class Payment_Controller extends Controller
             }
         }
 
-        $this->extend("onBeforeIndex", $order);
+        $this->extend("updateIndexOrder", $order);
 
         Session::set("Checkout.OrderID", $order->ID);
 
@@ -285,6 +285,8 @@ class Payment_Controller extends Controller
             "Form" => $form,
             "Order" => $order
         ));
+
+        $this->extend("onBeforeIndex");
 
         return $this->renderWith(array(
             "Payment",
@@ -417,7 +419,7 @@ class Payment_Controller extends Controller
             $validator
         );
 
-        $this->extend("updatePaymentForm", $form);
+        $this->extend("updateGatewayForm", $form);
 
         return $form;
     }

@@ -1,5 +1,5 @@
 <% if $IncludeFormTag %>
-<form $AttributesHTML>
+<form $addExtraClass('forms').AttributesHTML>
 <% end_if %>
 	<% if $Message %>
         <div id="{$FormName}_error" class="message $MessageType alert alert-<% if $MessageType == "good" %>success<% else %>danger<% end_if %>">
@@ -18,14 +18,14 @@
 
         <div class="line row">
             <% loop VisibleFields %>
-                <div class="unit size1of2 col-md-6">
+                <div class="unit unit-50 size1of2 col-md-6">
                     $FieldHolder
                 </div>
                 <% if $MultipleOf(2) %></div><div class="line row"><% end_if %>
             <% end_loop %>
         
             <% if Actions %>
-                <div class="unit size1of2 col-md-6">
+                <div class="unit unit-50 size1of2 col-md-6">
                     <% loop Actions %>
                         $Field
                     <% end_loop %>
