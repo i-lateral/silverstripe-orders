@@ -1071,14 +1071,24 @@ class Order extends DataObject implements PermissionProvider
     protected function generate_order_number()
     {
         $id = str_pad($this->ID, 8,  "0");
+        $config = SiteConfig::current_site_config();
+        $prefix = null;
 
         $guidText =
             substr($id, 0, 4) . '-' .
             substr($id, 4, 4) . '-' .
             rand(1000, 9999);
 
-        // Work out if an order prefix string has been set
-        $prefix = $this->config()->order_prefix;
+        // Work out if an order prefix string has been set (either via siteconfig        
+        // or SS config)
+        if (!empty($config->PaymentNumberPrefix)) {
+            $prefix = $config->PaymentNumberPrefix;
+        }
+
+        if (empty($prefix)) {
+            $prefix = $this->config()->order_prefix;
+        }
+
         $guidText = ($prefix) ? $prefix . '-' . $guidText : $guidText;
 
         return $guidText;
