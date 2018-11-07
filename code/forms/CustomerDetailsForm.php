@@ -239,6 +239,9 @@ class CustomerDetailsForm extends Form
                 ->addExtraClass('checkout-action-next')
         );
 
+        $fields->setForm($this);
+        $actions->setForm($this);
+        
         $validator = new CheckoutValidator();
 
         if (Config::inst()->get('Checkout', 'guest_checkout') == false) {
