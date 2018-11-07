@@ -1,48 +1,50 @@
+(function() {
+    $form_id = "CustomerDetailsForm_CustomerForm_";
+    var check = document.getElementById($form_id+"DuplicateDelivery");
 
-var check = document.getElementById("DuplicateDelivery");
+    if (check != null) {
+        check.onclick = switchDelivery;
 
-if (check != null) {
-    check.onclick = switchDelivery;
+        function switchDelivery() {
+            if (check.checked == true) {
+                if (document.getElementById($form_id+"DeliveryFields_Holder")) {
+                    document.getElementById($form_id+"DeliveryFields_Holder").style.display = "none";
+                }
+                if(document.getElementById($form_id+"SavedShipping_Holder")) {
+                    document.getElementById($form_id+"SavedShipping_Holder").style.display = "none";
+                }
+            } else {
+                if (document.getElementById($form_id+"DeliveryFields_Holder")) {
+                    document.getElementById($form_id+"DeliveryFields_Holder").style.display = "block";
+                }
+                if(document.getElementById($form_id+"SavedShipping_Holder")) {
+                    document.getElementById($form_id+"SavedShipping_Holder").style.display = "block";
+                }
+            }
+        }
 
-    function switchDelivery() {
-        if (check.checked == true) {
-            if (document.getElementById("DeliveryFields_Holder")) {
-                document.getElementById("DeliveryFields_Holder").style.display = "none";
+        switchDelivery();
+    }    
+
+    var form = document.getElementById("Form_GatewayForm");
+    if (form != null && form.length) {
+        var button = document.getElementById("Form_GatewayForm_action_doContinue");   
+        if (button != null) {
+            button.style.position = "absolute";
+            button.style.left = "-10000px";
+        }
+        var rad = form.PaymentMethodID;
+        var prev = null;
+        for(var i = 0; i < rad.length; i++) {
+            if (rad[i].hasAttribute('checked')) {
+                prev = rad[i];
             }
-            if(document.getElementById("SavedShipping_Holder")) {
-                document.getElementById("SavedShipping_Holder").style.display = "none";
-            }
-        } else {
-            if (document.getElementById("DeliveryFields_Holder")) {
-                document.getElementById("DeliveryFields_Holder").style.display = "block";
-            }
-            if(document.getElementById("SavedShipping_Holder")) {
-                document.getElementById("SavedShipping_Holder").style.display = "block";
-            }
+            rad[i].onclick = function() {
+                if(this !== prev) {
+                    form.submit();
+                }
+            };
         }
     }
 
-    switchDelivery();
-}    
-
-var form = document.getElementById("Form_GatewayForm");
-if (form != null && form.length) {
-    var button = document.getElementById("Form_GatewayForm_action_doContinue");   
-    if (button != null) {
-        button.style.position = "absolute";
-        button.style.left = "-10000px";
-    }
-    var rad = form.PaymentMethodID;
-    var prev = null;
-    for(var i = 0; i < rad.length; i++) {
-        if (rad[i].hasAttribute('checked')) {
-            prev = rad[i];
-        }
-        rad[i].onclick = function() {
-            if(this !== prev) {
-                form.submit();
-            }
-        };
-    }
-}
-
+})();
