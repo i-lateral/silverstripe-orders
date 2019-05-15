@@ -8,12 +8,20 @@ class CleanExpiredEstimatesTask extends BuildTask {
  
     protected $enabled = true;
 
-        /**
+    /**
      * Undocumented variable
      *
      * @var boolean
      */
     protected $silent = false;
+
+    /**
+     * should estimates made by registered users be deleted
+     *
+     * @var boolean
+     * @config
+     */
+    private static $remove_customer_estimates = false;
 
     /**
      * Undocumented function
@@ -46,26 +54,36 @@ class CleanExpiredEstimatesTask extends BuildTask {
             'Cart' => true,
             "Date:LessThan" => $past->format('Y-m-d H:i:s')
         ]);
-
+        
         $i = 0;
+        $c = $estimates->count();
         foreach ($estimates as $estimate) {
-            if (!$estimate->CustomerID) {
+            if (!$estimate->CustomerID || $this->config()->remove_customer_estimates) {
                 $estimate->delete();
                 $i++;
+                $this->log('removing '.$i.'/'.$c, true);
+
             }
         }
 
         $this->log('removed '.$i.' expired estimates.');
     }
 
-    private function log($message)
+    /**
+     * Log a message to the terminal/browser
+     * 
+     * @param string $message   Message to log
+     * @param bool   $linestart Set cursor to start (instead of return)
+     * 
+     * @return null
+     */
+    protected function log($message, $linestart = false)
     {
-        if (!$this->silent) {
-            if(Director::is_cli()) {
-                echo $message . "\n";
-            } else {
-                echo $message . "<br/>";
-            }
+        if (Director::is_cli()) {
+            $end = ($linestart) ? "\r" : "\n";
+            print_r($message . $end);
+        } else {
+            print_r($message . "<br/>");
         }
     }
 }
