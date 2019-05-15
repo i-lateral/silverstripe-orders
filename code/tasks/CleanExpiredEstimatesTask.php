@@ -39,8 +39,8 @@ class CleanExpiredEstimatesTask extends BuildTask {
 
     function run($request) {
         $now = new DateTime();
-        $days = Estimate::config()->default_end;
-        $past = $now->modify("-{$days} days");
+        $seconds = Estimate::config()->default_end;
+        $past = $now->modify("-{$seconds} seconds");
 
         $estimates = Estimate::get()->filter([
             'Cart' => true,
