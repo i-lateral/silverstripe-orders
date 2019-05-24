@@ -79,6 +79,10 @@ class CleanExpiredEstimatesTask extends BuildTask {
      */
     protected function log($message, $linestart = false)
     {
+        if ($this->getSilent()) {
+            return;
+        }
+
         if (Director::is_cli()) {
             $end = ($linestart) ? "\r" : "\n";
             print_r($message . $end);
