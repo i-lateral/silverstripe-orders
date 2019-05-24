@@ -480,25 +480,52 @@ class ShoppingCart extends Controller
         return $this->renderWith('ViewCartButton');
     }
 
-    public function init() {
-        parent::init();
-
-        if (!Config::inst()->get('Checkout', 'cron_cleaner')) {
-            $siteconfig = SiteConfig::current_site_config();
-            $date = $siteconfig->dbobject("LastEstimateClean");
-            if (!$date || ($date && !$date->IsToday())) {
-
-                $task = Injector::inst()->create('CleanExpiredEstimatesTask');
-                $task->setSilent(true);
-                $task->run($this->getRequest());
-                $siteconfig->LastEstimateClean = SS_Datetime::now()->Value;
-                $siteconfig->write();
-            }
+    /**
+     * Should the shopping cart clean old estimates?
+     * 
+     * @return boolean
+     */
+    public function shouldCleanEstimates()
+    {
+        // If disabled, then no
+        if (Config::inst()->get('Checkout', 'cron_cleaner')) {
+            return false;
         }
 
+        // Allow us to support unit testing
+        $now = new DateTime(SS_Datetime::now()->format('Y-m-d H:i:s'));
+        $seconds = Estimate::config()->default_end;
+        $past = $now->modify("-{$seconds} seconds");
+        $siteconfig = SiteConfig::current_site_config();
+        $last = new DateTime(
+            $siteconfig
+                ->dbobject("LastEstimateClean")
+                ->format('Y-m-d H:i:s')
+        );
+
+        // Is the last clean time too long ago? If so, clean
+        if ($last < $past) {
+            return true;
+        }
+
+        return false;
     }
 
-    
+    public function init()
+    {
+        parent::init();
+
+        // Should we clean all estimates
+        if ($this->shouldCleanEstimates()) {
+            $siteconfig = SiteConfig::current_site_config();
+            $task = Injector::inst()->create('CleanExpiredEstimatesTask');
+            $task->setSilent(true);
+            $task->run($this->getRequest());
+            $siteconfig->LastEstimateClean = SS_Datetime::now()->Value;
+            $siteconfig->write();
+        }
+    }
+
     /**
      * Default acton for the shopping cart
      */
