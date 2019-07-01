@@ -1,0 +1,41 @@
+Payment:
+  captured:
+    Gateway: 'Dummy'
+    Status: 'Captured'
+  pending:
+    Gateway: 'Dummy'
+    Status: 'Pending'
+Estimate:
+  earlypaid:
+    Company: 'earlypaid'
+    Cart: true
+    Date: '2019-06-06 16:00:00'
+    Payments: "=>Payment.captured"
+  earlyunpaid:
+    Company: 'earlyunpaid'
+    Cart: true
+    Date: '2019-06-06 16:30:00'
+  midpaid:
+    Company: 'midpaid'
+    Cart: true
+    Date: '2019-06-10 16:00:00'
+    Payments: "=>Payment.captured"
+  midunpaid:
+    Company: 'midunpaid'
+    Cart: true
+    Date: '2019-06-10 16:30:00'
+  latepaid:
+    Company: 'latepaid'
+    Cart: true
+    Date: '2019-06-28 16:00:00'
+    Payments: "=>Payment.captured"
+  lateunpaid:
+    Company: 'lateunpaid'
+    Cart: true
+    Date: '2019-06-28 16:30:00'
+    Payments: "=>Payment.captured"
+  noncart:
+    Company: 'noncart'
+    Cart: false
+    Date: '2019-06-28 16:00:00'
+    Payments: "=>Payment.pending"
