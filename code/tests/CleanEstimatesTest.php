@@ -28,7 +28,6 @@ class CleanEstimatesTest extends FunctionalTest
         SS_Datetime::set_mock_now('2019-06-10 17:00:00');
         $task->run($request);
         $estimates = Estimate::get();
-        Debug::show($estimates);
         $this->assertEquals(5, $estimates->count());
 
         //then nun cleaner after the late estimates

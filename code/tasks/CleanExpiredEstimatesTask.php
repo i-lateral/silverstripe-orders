@@ -51,16 +51,13 @@ class CleanExpiredEstimatesTask extends BuildTask {
         $past = $now->modify("-{$seconds} seconds");
         $estimates = Estimate::get()->filter([
             'Cart' => true,
-            "Date:LessThan" => $past->format('Y-m-d H:i:s')
+            "Date:LessThanOrEqual" => $past->format('Y-m-d H:i:s')
         ]);
         
         $i = 0;
         $c = $estimates->count();
         foreach ($estimates as $estimate) {
             if (!$estimate->Payments()->exists()) {
-                if ($estimate->Company == 'earlypaid') {
-                    Debug::show('NOT THIS ONE!');
-                }
                 if (!$estimate->CustomerID || $this->config()->remove_customer_estimates) {
                     $estimate->delete();
                     $i++;
