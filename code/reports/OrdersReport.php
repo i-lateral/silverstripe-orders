@@ -96,6 +96,8 @@ if (class_exists("SS_Report")) {
                 ->limit($limit)
                 ->sort($sort);
 
+            $this->extend('updateSourceRecords', $orders, $params, $sort, $limit);
+
             return $orders;
         }
 
@@ -166,6 +168,8 @@ if (class_exists("SS_Report")) {
                     $result_limit_options
                 ));
             }
+            
+            $this->extend('updateParameterFields', $fields);
 
             return $fields;
         }
