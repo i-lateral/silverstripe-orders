@@ -91,12 +91,12 @@ if (class_exists("SS_Report")) {
 
             $limit = (isset($params['ResultsLimit']) && $params['ResultsLimit'] != 0) ? $params['ResultsLimit'] : '';
 
+            $this->extend('updateSourceRecords', $params, $sort, $limit, $where_filter);
+
             $orders = Order::get()
                 ->where(implode(' AND ', $where_filter))
                 ->limit($limit)
                 ->sort($sort);
-
-            $this->extend('updateSourceRecords', $orders, $params, $sort, $limit);
 
             return $orders;
         }
