@@ -139,12 +139,14 @@ if (class_exists("SS_Report")) {
                 $fields->push(DateField::create(
                     'Filter_StartDate',
                     'Filter: StartDate'
-                )->setConfig('showcalendar', true));
+                )->setConfig('showcalendar', true)
+                ->setConfig('dateformat', 'y-mm-dd'));
                 
                 $fields->push(DateField::create(
                     'Filter_EndDate',
                     'Filter: EndDate'
-                )->setConfig('showcalendar', true));
+                )->setConfig('showcalendar', true)
+                ->setConfig('dateformat', 'y-mm-dd'));
                 
                 $fields->push(DropdownField::create(
                     'Filter_Status',
