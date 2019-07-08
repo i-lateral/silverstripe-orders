@@ -8,12 +8,20 @@ class CleanExpiredEstimatesTask extends BuildTask {
  
     protected $enabled = true;
 
-        /**
+    /**
      * Undocumented variable
      *
      * @var boolean
      */
     protected $silent = false;
+
+    /**
+     * should estimates made by registered users be deleted
+     *
+     * @var boolean
+     * @config
+     */
+    private static $remove_customer_estimates = false;
 
     /**
      * Undocumented function
@@ -38,34 +46,48 @@ class CleanExpiredEstimatesTask extends BuildTask {
     }
 
     function run($request) {
-        $now = new DateTime();
-        $days = Estimate::config()->default_end;
-        $past = $now->modify("-{$days} days");
-
+        $now = new DateTime(Ss_DateTime::now());
+        $seconds = Estimate::config()->default_end;
+        $past = $now->modify("-{$seconds} seconds");
         $estimates = Estimate::get()->filter([
             'Cart' => true,
-            "Date:LessThan" => $past->format('Y-m-d H:i:s')
+            "Date:LessThanOrEqual" => $past->format('Y-m-d H:i:s')
         ]);
-
+        
         $i = 0;
+        $c = $estimates->count();
         foreach ($estimates as $estimate) {
-            if (!$estimate->CustomerID) {
-                $estimate->delete();
-                $i++;
+            if (!$estimate->Payments()->exists()) {
+                if (!$estimate->CustomerID || $this->config()->remove_customer_estimates) {
+                    $estimate->delete();
+                    $i++;
+                    $this->log('removing '.$i.'/'.$c, true);
+                }
             }
         }
 
         $this->log('removed '.$i.' expired estimates.');
     }
 
-    private function log($message)
+    /**
+     * Log a message to the terminal/browser
+     * 
+     * @param string $message   Message to log
+     * @param bool   $linestart Set cursor to start (instead of return)
+     * 
+     * @return null
+     */
+    protected function log($message, $linestart = false)
     {
-        if (!$this->silent) {
-            if(Director::is_cli()) {
-                echo $message . "\n";
-            } else {
-                echo $message . "<br/>";
-            }
+        if ($this->getSilent()) {
+            return;
+        }
+
+        if (Director::is_cli()) {
+            $end = ($linestart) ? "\r" : "\n";
+            print_r($message . $end);
+        } else {
+            print_r($message . "<br/>");
         }
     }
 }

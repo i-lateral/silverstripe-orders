@@ -3,12 +3,12 @@
 class Estimate extends Order
 {
     /**
-     * number of days before an estimate expires
+     * number of seconds before an estimate expires
      *
      * @var integer
      * @config
      */
-    private static $default_end = 30;
+    private static $default_end = 2592000;
 
     /**
      * Standard DB columns
