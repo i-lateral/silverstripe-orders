@@ -1000,11 +1000,11 @@ class Order extends DataObject implements PermissionProvider
             // If a discount applied, get the tax based on the
             // discounted amount
             $item_discount = $this->DiscountAmount;
-            if ((int)$item_discount > 0 && $this->TotalTaxableItems > 0) {
+            if ((float)$item_discount > 0 && $this->TotalTaxableItems > 0) {
                 $discount = $item_discount / $this->TotalTaxableItems;
                 $price = $item->UnitPrice - $discount;
                 $tax = ($price / 100) * $item->TaxRate;
-            } elseif ((int)$item_discount > 0 && $this->TotalTaxableItems <= 0) {
+            } elseif ((float)$item_discount > 0 && $this->TotalTaxableItems <= 0) {
                 $price = $item->UnitPrice - $item_discount;
                 $tax = ($price / 100) * $item->TaxRate;
             } else {
