@@ -57,25 +57,43 @@ if (class_exists("SS_Report")) {
         {
             $return = ArrayList::create();
 
-            // Check filters
-            $where_filter = array();
+            if (!isset($params['Filter_Start'])) {
+                $start = new DateTime();
+                $start->modify("-1 year");
+            } else {
+                $start = new DateTime($params['Filter_Start']);
+            };
 
-            $where_filter[] = (isset($params['Filter_Year'])) ? "YEAR(\"Created\") = '{$params['Filter_Year']}'" : "YEAR(\"Created\") = '".date('Y')."'";
-            if (!empty($params['Filter_Month'])) {
-                $where_filter[] = "Month(\"Created\") = '{$params['Filter_Month']}'";
-            }
+            if (!isset($params['Filter_End'])) {
+                $end = new DateTime();
+            } else {
+                $end = new DateTime($params['Filter_End']);
+            };
+
+            // Modify start/end to include ALL of today
+            $start->modify("today");
+            $end->modify("tomorrow");
+            $end->modify("-1 second");
+
+            // Only show events assigned to you
+            $filter = [
+                'ClassName' => 'Order',
+                "Created:GreaterThanOrEqual" => $start->format("Y-m-d H:i:s"),
+                "Created:LessThanOrEqual" => $end->format("Y-m-d H:i:s")
+            ];
+
             if (!empty($params['Filter_Status'])) {
-                $where_filter[] = "Status = '{$params['Filter_Status']}'";
+                $filter['Status'] = $params['Filter_Status'];
             }
             if (!empty($params['Filter_FirstName'])) {
-                $where_filter[] = "FirstName = '{$params['Filter_FirstName']}'";
+                $filter['FirstName'] = $params['Filter_FirstName'];
             }
             if (!empty($params['Filter_Surname'])) {
-                $where_filter[] = "Surname = '{$params['Filter_Surname']}'";
+                $filter['Surname'] = $params['Filter_Surname'];
             }
 
             $orders = Order::get()
-                ->where(implode(' AND ', $where_filter));
+                ->filter($filter);
 
             foreach ($orders as $order) {
                 // Setup a filter for our order items
@@ -128,20 +146,6 @@ if (class_exists("SS_Report")) {
 
             // Check if any order exist
             if ($first_order) {
-                // List all months
-                $months = array('All');
-                for ($i = 1; $i <= 12; $i++) {
-                    $months[] = date("F", mktime(0, 0, 0, $i + 1, 0, 0));
-                }
-
-                // Get the first order, then count down from current year to that
-                $firstyear = new SS_Datetime('FirstDate');
-                $firstyear->setValue($first_order->Created);
-                $years = array();
-                for ($i = date('Y'); $i >= $firstyear->Year(); $i--) {
-                    $years[$i] = $i;
-                }
-
                 // Order Status
                 $statuses = Order::config()->statuses;
                 array_unshift($statuses, 'All');
@@ -166,17 +170,15 @@ if (class_exists("SS_Report")) {
                     'Product Name'
                 ));
                 
-                $fields->push(DropdownField::create(
-                    'Filter_Month',
-                    'Month',
-                    $months
-                ));
+                $fields->push(DateField::create(
+                    'Filter_Start',
+                    'start Date'
+                )->setConfig('showcalendar', true));
                 
-                $fields->push(DropdownField::create(
-                    'Filter_Year',
-                    'Year',
-                    $years
-                ));
+                $fields->push(DateField::create(
+                    'Filter_End',
+                    'End Date'
+                )->setConfig('showcalendar', true));
                 
                 $fields->push(DropdownField::create(
                     'Filter_Status',
