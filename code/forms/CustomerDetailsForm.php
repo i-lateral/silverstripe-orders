@@ -430,7 +430,7 @@ class CustomerDetailsForm extends Form
      *
      * @param $data Form data submitted
      */
-    private function save_billing_address($data)
+    protected function save_billing_address($data)
     {
         $member = Member::currentUser();
         
@@ -461,7 +461,7 @@ class CustomerDetailsForm extends Form
         }
     }
 
-    private function save_shipping_address($data)
+    protected function save_shipping_address($data)
     {
         $member = Member::currentUser();
         
