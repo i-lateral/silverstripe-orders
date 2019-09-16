@@ -509,12 +509,9 @@ class Payment_Controller extends Controller
         // Add an extension before we finalise the payment
         // so we can overwrite our data
         $this->extend("onBeforeSubmit", $payment, $order, $omnipay_data);
-    
-        $service = ServiceFactory::create()
-            ->getService($payment, ServiceFactory::INTENT_PAYMENT);
 
         $response = ServiceFactory::create()
-            ->getService($payment, ServiceFactory::INTENT_PAYMENT)
+            ->getService($payment, ServiceFactory::INTENT_PURCHASE)
             ->initiate($omnipay_data);
 
         $this->extend("onBeforeRedirect", $payment, $order, $response);

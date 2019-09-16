@@ -47,4 +47,23 @@
         }
     }
 
+    var payment_form = document.getElementById("Form_PaymentForm");
+    payment_form.addEventListener("submit", function(e) {
+		var button = document.getElementById('Form_PaymentForm_action_doSubmit');
+        button.disabled = 'disabled';
+        var spinner = document.createElement("i");
+        spinner.classList.add('fas');
+        spinner.classList.add('fa-spinner');
+        spinner.classList.add('fa-pulse');
+		button.insertAdjacentElement(
+            "beforeend",
+			spinner
+		);
+		if (payment_form.classList.contains('disabled')) {
+			e.preventdefault();
+		} else {
+			payment_form.classList.add('disabled');
+        }
+	});
+
 })();
