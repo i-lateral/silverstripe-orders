@@ -244,6 +244,8 @@ class Checkout_Controller extends Controller
                 
             $postage_areas = $postage_areas->getPostageAreas();
 
+            $this->extend('updatePostageAreas', $postage_areas, $cart);
+
             // Loop through all postage areas and generate a new list
             $postage_array = array();
             foreach ($postage_areas as $area) {
