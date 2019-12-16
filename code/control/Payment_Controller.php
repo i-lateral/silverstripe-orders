@@ -293,7 +293,6 @@ class Payment_Controller extends Controller
      */
     public function complete()
     {
-        $site = SiteConfig::current_site_config();
         $cart = ShoppingCart::get();
 
         $id = $this->request->param('ID');
