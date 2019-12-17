@@ -301,8 +301,6 @@ class Payment_Controller extends Controller
      */
     public function complete()
     {
-        $site = SiteConfig::current_site_config();
-
         $id = $this->request->param('ID');
         $error = ($id == "error") ? true : false;
 

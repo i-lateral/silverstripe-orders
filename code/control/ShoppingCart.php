@@ -368,7 +368,6 @@ class ShoppingCart extends Controller
         if (!$estimate) {
             $estimate = $estimate_class::create();
             $estimate->Cart = true;
-            $write = true;
         }
 
         if ($member && $estimate->CustomerID != $member->ID) {
@@ -419,11 +418,6 @@ class ShoppingCart extends Controller
                 Cookie::force_expiry('ShoppingCart.EstimateID');
             }
 
-        }
-
-        // Set our estimate to this cart
-        if (!$member) {
-            Cookie::set('ShoppingCart.EstimateID', $estimate->AccessKey);
         }
 
         $this->setEstimate($estimate);
@@ -871,7 +865,7 @@ class ShoppingCart extends Controller
             );
 
             Session::set("ShoppingCart.DiscountID", $this->discount_id);
-        }        
+        }
         
         // Update available postage (or clear any set if not deliverable)
         $data = Session::get("Form.Form_PostageForm.data");
@@ -881,10 +875,15 @@ class ShoppingCart extends Controller
             $this->setAvailablePostage($country, $code);
         } else {
             Session::clear("Checkout.PostageID");
-            $estimate->setPostage("",0,0);
+            $estimate->setPostage("", 0, 0);
         }
 
         $estimate->write();
+
+        // If no logged in user, set the access key to the cookie
+        if (!$member) {
+            Cookie::set('ShoppingCart.EstimateID', $estimate->AccessKey);
+        }
 
         // Extend our save operation
         $this->extend("onAfterSave");
@@ -900,8 +899,9 @@ class ShoppingCart extends Controller
         // First tear down any objects in our estimate
         $estimate = $this->getEstimate();
 
-        // Now remove any sessions
+        // Now purce any sessions or cookies
         Cookie::force_expiry('ShoppingCart.EstimateID');
+        unset($_COOKIE['ShoppingCart_EstimateID']);
         Session::clear('ShoppingCart.DiscountID');
         Session::clear("Checkout.PostageID");
 
@@ -912,9 +912,8 @@ class ShoppingCart extends Controller
             $estimate->assignDiscount("", 0);
             $estimate->write();
         }
-        
     }
-    
+
     /**
      * Shortcut to checkout config, to allow us to access it via
      * templates
