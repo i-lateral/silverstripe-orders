@@ -107,7 +107,7 @@ class OrderItem extends DataObject
     );
     
     /**
-     * Function to DB Object conversions
+     * Function to DB SS_Object conversions
      * 
      * @var array
      * @config
