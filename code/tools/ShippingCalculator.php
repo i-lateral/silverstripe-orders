@@ -11,7 +11,7 @@
  * @author ilateral (info@ilateral.co.uk)
  * @package checkout
  */
-class ShippingCalculator extends Object
+class ShippingCalculator extends SS_Object
 {
     
     /**

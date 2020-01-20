@@ -194,7 +194,7 @@ if (class_exists("SS_Report")) {
  * Item that can be loaded into an OrderItem report
  *
  */
-class OrderItemReportItem extends Object
+class OrderItemReportItem extends SS_Object
 {
 
     public $ClassName = "OrderItemReportItem";
