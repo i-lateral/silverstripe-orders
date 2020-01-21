@@ -1,4 +1,5 @@
 <?php
+
  /**
   * Add interface to manage orders through the CMS
   *
@@ -132,6 +133,44 @@ class OrderAdmin extends ModelAdmin
     public function getList()
     {
         $list = parent::getList();
+        $query = $this->getSearchContext();
+        $params = $this->getRequest()->requestVar('q');
+        $db = DB::get_conn();
+        if ($params) {
+            if (array_key_exists("Start", $params)) {
+                $start = $params["Start"];
+            }
+            if (array_key_exists("End", $params)) {
+                $end = $params["End"];
+            }
+        
+
+            $format = "%Y-%m-%d";
+            $start_field = $db->formattedDatetimeClause(
+                '"Order"."Created"',
+                $format
+            );
+            if (isset($start) && isset($end)) {
+                $list = $list->where(
+                    [
+                        $start_field . ' >= ?' => $start,
+                        $start_field . ' <= ?' => $end
+                    ]
+                );
+            } else if (isset($start)) {
+                $list = $list->where(
+                    [
+                        $start_field . ' >= ?' => $start
+                    ]
+                );
+            } else if (isset($end)) {
+                $list = $list->where(
+                    [
+                        $start_field . ' <= ?' => $end
+                    ]
+                );
+            }
+        }
         
         // Ensure that we only show Order objects in the order tab
         if ($this->modelClass == "Order") {
@@ -142,5 +181,35 @@ class OrderAdmin extends ModelAdmin
         $this->extend("updateList", $list);
 
         return $list;
+    }
+
+    public function SearchForm()
+    {
+        $form = parent::SearchForm();
+        $fields = $form->Fields();
+        $query = $this->getSearchContext();
+        $params = $this->getRequest()->requestVar('q');
+
+        $fields->add(
+            $start_field = DateField::create("q[Start]", 'Created After')
+                ->setConfig('showcalendar', true)
+        );
+
+        if ($params && array_key_exists("Start", $params)) {
+            $start_field->setValue($params["Start"]);
+        }
+        
+        $fields->add(
+            $start_field = DateField::create("q[End]", "Created Before")
+                ->setConfig('showcalendar', true)
+        );
+
+        if ($params && array_key_exists("End", $params)) {
+            $start_field->setValue($params["End"]);
+        }
+
+        $form->loadDataFrom($query);
+
+        return $form;
     }
 }
