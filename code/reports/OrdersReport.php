@@ -94,6 +94,7 @@ if (class_exists("SS_Report")) {
             $this->extend('updateSourceRecords', $params, $sort, $limit, $where_filter);
 
             $orders = Order::get()
+                ->filter('ClassName', 'Order')
                 ->where(implode(' AND ', $where_filter))
                 ->limit($limit)
                 ->sort($sort);
