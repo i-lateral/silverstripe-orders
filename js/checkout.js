@@ -1,8 +1,12 @@
-(function() {
+(function($) {
     $form_id = "CustomerDetailsForm_CustomerForm_";
     var check = document.getElementById($form_id+"DuplicateDelivery");
 
     if (check != null) {
+        $(document).ready(function() {
+            $('#CustomerDetailsForm_CustomerForm').validate();
+        });
+
         check.onclick = switchDelivery;
 
         function switchDelivery() {
@@ -48,22 +52,24 @@
     }
 
     var payment_form = document.getElementById("Form_PaymentForm");
-    payment_form.addEventListener("submit", function(e) {
-		var button = document.getElementById('Form_PaymentForm_action_doSubmit');
-        button.disabled = 'disabled';
-        var spinner = document.createElement("i");
-        spinner.classList.add('fas');
-        spinner.classList.add('fa-spinner');
-        spinner.classList.add('fa-pulse');
-		button.insertAdjacentElement(
-            "beforeend",
-			spinner
-		);
-		if (payment_form.classList.contains('disabled')) {
-			e.preventdefault();
-		} else {
-			payment_form.classList.add('disabled');
-        }
-	});
+    if (payment_form != null && payment_form.length) {
+        payment_form.addEventListener("submit", function(e) {
+            var button = document.getElementById('Form_PaymentForm_action_doSubmit');
+            button.disabled = 'disabled';
+            var spinner = document.createElement("i");
+            spinner.classList.add('fas');
+            spinner.classList.add('fa-spinner');
+            spinner.classList.add('fa-pulse');
+            button.insertAdjacentElement(
+                "beforeend",
+                spinner
+            );
+            if (payment_form.classList.contains('disabled')) {
+                e.preventdefault();
+            } else {
+                payment_form.classList.add('disabled');
+            }
+        });
+    }
 
-})();
+}(jQuery));
