@@ -1,3 +1,5 @@
+<% require javascript('framework/thirdparty/jquery/jquery.js') %>
+<% require javascript('orders/js/jquery.validate.min.js') %>
 <% require css('checkout/css/checkout.css') %>
 
 <div class="content-container container checkout-checkout typography">
