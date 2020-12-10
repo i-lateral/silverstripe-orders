@@ -232,6 +232,9 @@ class Payment_Controller extends Controller
             // If we are using collection, track it here
             if ($cart->isCollection()) {
                 $order->Action = "collect";
+            } else {
+                // force the action to post if not collection
+                $order->Action = "post";
             }
 
             // If user logged in, track it against an order
