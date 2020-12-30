@@ -19,7 +19,10 @@ if (class_exists("SS_Report")) {
         {
             return array(
                 'OrderNumber' => '#',
-                'Created' => 'Date',
+                'Created' => 'Created',
+                'LastEdited' => 'Last Edited',
+                'PaymentGateway' => 'Gateway',
+                'PaymentDate' => 'Payment Date',
                 'SubTotal' => 'Sub Total',
                 'PostageCost' => 'Postage',
                 'TaxTotal' => 'Tax',

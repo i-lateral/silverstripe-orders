@@ -310,10 +310,10 @@ class Order extends DataObject implements PermissionProvider
     );
 
     private static $has_many = array(
-        'Items'             => 'OrderItem'
+        'Items'             => 'OrderItem',
+        'Payments'          => 'Payment'
     );
 
-    // Cast method calls nicely
     private static $casting = array(
         'CountryFull'       => 'Varchar',
         'BillingAddress'    => 'Text',
@@ -330,7 +330,9 @@ class Order extends DataObject implements PermissionProvider
         'ItemSummaryHTML'   => 'HTMLText',
         'TranslatedStatus'  => 'Varchar',
         "QuoteLink"         => 'Varchar',
-        "InvoiceLink"       => 'Varchar'
+        "InvoiceLink"       => 'Varchar',
+        'PaymentDate'       => 'SS_Datetime',
+        'PaymentGateway'    => 'Varchar'
     );
 
     private static $defaults = array(
@@ -417,6 +419,48 @@ class Order extends DataObject implements PermissionProvider
             $this->ID,
             $this->AccessKey
         );
+    }
+
+    /**
+     * Get a payment that is marked as captured from the list of payments
+     *
+     * @return Payment
+     */
+    public function getCapturedPayment()
+    {
+        return $this->Payments()->filter('Status', 'Captured')->first();
+    }
+
+    /**
+     * Get the captured payment date (if available)
+     *
+     * @return string
+     */
+    public function getPaymentDate()
+    {
+        $payment = $this->getCapturedPayment();
+
+        if (!empty($payment)) {
+            return $payment->Created;
+        }
+
+        return "";
+    }
+
+    /**
+     * Get the captured payment date (if available)
+     *
+     * @return string
+     */
+    public function getPaymentGateway()
+    {
+        $payment = $this->getCapturedPayment();
+
+        if (!empty($payment)) {
+            return $payment->Gateway;
+        }
+
+        return "";
     }
 
     public function populateDefaults()
