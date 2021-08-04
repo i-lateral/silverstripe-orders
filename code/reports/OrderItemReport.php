@@ -4,6 +4,7 @@
 if (class_exists("SS_Report")) {
     class OrderItemReport extends SS_Report
     {
+        const DEFAULT_PAST = '-7 days';
         
         public function title()
         {
@@ -56,31 +57,26 @@ if (class_exists("SS_Report")) {
         public function sourceRecords($params, $sort, $limit)
         {
             $return = ArrayList::create();
+            $where_filter = array();
+            $db = DB::get_conn();
+            $format = "%Y-%m-%d";
+            $created = $db->formattedDatetimeClause(
+                "LastEdited",
+                $format
+            );
 
-            if (!isset($params['Filter_Start'])) {
-                $start = new DateTime();
-                $start->modify("-1 year");
-            } else {
-                $start = new DateTime($params['Filter_Start']);
-            };
+            $now = new DateTime();
+            $past = new DateTime(self::DEFAULT_PAST);
 
-            if (!isset($params['Filter_End'])) {
-                $end = new DateTime();
-            } else {
-                $end = new DateTime($params['Filter_End']);
-            };
+            if (empty($params['Filter_StartDate'])) {
+                $params['Filter_StartDate'] = $past->format('Y-m-d');
+            }
+            if (empty($params['Filter_EndDate'])) {
+                $params['Filter_EndDate'] = $now->format('Y-m-d');
+            }
 
-            // Modify start/end to include ALL of today
-            $start->modify("today");
-            $end->modify("tomorrow");
-            $end->modify("-1 second");
-
-            // Only show events assigned to you
-            $filter = [
-                'ClassName' => 'Order',
-                "Created:GreaterThanOrEqual" => $start->format("Y-m-d H:i:s"),
-                "Created:LessThanOrEqual" => $end->format("Y-m-d H:i:s")
-            ];
+            $where_filter[] = $created . " >= '{$params['Filter_StartDate']}'";
+            $where_filter[] = $created . " <= '{$params['Filter_EndDate']}'";
 
             if (!empty($params['Filter_Status'])) {
                 $filter['Status'] = $params['Filter_Status'];
@@ -134,6 +130,7 @@ if (class_exists("SS_Report")) {
         {
             $fields = new FieldList();
 
+<<<<<<< HEAD
             if (class_exists("Subsite")) {
                 $first_order = Subsite::get_from_all_subsites("Order")
                     ->sort('Created', 'ASC')
@@ -186,6 +183,62 @@ if (class_exists("SS_Report")) {
                     $statuses
                 ));
             }
+=======
+            // Order Status
+            $statuses = Order::config()->statuses;
+            array_unshift($statuses, 'All');
+
+            //Result Limit
+            $result_limit_options = array(
+                0 => 'All',
+                50 => 50,
+                100 => 100,
+                200 => 200,
+                500 => 500,
+            );
+
+            $fields->push(DateField::create(
+                'Filter_StartDate',
+                'Filter: StartDate'
+            )->setConfig('showcalendar', true));
+            
+            $fields->push(DateField::create(
+                'Filter_EndDate',
+                'Filter: EndDate'
+            )->setConfig('showcalendar', true));
+
+            $fields->push(TextField::create(
+                'Filter_FirstName',
+                'Customer First Name'
+            ));
+            
+            $fields->push(TextField::create(
+                'Filter_Surname',
+                'Customer Surname'
+            ));
+            
+            $fields->push(TextField::create(
+                'Filter_StockID',
+                'Stock ID'
+            ));
+            
+            $fields->push(TextField::create(
+                'Filter_ProductName',
+                'Product Name'
+            ));
+            
+            $fields->push(DropdownField::create(
+                'Filter_Status',
+                'Filter By Status',
+                $statuses
+            ));
+            
+            $fields->push(DropdownField::create(
+                "ResultsLimit",
+                "Limit results to",
+                $result_limit_options
+            ));
+>>>>>>> 6d13ed4... Streamline reports
 
             return $fields;
         }
