@@ -4,6 +4,7 @@
 if (class_exists("SS_Report")) {
     class OrderItemReport extends SS_Report
     {
+        const DEFAULT_PAST = '-7 days';
         
         public function title()
         {
@@ -56,14 +57,27 @@ if (class_exists("SS_Report")) {
         public function sourceRecords($params, $sort, $limit)
         {
             $return = ArrayList::create();
-
-            // Check filters
             $where_filter = array();
+            $db = DB::get_conn();
+            $format = "%Y-%m-%d";
+            $created = $db->formattedDatetimeClause(
+                "LastEdited",
+                $format
+            );
 
-            $where_filter[] = (isset($params['Filter_Year'])) ? "YEAR(\"Created\") = '{$params['Filter_Year']}'" : "YEAR(\"Created\") = '".date('Y')."'";
-            if (!empty($params['Filter_Month'])) {
-                $where_filter[] = "Month(\"Created\") = '{$params['Filter_Month']}'";
+            $now = new DateTime();
+            $past = new DateTime(self::DEFAULT_PAST);
+
+            if (empty($params['Filter_StartDate'])) {
+                $params['Filter_StartDate'] = $past->format('Y-m-d');
             }
+            if (empty($params['Filter_EndDate'])) {
+                $params['Filter_EndDate'] = $now->format('Y-m-d');
+            }
+
+            $where_filter[] = $created . " >= '{$params['Filter_StartDate']}'";
+            $where_filter[] = $created . " <= '{$params['Filter_EndDate']}'";
+
             if (!empty($params['Filter_Status'])) {
                 $where_filter[] = "Status = '{$params['Filter_Status']}'";
             }
@@ -116,74 +130,60 @@ if (class_exists("SS_Report")) {
         {
             $fields = new FieldList();
 
-            if (class_exists("Subsite")) {
-                $first_order = Subsite::get_from_all_subsites("Order")
-                    ->sort('Created', 'ASC')
-                    ->first();
-            } else {
-                $first_order = Order::get()
-                    ->sort('Created', 'ASC')
-                    ->first();
-            }
+            // Order Status
+            $statuses = Order::config()->statuses;
+            array_unshift($statuses, 'All');
 
-            // Check if any order exist
-            if ($first_order) {
-                // List all months
-                $months = array('All');
-                for ($i = 1; $i <= 12; $i++) {
-                    $months[] = date("F", mktime(0, 0, 0, $i + 1, 0, 0));
-                }
+            //Result Limit
+            $result_limit_options = array(
+                0 => 'All',
+                50 => 50,
+                100 => 100,
+                200 => 200,
+                500 => 500,
+            );
 
-                // Get the first order, then count down from current year to that
-                $firstyear = new SS_Datetime('FirstDate');
-                $firstyear->setValue($first_order->Created);
-                $years = array();
-                for ($i = date('Y'); $i >= $firstyear->Year(); $i--) {
-                    $years[$i] = $i;
-                }
+            $fields->push(DateField::create(
+                'Filter_StartDate',
+                'Filter: StartDate'
+            )->setConfig('showcalendar', true));
+            
+            $fields->push(DateField::create(
+                'Filter_EndDate',
+                'Filter: EndDate'
+            )->setConfig('showcalendar', true));
 
-                // Order Status
-                $statuses = Order::config()->statuses;
-                array_unshift($statuses, 'All');
-
-                $fields->push(TextField::create(
-                    'Filter_FirstName',
-                    'Customer First Name'
-                ));
-                
-                $fields->push(TextField::create(
-                    'Filter_Surname',
-                    'Customer Surname'
-                ));
-                
-                $fields->push(TextField::create(
-                    'Filter_StockID',
-                    'Stock ID'
-                ));
-                
-                $fields->push(TextField::create(
-                    'Filter_ProductName',
-                    'Product Name'
-                ));
-                
-                $fields->push(DropdownField::create(
-                    'Filter_Month',
-                    'Month',
-                    $months
-                ));
-                
-                $fields->push(DropdownField::create(
-                    'Filter_Year',
-                    'Year',
-                    $years
-                ));
-                
-                $fields->push(DropdownField::create(
-                    'Filter_Status',
-                    'Order Status',
-                    $statuses
-                ));
-            }
+            $fields->push(TextField::create(
+                'Filter_FirstName',
+                'Customer First Name'
+            ));
+            
+            $fields->push(TextField::create(
+                'Filter_Surname',
+                'Customer Surname'
+            ));
+            
+            $fields->push(TextField::create(
+                'Filter_StockID',
+                'Stock ID'
+            ));
+            
+            $fields->push(TextField::create(
+                'Filter_ProductName',
+                'Product Name'
+            ));
+            
+            $fields->push(DropdownField::create(
+                'Filter_Status',
+                'Filter By Status',
+                $statuses
+            ));
+            
+            $fields->push(DropdownField::create(
+                "ResultsLimit",
+                "Limit results to",
+                $result_limit_options
+            ));
 
             return $fields;
         }
