@@ -79,17 +79,17 @@ if (class_exists("SS_Report")) {
             $where_filter[] = $created . " <= '{$params['Filter_EndDate']}'";
 
             if (!empty($params['Filter_Status'])) {
-                $filter['Status'] = $params['Filter_Status'];
+                $where_filter['Status'] = $params['Filter_Status'];
             }
             if (!empty($params['Filter_FirstName'])) {
-                $filter['FirstName'] = $params['Filter_FirstName'];
+                $where_filter['FirstName'] = $params['Filter_FirstName'];
             }
             if (!empty($params['Filter_Surname'])) {
-                $filter['Surname'] = $params['Filter_Surname'];
+                $where_filter['Surname'] = $params['Filter_Surname'];
             }
 
             $orders = Order::get()
-                ->filter($filter);
+                ->where(implode(' AND ', $where_filter));
 
             foreach ($orders as $order) {
                 // Setup a filter for our order items
