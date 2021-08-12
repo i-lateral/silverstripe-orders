@@ -130,60 +130,6 @@ if (class_exists("SS_Report")) {
         {
             $fields = new FieldList();
 
-<<<<<<< HEAD
-            if (class_exists("Subsite")) {
-                $first_order = Subsite::get_from_all_subsites("Order")
-                    ->sort('Created', 'ASC')
-                    ->first();
-            } else {
-                $first_order = Order::get()
-                    ->sort('Created', 'ASC')
-                    ->first();
-            }
-
-            // Check if any order exist
-            if ($first_order) {
-                // Order Status
-                $statuses = Order::config()->statuses;
-                array_unshift($statuses, 'All');
-
-                $fields->push(TextField::create(
-                    'Filter_FirstName',
-                    'Customer First Name'
-                ));
-                
-                $fields->push(TextField::create(
-                    'Filter_Surname',
-                    'Customer Surname'
-                ));
-                
-                $fields->push(TextField::create(
-                    'Filter_StockID',
-                    'Stock ID'
-                ));
-                
-                $fields->push(TextField::create(
-                    'Filter_ProductName',
-                    'Product Name'
-                ));
-                
-                $fields->push(DateField::create(
-                    'Filter_Start',
-                    'start Date'
-                )->setConfig('showcalendar', true));
-                
-                $fields->push(DateField::create(
-                    'Filter_End',
-                    'End Date'
-                )->setConfig('showcalendar', true));
-                
-                $fields->push(DropdownField::create(
-                    'Filter_Status',
-                    'Order Status',
-                    $statuses
-                ));
-            }
-=======
             // Order Status
             $statuses = Order::config()->statuses;
             array_unshift($statuses, 'All');
@@ -238,7 +184,6 @@ if (class_exists("SS_Report")) {
                 "Limit results to",
                 $result_limit_options
             ));
->>>>>>> 6d13ed4... Streamline reports
 
             return $fields;
         }
