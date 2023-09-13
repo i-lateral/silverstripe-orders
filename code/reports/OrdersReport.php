@@ -70,42 +70,51 @@ if (class_exists("SS_Report")) {
         public function sourceRecords($params, $sort, $limit)
         {
             // Check filters
-            $where_filter = array();
+            $filter = array('ClassName' => 'Order');
             $db = DB::get_conn();
             $format = "%Y-%m-%d";
             $created = $db->formattedDatetimeClause(
-                "LastEdited",
+                "Created",
                 $format
             );
 
-            $now = new DateTime();
-            $past = new DateTime(self::DEFAULT_PAST);
-
             if (empty($params['Filter_StartDate'])) {
-                $params['Filter_StartDate'] = $past->format('Y-m-d');
+                $past = new DateTime(self::DEFAULT_PAST);
+            } else {
+                $past = new DateTime($params['Filter_StartDate']);
             }
+
             if (empty($params['Filter_EndDate'])) {
-                $params['Filter_EndDate'] = $now->format('Y-m-d');
+                $now = new DateTime();
+            } else {
+                $now = new DateTime($params['Filter_EndDate']);
             }
-            
-            $where_filter[] = $created . " >= '{$params['Filter_StartDate']}'";
-            $where_filter[] = $created . " <= '{$params['Filter_EndDate']}'";
-            
+
+            $date_filter = [
+                $created . ' <= ?' =>  $now->format("Y-m-d"),
+                $created . ' >= ?' =>  $past->format("Y-m-d")
+            ];
+
             if (!empty($params['Filter_Status'])) {
-                $where_filter[] = "Status = '{$params['Filter_Status']}'";
+                $filter["Status"] = $params['Filter_Status'];
             }
+
             if (!empty($params['Filter_Discount'])) {
                 $discount = Discount::get()->byID($params['Filter_Discount']);
-                $where_filter[] = "Discount = '{$discount->Title}'";
+                $filter["Discount"] = $discount->Title;
             }
 
-            $limit = (isset($params['ResultsLimit']) && $params['ResultsLimit'] != 0) ? $params['ResultsLimit'] : '';
+            if (empty($params['ResultsLimit'])) {
+                $limit = '';
+            } else {
+                $limit = $params['ResultsLimit'];
+            }
 
             $this->extend('updateSourceRecords', $params, $sort, $limit, $where_filter);
 
             $orders = Order::get()
-                ->filter('ClassName', 'Order')
-                ->where(implode(' AND ', $where_filter))
+                ->filter($filter)
+                ->where($date_filter)
                 ->limit($limit)
                 ->sort($sort);
 
@@ -114,6 +123,21 @@ if (class_exists("SS_Report")) {
 
         public function parameterFields()
         {
+            // Ensure date fields are set to the correct format
+            $default_config = Config::inst()->get(
+                DateField::class,
+                'default_config'
+            );
+            $update_config = $default_config;
+            $update_config['dateformat'] = 'yyyy-MM-dd';
+            $update_config['datavalueformat'] = 'yyyy-MM-dd';
+
+            Config::inst()->update(
+                DateField::class,
+                'default_config',
+                $update_config
+            );
+
             $fields = new FieldList();
 
             $statuses = Order::config()->statuses;
@@ -128,15 +152,23 @@ if (class_exists("SS_Report")) {
                 500 => 500,
             );
 
-            $fields->push(DateField::create(
-                'Filter_StartDate',
-                'Filter: StartDate'
-            )->setConfig('showcalendar', true));
+            $fields->push(
+                DateField::create(
+                    'Filter_StartDate',
+                    'Filter: StartDate'
+                )->setConfig('showcalendar', true)
+                ->setConfig('datavalueformat', 'yyyy-MM-dd')
+                ->setConfig('dataformat', 'yyyy-MM-dd')
+            );
             
-            $fields->push(DateField::create(
-                'Filter_EndDate',
-                'Filter: EndDate'
-            )->setConfig('showcalendar', true));
+            $fields->push(
+                DateField::create(
+                    'Filter_EndDate',
+                    'Filter: EndDate'
+                )->setConfig('showcalendar', true)
+                ->setConfig('datavalueformat', 'yyyy-MM-dd')
+                ->setConfig('dataformat', 'yyyy-MM-dd')
+            );
             
             $fields->push(DropdownField::create(
                 'Filter_Status',
@@ -155,6 +187,12 @@ if (class_exists("SS_Report")) {
                 "Limit results to",
                 $result_limit_options
             ));
+
+            Config::inst()->update(
+                DateField::class,
+                'default_config',
+                $default_config
+            );
 
             return $fields;
         }
