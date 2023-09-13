@@ -157,8 +157,6 @@ if (class_exists("SS_Report")) {
                     'Filter_StartDate',
                     'Filter: StartDate'
                 )->setConfig('showcalendar', true)
-                ->setConfig('datavalueformat', 'yyyy-MM-dd')
-                ->setConfig('dataformat', 'yyyy-MM-dd')
             );
             
             $fields->push(
@@ -166,8 +164,6 @@ if (class_exists("SS_Report")) {
                     'Filter_EndDate',
                     'Filter: EndDate'
                 )->setConfig('showcalendar', true)
-                ->setConfig('datavalueformat', 'yyyy-MM-dd')
-                ->setConfig('dataformat', 'yyyy-MM-dd')
             );
             
             $fields->push(DropdownField::create(

@@ -57,39 +57,45 @@ if (class_exists("SS_Report")) {
         public function sourceRecords($params, $sort, $limit)
         {
             $return = ArrayList::create();
-            $where_filter = array();
+            $filter = array();
             $db = DB::get_conn();
             $format = "%Y-%m-%d";
             $created = $db->formattedDatetimeClause(
-                "LastEdited",
+                "Created",
                 $format
             );
 
-            $now = new DateTime();
-            $past = new DateTime(self::DEFAULT_PAST);
-
             if (empty($params['Filter_StartDate'])) {
-                $params['Filter_StartDate'] = $past->format('Y-m-d');
-            }
-            if (empty($params['Filter_EndDate'])) {
-                $params['Filter_EndDate'] = $now->format('Y-m-d');
+                $past = new DateTime(self::DEFAULT_PAST);
+            } else {
+                $past = new DateTime($params['Filter_StartDate']);
             }
 
-            $where_filter[] = $created . " >= '{$params['Filter_StartDate']}'";
-            $where_filter[] = $created . " <= '{$params['Filter_EndDate']}'";
+            if (empty($params['Filter_EndDate'])) {
+                $now = new DateTime();
+            } else {
+                $now = new DateTime($params['Filter_EndDate']);
+            }
+
+            $date_filter = [
+                $created . ' <= ?' =>  $now->format("Y-m-d"),
+                $created . ' >= ?' =>  $past->format("Y-m-d")
+            ];
 
             if (!empty($params['Filter_Status'])) {
-                $where_filter['Status'] = $params['Filter_Status'];
+                $filter["Status"] = $params['Filter_Status'];
             }
+    
             if (!empty($params['Filter_FirstName'])) {
-                $where_filter['FirstName'] = $params['Filter_FirstName'];
+                $filter['FirstName'] = $params['Filter_FirstName'];
             }
             if (!empty($params['Filter_Surname'])) {
-                $where_filter['Surname'] = $params['Filter_Surname'];
+                $filter['Surname'] = $params['Filter_Surname'];
             }
 
             $orders = Order::get()
-                ->where(implode(' AND ', $where_filter));
+                ->filter($filter)
+                ->where($date_filter);
 
             foreach ($orders as $order) {
                 // Setup a filter for our order items
@@ -128,6 +134,21 @@ if (class_exists("SS_Report")) {
 
         public function parameterFields()
         {
+            // Ensure date fields are set to the correct format
+            $default_config = Config::inst()->get(
+                DateField::class,
+                'default_config'
+            );
+            $update_config = $default_config;
+            $update_config['dateformat'] = 'yyyy-MM-dd';
+            $update_config['datavalueformat'] = 'yyyy-MM-dd';
+
+            Config::inst()->update(
+                DateField::class,
+                'default_config',
+                $update_config
+            );
+
             $fields = new FieldList();
 
             // Order Status
@@ -184,6 +205,12 @@ if (class_exists("SS_Report")) {
                 "Limit results to",
                 $result_limit_options
             ));
+
+            Config::inst()->update(
+                DateField::class,
+                'default_config',
+                $default_config
+            );
 
             return $fields;
         }
